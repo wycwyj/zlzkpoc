@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: greenhouse-service
+  name: qms-backstage-web
 spec:
   selector:
-    app: greenhouse
+    app: qms-backstage
   type: NodePort
   ports:
     - protocol: TCP
@@ -14,18 +14,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: example-greenhouse
+  name: qms-backstage
   labels:
-    app: greenhouse
+    app: qms-backstage
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: greenhouse
+      app: qms-backstage
   template:
     metadata:
       labels:
-        app: greenhouse
+        app: qms-backstage
     spec:
       imagePullSecrets:
       - name: pipeline-docker-registry
