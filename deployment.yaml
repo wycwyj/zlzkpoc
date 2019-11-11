@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: qms-backstage-web
+  name: qms-web-service
 spec:
   selector:
-    app: qms-backstage
+    app: qms-web
   type: NodePort
   ports:
     - protocol: TCP
@@ -14,18 +14,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: qms-backstage
+  name: ztj-qms-web
   labels:
-    app: qms-backstage
+    app: qms-web
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: qms-backstage
+      app: qms-web
   template:
     metadata:
       labels:
-        app: qms-backstage
+        app: qms-web
     spec:
       imagePullSecrets:
       - name: pipeline-docker-registry
