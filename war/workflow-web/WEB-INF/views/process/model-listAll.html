@@ -1,0 +1,310 @@
+<!-- ${rc.contextPath}/process/model-list.html -->
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>搜索表单</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .container {
+        padding:0px;
+    }
+   </style>
+ </head>
+ <body>
+  
+  <div class="container">
+      <div class="row">
+      <form id="searchForm" class="form-horizontal span24">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">名称</label>
+            <div class="controls">
+              <input type="text" class="control-text" name="name">
+            </div>
+          </div>
+          <div class="control-group span8">
+            <label class="control-label">KEY：</label>
+            <div class="controls">
+              <input type="text" class="control-text" name="key">
+            </div>
+          </div>
+          <div class="control-group span8">
+            <label class="control-label">描述：</label>
+            <div class="controls">
+              <input type="text" class="control-text" name="description">
+            </div>
+          </div>
+          <div class="span3 offset10">
+            <button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="search-grid-container">
+      <div id="grid"></div>
+    </div>
+    
+      
+  <!-- 此节点内部的内容会在弹出框内显示,默认隐藏此节点-->
+   <div id="content" class="hide">
+      <form id="form1" action="${rc.contextPath}/model/create" target="_blank"  class="form-horizontal" method="post">
+          <div class="row">
+          <div class="control-group span8">
+            <label class="control-label"><s>*</s>名称：</label>
+            <div class="controls">
+              <input type="text" class="control-text"  id="name" name="name" >
+            </div>
+          </div>
+          <div class="control-group span8">
+            <label class="control-label"><s>*</s>KEY：</label>
+            <div class="controls">
+              <input type="text" class="control-text" id="key" name="key">
+            </div>
+          </div>
+        </div>
+         <div class="row show-grid">
+          <div class="span16">
+            <label class="control-label">描述：</label>
+            <div class="controls  control-row4"><textarea id="description" name="description"></textarea></div>
+          </div>
+         
+        </div>
+	  </form>   
+    </div>
+  </div>
+  
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+<script type="text/javascript">
+  BUI.use('common/search',function (Search) {
+    
+    var columns = [
+          {title:'ID',dataIndex:'_id',width:120},
+          {title:'KEY',dataIndex:'_key',width:70},
+          {title:'名称',dataIndex:'_name',width:170},
+          {title:'版本',dataIndex:'_version',width:80},
+          {title:'创建时间',dataIndex:'_createTime',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'最后更新时间',dataIndex:'_lastUpTime',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'元数据',dataIndex:'_metaInfo',width:220},
+          {title:'操作',dataIndex:'',width:125,renderer:function(v,obj){
+           
+        	  var editStr =  Search.createLink({//
+                  id : 'ed' + obj.id,
+                  title : '编辑',
+                  text : '编辑',
+                  blank : true,
+                  href : '${rc.contextPath}/modeler.html?modelId='+obj._id
+                }),
+                
+               //var editStr = '<span class="grid-command btn-add">编辑</span>',//
+                //exportStrBpmn= Search.createLink({//
+                //    id : 'BPMN' + v,
+                //    title : '导出BPMN',
+                //    text : '导出BPMN',
+                //    href : '${rc.contextPath}/model/export/'+obj._id+'/bpmn'
+                //  }),
+               exportStrJson= Search.createLink({//
+                  id : 'Json' + v,
+                  title : '查看JSON',
+                  text : '查看JSON',
+                  href : '${rc.contextPath}/model/export/'+obj._id+'/json'
+                }), 
+                deployStr = '<span class="grid-command btn-dep">部署</span>',//
+                delStr = '<span class="grid-command btn-del" title="删除记录">删除</span>';//
+              return editStr + deployStr+exportStrJson+delStr;
+          }}
+        ],
+      store = Search.createStore('${rc.contextPath}/model/list',{
+        proxy:{
+          autoLoad:true,
+          dataType:'json',
+          contentType:"application/json"
+        },
+        pageSize : 10,	// 配置分页数目
+        autoSync:true //保存数据后，自动更新
+      }),
+      gridCfg = Search.createGridCfg(columns,{
+    	  tbar : {
+              items : [
+                {text : '<i class="icon-plus"></i>创建',btnCls : 'button button-small',handler:addDeploy},
+                {text : '<i class="icon-plus"></i>导出',btnCls : 'button button-small',handler:exportDeploy},
+                {text : '<i class="icon-plus"></i>导出全部',btnCls : 'button button-small',handler:exportDeployAll},
+                {text : '<i class="icon-plus"></i>删除',btnCls : 'button button-small',handler:delFunction}
+              ]
+            },
+           plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.RowNumber,BUI.Grid.Plugins.AutoFit]// 插件形式引入多选表格
+      });
+    
+
+    var  search = new Search({
+        store : store,
+        gridCfg : gridCfg,
+        loadMask: true,
+        forceFit:true,
+        columns : columns
+      }),
+      grid = search.get('grid');
+
+    function delItems(items){
+        var ids = [];
+        BUI.each(items,function(item){
+          ids.push(item._id);
+        });
+        if(ids.length){
+            BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+            $.ajax({
+              url : '${rc.contextPath}/model/deleteModel',
+              data:{modelId:''+ids+''},
+              dataType : 'json',
+              success : function(data){//
+               if(data=="success"){ //删除成功
+            	   BUI.Message.Alert('删除成功！');
+                   search.load();
+                  }else{ //删除失败
+                      BUI.Message.Alert('删除失败！');
+                 }
+              }
+          });
+          },'question');
+        }else{
+  			BUI.Message.Alert('请选择记录！！');
+  			return false;
+  		} 
+      }
+    
+    var form = new BUI.Form.Form({
+        srcNode : '#form1'
+      }).render();
+ 
+      var dialog1 = new BUI.Overlay.Dialog({
+            title:'创建模型',
+            width:500,
+            height:320,
+            //配置DOM容器的编号
+            contentId:'content',
+            buttons:[
+                     {
+                       text:'确定',
+                       elCls : 'button button-primary',
+                       handler : function(){
+                         //do some thing
+                         form.submit();
+                       }
+                     },
+                     {
+                       text:'关闭',
+                       elCls : 'button',
+                       handler : function(){
+                         this.close();
+                       }
+                     }
+                   ]
+          });
+      
+    //部署
+    function deploy_(items){
+    	BUI.each(items,function(item){
+            $.ajax({
+              url : '${rc.contextPath}/model/deploy/'+item._id,
+              dataType : 'json',
+              success : function(data){//
+                  if(data=="success"){ //
+                	  BUI.Message.Alert('部署成功！');
+                      search.load();
+                  }else{ 
+                      BUI.Message.Alert('部署失败！');
+                 }
+              }
+          });
+   
+        });
+      }
+    
+    var dialog2 = new BUI.Overlay.Dialog({
+        title:'编辑模型',
+        width:500,
+        height:320,
+        //配置DOM容器的编号
+        contentId:'content',
+        buttons:[
+                 {
+                   text:'确定',
+                   elCls : 'button button-primary',
+                   handler : function(){
+                     //do some thing
+                     form.submit();
+                     this.close();
+                   }
+                 },
+                 {
+                   text:'关闭',
+                   elCls : 'button',
+                   handler : function(){
+                     this.close();
+                   }
+                 }
+               ]
+      });
+    function addDeploy(){
+    	dialog2.show();
+    }
+    
+    //删除操作
+	function delFunction(){
+  		var selections = grid.getSelection();
+  		delItems(selections);
+	}
+    
+    
+    //删除操作
+	function exportDeploy(){
+  		var selections = grid.getSelection();
+  		exportDeploys(selections);
+	}
+    
+    
+    function exportDeploys(items){
+        var ids = [];
+        BUI.each(items,function(item){
+          ids.push(item._id);
+        });
+        if(ids.length){
+        	window.location='${rc.contextPath}/model/exportDeploys?modelId='+ids;
+        	//window.open();
+        }
+    }
+    
+    function exportDeployAll(){
+    	window.location='${rc.contextPath}/model/exportDeploys';
+    }
+    
+    //监听事件，删除一条记录
+    grid.on('cellclick',function(ev){
+      var sender = $(ev.domTarget); //点击的Dom
+      if(sender.hasClass('btn-del')){
+        var record = ev.record;
+        delItems([record]);
+      }else if(sender.hasClass('btn-dep')){
+          var record = ev.record;
+          deploy_([record]);
+        }
+    });
+  });
+</script>
+
+</body>
+</html>  
+

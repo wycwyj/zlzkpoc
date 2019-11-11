@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>角色管理</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+   <style type="text/css">
+   .tab-content{
+   	 overflow:hidden !important;
+   }
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .x-accordion-title{
+      background: #dfeaf2;
+      border-top: 2px solid white;
+      padding: 8px 10px;
+    }
+    .x-collapsed .x-accordion-body{
+      height: 0;
+      overflow: hidden;
+    }
+    
+    .ext-border-layout {
+	    padding-left:0px;
+	    padding-top:0px;
+	    padding-bottom:0px;
+	    padding-right:2px;
+	    margin-top:1px;
+	    margin-left:1px;
+	    margin-right:1px;
+	    margin-bottom:1px;
+	    background:white;
+	}
+	
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+	}
+	
+	.ext-border-layout .x-border-center {
+	    border-top：0px;
+	}
+	
+	.bui-nav-tab{
+		height:100%;
+	}
+	
+	.tab-content-container{
+		height:100%;
+	}
+
+    .x-border-title{
+      display: none;
+    }
+   .x-border-north, .ext-border-layout .x-border-east, .ext-border-layout .x-border-west, .ext-border-layout .x-border-south, .ext-border-layout .x-border-center {
+     border: 1px solid #c3c3d6;
+   }
+   .x-border-west{
+     margin-right:2px;
+   }
+   </style>
+ </head>
+ <body>
+ <body>
+ <script type="text/javascript">
+    BUI.use(['layout','grid','data','tab'],function (Layout,Grid,Data,Tab){
+    	var Store = Data.Store,
+    	roleContentTab = new Tab.NavTab({
+            forceFit : true,
+            children : [
+              {
+            	width : '110',
+                title : '角色维护',
+                href : '${rc.contextPath}/role/role',
+                actived:true,
+                closeable:false,
+                isDecorateChild:true
+              }
+            ]
+        });
+    	
+    	orgContentTab = new Tab.NavTab({
+            forceFit : true,
+            children : [
+              {
+            	width : '110',
+                title : '角色人员',
+                href : '${rc.contextPath}/roleEmp/roleEmp?roleid=0',
+                actived:true,
+                closeable:false
+              }
+            ]
+        });
+    	
+        var control = new Layout.Viewport({
+			width:600,
+			height:"99%",
+			elCls : 'ext-border-layout',
+			children : [{
+                xclass : 'controller',
+                layout : {
+                  	region : 'south',
+                  	height : 0
+                },
+                width : 0,
+            },{
+				xclass : 'controller',
+				layout : {
+					region : 'west',
+					fit : "height",//height,width,both,none
+                  	title : '角色管理',
+                  	width : 360
+                },
+                defaultChildClass : 'controller',
+                children : [roleContentTab]
+            },{
+            	xclass : 'controller',
+            	layout : {
+            		region : 'center',
+            		title : '角色关系',
+            		fit : 'both'
+                },
+                id : 'content',
+                children : [orgContentTab]
+            }],
+            plugins : [Layout.Border]
+        });
+        
+        control.render();
+        
+        roleContentTab.on('selectedchange',function (ev) {
+            var item = ev.item;
+        });
+        
+        //移除空白菜单
+        $(".x-accordion-title").remove();
+        $(".bui-grid").parent().css("border-bottom","1px solid #3892d3");
+        $(".x-border-middle").css("height","99%");
+    });
+  </script>
+</html>  

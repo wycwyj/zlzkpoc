@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>子机构信息</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width: 400px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:44%;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">机构编号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="orgcode1" name="orgcode">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">机构名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="orgname1" name="orgname">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <!--编辑  -->
+    <div id="contentCode" class="hide">
+      	<form id="K_Form" class="form-horizontal" method="post" action="${rc.contextPath}/org/op/saveOrg">
+        	<input type="hidden" name="a" value="3">
+        	<div class="row">
+        		<div class="control-group span8">
+            		<label class="control-label"><s>*</s>机构代码</label>
+            		<div class="controls">
+              			<input name="orgcode" id="orgcode" type="text" data-rules="{required:true}" class="input-normal control-text">
+            		</div>
+          		</div>
+       		<div class="control-group span8">
+				<label class="control-label">所属顶级机构</label>
+            		<div class="controls" id="xuansybbj">
+              			<input name="belongorgcode" id="sybcode2" type="hidden" class="input-normal control-text" >
+              			<input name="sybname" id="sybname2" type="text" class="input-normal control-text" >
+            		</div>
+				</div>
+        	</div>
+        	<div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>机构名称</label>
+	            	<div class="controls">
+	            		<input type="hidden" name="parentorgid" id="parentorgid" value="$!pid" >
+	            		<input type="hidden" name="orgid" id="orgid">
+	              		<input name="orgname" type="text" data-rules="{required:true}" class="input-normal control-text">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">地址</label>
+	            	<div class="controls">
+		              	<input name="orglevel" type="hidden" value="$num1" class="input-normal control-text">
+	            		<input name="orgaddr" type="text" class="input-normal control-text">
+	            	</div>
+	          	</div>
+        	</div>
+        	  <div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">邮编</label>
+            		<div class="controls">
+              			<input name="zipcode" type="text" class="input-normal control-text" data-rules="{number:true,maxlength:6}">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">主管岗位</label>
+            		<div class="controls">
+              			<input name="manaposition" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">主管领导</label>
+            		<div class="controls" id="quyu2">
+              			<input name="managerid" id="managerid2" type="hidden" class="input-normal control-text" >
+              			<input name="manager" id="manager2" type="text" class="input-normal control-text" >
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">机构管理员</label>
+            		<div class="controls" id="jigou2">
+            			<input name="orgmanagerid" id="orgmanagerid2" type="hidden" class="input-normal control-text" >
+              			<input name="orgmanager" id="orgmanager2" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">电子邮箱</label>
+            		<div class="controls">
+              			<input name="email" type="text" class="input-normal control-text" data-rules="{email:true}">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">网址URL</label>
+            		<div class="controls">
+              			<input name="weburl" type="text" class="input-normal control-text" data-messages="{regexp:'不是正确的网址格式'}" data-rules="{regexp:/^\s*$/|/^((ht|f)tps?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?$/g}">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">状态</label>
+            		<div class="controls">
+              			<input name="status" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">地区</label>
+            		<div class="controls">
+              			<input name="area" type="text" maxlength="30" class="input-normal control-text">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+					<label class="control-label">是否独立机构</label>
+					<div class="controls">
+						是<input id="Kradioy" type="radio" name="istoplevel" value="y" /> 
+						否<input id="Kradion" type="radio" name="istoplevel" value="n" checked="checked" />
+					</div>
+				</div>
+				  <div class="control-group span8">
+					<label class="control-label">顺序号</label>
+					<div class="controls">
+						<input name="orgindex" type="text" class="input-normal control-text">
+					</div>
+				</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span15">
+            		<label class="control-label">备注</label>
+            		<div class="controls control-row4">
+              			<textarea name="remark" class="input-large" type="text"></textarea>
+            		</div>
+          		</div>
+        	</div>
+      	</form>
+	</div>
+	
+	<!--新建 -->
+	<div id="content" class="hide">
+      	<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/org/op/saveOrg" >
+        	<input type="hidden" name="a" value="3">
+        	<div class="row">
+        	<div class="control-group span8">
+					<label class="control-label">是否独立机构</label>
+					<div class="controls">
+						是<input id="radioy" type="radio" name="istoplevel" value="y" /> 
+						否<input id="radion" type="radio" name="istoplevel" value="n" />
+					</div>
+				</div>
+			<div class="control-group span8">
+				<label class="control-label">所属顶级机构</label>
+            		<div class="controls" id="xuansyb">
+              			<input name="belongorgcode" id="sybcode" type="hidden" class="input-normal control-text" >
+              			<input name="sybname" id="sybname" type="text" class="input-normal control-text" >
+            		</div>
+				</div>
+			</div>
+        	<div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>机构名称</label>
+	            	<div class="controls">
+	            		<input type="hidden" name="parentorgid" value="$!pid" >
+	            		<input type="hidden" name="orgid">
+	            		<input type="hidden" name="orgcode">
+	              		<input name="orgname" type="text" data-rules="{required:true}" class="input-normal control-text">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">地址</label>
+	            	<div class="controls">
+		              	<input name="orglevel" type="hidden" value="$num1" class="input-normal control-text">
+	            		<input name="orgaddr" type="text" class="input-normal control-text">
+	            	</div>
+	          	</div>
+        	</div>
+        	  <div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">邮编</label>
+            		<div class="controls">
+              			<input name="zipcode" type="text" class="input-normal control-text" data-rules="{number:true,maxlength:6}">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">主管岗位</label>
+            		<div class="controls">
+              			<input name="manaposition" type="text" class="input-normal control-text" >
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">主管领导</label>
+            		<div class="controls" id="quyu">
+              			<input name="managerid" id="managerid" type="hidden" class="input-normal control-text" >
+              			<input name="manager" id="manager" type="text" class="input-normal control-text" >
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">机构管理员</label>
+            		<div class="controls" id="jigou">
+            			<input name="orgmanagerid" id="orgmanagerid" type="hidden" class="input-normal control-text" >
+              			<input name="orgmanager" id="orgmanager" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">电子邮箱</label>
+            		<div class="controls">
+              			<input name="email" type="text" class="input-normal control-text" data-rules="{email:true}">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">网址URL</label>
+            		<div class="controls">
+            		<!-- /^$|(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/g 
+            			data-rules="{regexp:/^((ht|f)tps?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?$/}
+            								/^((ht|f)tps?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-.,@?^=%&:\/~+#]*[\w\-@?^=%&\/~+#])?$/
+            			/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/
+            		-->
+              			<input name="weburl" type="text" class="input-normal control-text" data-messages="{regexp:'不是正确的网址格式'}" data-rules="{regexp:/^\s*$/|/^((ht|f)tps?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-.,@?^=%&:\/~+#]*[\w\-@?^=%&\/~+#])?$/g}">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">状态</label>
+            		<div class="controls">
+              			<input name="status" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">地区</label>
+            		<div class="controls">
+              			<input name="area" type="text" maxlength="30" class="input-normal control-text">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">备注</label>
+            		<div class="controls">
+              			<textarea name="remark" class="input-large" type="text"></textarea>
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+					<label class="control-label">顺序号</label>
+					<div class="controls">
+						<input name="orgindex" type="text" class="input-normal control-text">
+					</div>
+				</div>
+        	</div>
+      	</form>
+	</div>
+	
+	<div id="orgcontent" class="hide">
+      	<form id="ORG_Form" class="form-horizontal" method="post" action="${rc.contextPath}/importOrg/org/import">
+        	<input type="hidden" name="a" value="3">
+        	<div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>日期</label>
+	            	<div class="controls">
+	            		<input name="GD_OUT_DT" type="text"  class="calendar">
+	            	</div>
+	          	</div>
+	          	  <div class="control-group span8">
+	            	<label class="control-label"><s>*</s>全量增量</label>
+	            	<div class="controls">
+		              	<select id="GD_GLS_FLAG" name="GD_GLS_FLAG">
+		              	 <option value="Y">Y</option>
+		              	 <option value="N">N</option>
+  						</select>
+	            	</div>
+	          	</div>
+        	</div>
+        	
+      	</form>
+	</div>
+	
+	<div id="orgcontenttest" class="hide">
+      	<form id="ORG_Formtest" class="form-horizontal" method="post" action="${rc.contextPath}/importOrg/org/importtest">
+            <input type="hidden" name="a" value="4">
+        	<div class="row">
+	          	  <div class="control-group span8">
+	            	<label class="control-label"><s>*</s>第5层每个节点数量N(1*10*20*20*N)</label>
+	            	<div class="controls">
+  						<input name="GD_GLS_FLAG" type="text" class="input-normal control-text" value="40">
+	            	</div>
+	          	</div>
+        	</div>	
+      	</form>
+	</div>
+	
+	<div id="Orgcontent" class="hide">
+    	<iframe src="" id="orgAttribution1" name="orgAttribution" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+    <!-- 新对话框样式 -->
+    <div id="content2" class="hide">
+    	<iframe src="${rc.contextPath}/orgemp/orgEmpDial" id="orgAttribution2" name="orgAttribution2" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+    <div id="content3" class="hide">
+    	<iframe src="${rc.contextPath}/orgemp/orgEmpDial" id="orgAttribution3" name="orgAttribution3" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+    <div id="content4" class="hide">
+    	<iframe src="${rc.contextPath}/orgemp/orgEmpDial" id="orgAttribution4" name="orgAttribution4" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+    <div id="content5" class="hide">
+    	<iframe src="${rc.contextPath}/orgemp/orgEmpDial" id="orgAttribution5" name="orgAttribution5" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+    <div id="contentsyb" class="hide">
+    	<iframe src="${rc.contextPath}/orgemp/xuansyb" id="orgAttributionsyb" name="orgAttributionsyb" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+    <div id="contentsybbj" class="hide">
+    	<iframe src="${rc.contextPath}/orgemp/xuansyb" id="orgAttributionsybbj" name="orgAttributionsybbj" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+</body>
+<script type="text/javascript">
+
+	$(function(){
+		$("input[name='istoplevel'][value=n]").prop("checked", true);
+	})
+
+	//阻止页面的所有enter键盘点击
+	$(document).keydown(function(event){
+	  switch(event.keyCode){
+	     case 13:return false; 
+	     }
+	});
+
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+	
+	var orgform = new BUI.Form.Form({
+		srcNode : '#ORG_Form'
+	}).render();
+	
+	var orgformtest = new BUI.Form.Form({
+		srcNode : '#ORG_Formtest'
+	}).render();
+	
+	var formCode = new BUI.Form.Form({
+		srcNode : '#K_Form'
+	}).render();
+	
+	$("#radioy,#Kradioy").click(function(){
+		var parentorgVal = $("#parentorgid").val();
+		var orgVal = $("#orgid").val();
+		var org={orgid:orgVal,parentorgid:parentorgVal};
+		
+		$.ajax({
+			url : '${rc.contextPath}/org/op/selectIsTopLevel',
+          	dataType : 'json',
+          	contentType : 'application/json',
+          	type : 'get',
+          	data :org,
+            success : function(data){
+            	if(data=="contain"){ 
+            		BUI.Message.Alert('提示：父级部门中已含有独立机构！');
+                }
+			}
+		})
+	})
+	
+	$("#orgcode").blur(function(){
+		var codeVal = $("#orgcode").val();
+		var orgVal = $("#orgid").val();
+		var org={orgid:orgVal,orgcode:codeVal};
+		
+		$.ajax({
+			url : '${rc.contextPath}/org/op/selectOrgCode',
+          	dataType : 'json',
+          	contentType : 'application/json',
+          	type : 'get',
+          	data :org,
+            success : function(data){
+            	if(data!="success"){ 
+            		 BUI.Message.Alert('机构编号不能重复！');
+                     $("#orgcode").val("").focus();
+                }
+			}
+		})
+	});
+	
+	//插件初始化
+	BUI.use('common/search',function (Search) {
+    	var orgediting = new BUI.Overlay.Dialog({
+    		title:'部门导入操作',
+    		width:440,
+    		height:300,
+        	contentId : 'orgcontent', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	orgform.submit();
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+    	 orgeditingtest = new BUI.Overlay.Dialog({
+    		title:'部门导入操作',
+    		width:440,
+    		height:300,
+        	contentId : 'orgcontenttest', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	orgformtest.submit();
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+      	editingsyb = new BUI.Overlay.Dialog({
+    		title:'选择所属顶级机构',
+    		width:828,
+    		height:442,
+        	contentId : 'contentsyb', //设置隐藏的Dialog内容
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var arrayItems = orgAttributionsyb.window.getArrayItems1();
+                        	if(arrayItems.length==0){
+                        		document.getElementById("sybcode").value="";
+                            	document.getElementById("sybname").value="";
+                        	}else{
+                        		for (var i = 0; i < arrayItems.length; i++) {
+                            		document.getElementById("sybcode").value=arrayItems[i].id;
+                                	document.getElementById("sybname").value=arrayItems[i].text;
+    							}
+                        	}
+                        	editingsyb.close();
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          	this.close();
+                        }
+                      }
+              ]
+      	}),
+      	editingsybbj = new BUI.Overlay.Dialog({
+    		title:'选择所属顶级机构',
+    		width:828,
+    		height:442,
+        	contentId : 'contentsybbj', //设置隐藏的Dialog内容
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var arrayItems = $("#orgAttributionsybbj")[0].contentWindow.getArrayItems1();
+                        	if(arrayItems.length==0){
+                        		document.getElementById("sybcode2").value="";
+                            	document.getElementById("sybname2").value="";
+                        	}else{
+                        		for (var i = 0; i < arrayItems.length; i++) {
+                            		document.getElementById("sybcode2").value=arrayItems[i].id;
+                                	document.getElementById("sybname2").value=arrayItems[i].text;
+    							}
+                        	}
+                        	editingsybbj.close();
+                        } 
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          	this.close();
+                        }
+                      }
+              ]
+      	}),
+      	editing2 = new BUI.Overlay.Dialog({
+    		title:'选择主管领导操作',
+    		width:828,
+    		height:442,
+        	contentId : 'content2', //设置隐藏的Dialog内容
+        	//autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var arrayItems = orgAttribution2.window.getArrayItems1();
+                        	for (var i = 0; i < arrayItems.length; i++) {
+                        		document.getElementById("managerid").value=arrayItems[i].id;
+                            	document.getElementById("manager").value=arrayItems[i].text;
+							}
+                        	editing2.close();
+                        } 
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          	this.close();
+                        }
+                      }
+              ]
+      	}),
+      	editing3 = new BUI.Overlay.Dialog({
+    		title:'选择主管领导操作',
+    		width:828,
+    		height:442,
+        	contentId : 'content4', //设置隐藏的Dialog内容
+        	//autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	//20170929
+                        	var arrayItems = $("#orgAttribution4")[0].contentWindow.getArrayItems1();
+                        	for (var i = 0; i < arrayItems.length; i++) {
+                        		document.getElementById("managerid2").value=arrayItems[i].id;
+                            	document.getElementById("manager2").value=arrayItems[i].text;
+							}
+                        	editing3.close();
+                        } 
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          	this.close();
+                        }
+                      }
+              ]
+      	}),
+      	editing4 = new BUI.Overlay.Dialog({
+    		title:'选择机构管理员操作',
+    		width:828,
+    		height:442,
+        	contentId : 'content5', //设置隐藏的Dialog内容
+        	//autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var arrayItems = $("#orgAttribution5")[0].contentWindow.getArrayItems1();
+                        	for (var i = 0; i < arrayItems.length; i++) {
+                        		document.getElementById("orgmanagerid2").value=arrayItems[i].id;
+                            	document.getElementById("orgmanager2").value=arrayItems[i].text;
+							}
+                        	editing4.close();
+                        } 
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          	this.close();
+                        }
+                      }
+              ]
+      	}),
+      	editing5 = new BUI.Overlay.Dialog({
+    		title:'选择机构管理员操作',
+    		width:828,
+    		height:442,
+        	contentId : 'content3', //设置隐藏的Dialog内容
+        	//autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	//20170929
+                        	var arrayItems = orgAttribution3.window.getArrayItems1();
+                        	for (var i = 0; i < arrayItems.length; i++) {
+                        		document.getElementById("orgmanagerid").value=arrayItems[i].id;
+                            	document.getElementById("orgmanager").value=arrayItems[i].text;
+							}
+                        	editing5.close();
+                        } 
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          	this.close();
+                        }
+                      }
+              ]
+      	}),
+    	editing = new BUI.Overlay.Dialog({
+    		title:'操作',
+    		width:880,
+    		height:400,
+        	contentId : 'content', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        		form.submit();
+                        		var tempId = "$!{pid}";
+                        		parent.findNodeAndReload(tempId);
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                        	document.getElementById("managerid").value="";
+                            document.getElementById("manager").value="";
+                            document.getElementById("orgmanagerid").value="";
+                            document.getElementById("orgmanager").value="";
+                            document.getElementById("sybcode").value="";
+                        	document.getElementById("sybname").value="";
+                          	this.close();
+                        }
+                      }
+              ]
+      	}),
+      	orgEditing = new BUI.Overlay.Dialog({
+    		title:'组织机构部门转换',
+    		width:838,
+    		height:462,
+        	contentId : 'Orgcontent', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+					{
+					    text:'移动',
+					    elCls : 'button button-primary',
+					    handler : function(){
+					    	orgAttribution.window.test()
+					    }
+					  },
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                        	this.close();
+                        }
+                      }
+              ]
+      	}),
+      	
+      	editingCode = new BUI.Overlay.Dialog({
+    		title:'操作',
+    		width:880,
+    		height:400,
+        	contentId : 'contentCode', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var codeVal = $("#orgcode").val();
+                    		var orgVal = $("#orgid").val();
+                    		var org={orgid:orgVal,orgcode:codeVal};
+                    		
+                    		$.ajax({
+                    			url : '${rc.contextPath}/org/op/selectOrgCode',
+                              	dataType : 'json',
+                              	contentType : 'application/json',
+                              	type : 'get',
+                              	data :org,
+                                success : function(data){
+                                	if(data=="success"){ 
+                                		formCode.submit();
+                                		var tempId = "$!{pid}";
+                                		parent.findNodeAndReload(tempId);
+                                    }else if(data =="fail"){
+                                      BUI.Message.Alert('机构编号不能重复！');
+                                      $("#orgcode").val("").focus();
+                                	}
+                    			}
+                    		})
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          document.getElementById("managerid2").value="";
+                          document.getElementById("manager2").value="";
+                          document.getElementById("orgmanagerid2").value="";
+                          document.getElementById("orgmanager2").value="";
+                          document.getElementById("sybcode2").value="";
+                      	  document.getElementById("sybname2").value="";
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+      	//表格的行
+      	columns = [
+			{title:'机构ID',dataIndex:'orgid',visible:false,width:0},
+          	{title:'机构编号',dataIndex:'orgcode',width:90},
+          	{title:'机构名称',dataIndex:'orgname',width:120},
+          	{title:'机构等级',dataIndex:'orglevel',width:60},
+          	{title:'创建人',dataIndex:'creator',width:120},
+          	{title:'创建日期',dataIndex:'createtime',width:160,renderer:BUI.Grid.Format.datetimeRenderer},
+          	{title:'更新人',dataIndex:'updator',width:120},
+          	{title:'更新日期',dataIndex:'lastupdate',width:160,renderer:BUI.Grid.Format.datetimeRenderer},
+        ],
+        //搜索的项
+        searchURL = '${rc.contextPath}/org/op/queryOrgsByPage?parentorgid=$!{pid}',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'{parentorgid:$!{pid}}',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true //保存数据后，自动更新
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit : true,
+        	tbar : {
+          		items : [
+				{
+				    btnCls : 'button button-small',
+				    text : '<i class="icon-plus"></i>新建',
+				    listeners : {
+				      'click' : addFunction
+				    }
+				  },
+				{
+				  	btnCls : 'button button-small',
+				    text : '<i class="icon-edit"></i>编辑',
+				    listeners : {
+				      'click' : editFunction
+				    }
+				},
+				{
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-remove"></i>删除',
+				      listeners : {
+				          'click' : delFunction
+				      }
+				  },
+				  {
+						
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-resize-small"></i>机构部门调整',
+				      listeners : {
+				          'click' : resizeFunction
+				      }
+				  },
+				  /* {
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-edit"></i>歌尔初始部门导入',
+				      listeners : {
+				          'click' : importOrg
+				      }
+				  } *//* ,
+				  {
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-edit"></i>性能测试部门创建',
+				      listeners : {
+				          'click' : importOrgtest
+				      }
+				  } */
+          		]
+        	},
+        	plugins : [editing,BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] // 插件形式引入多选表格
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+
+    	function addFunction(){
+    		var nPid = '$!{pid}';
+    		var nlevel = $!{org.orglevel}+1;
+    		form.clearFields();
+    		form.setFieldValue('parentorgid',nPid);
+    		form.setFieldValue('orglevel',nlevel);
+    		editing.show();
+    	}
+    	
+    	function editFunction(){
+    		var selection = grid.getSelected();
+    		if(selection==null){
+    			BUI.Message.Alert("请选择要编辑的数据");
+    		}else{
+    			if(selection.managerid!=null){
+    				dataId={id:selection.managerid};
+    				$.ajax({
+        				url: '${rc.contextPath}/orgemp/getManagerData',
+        				dataType : 'json',
+        				contentType : 'application/json',
+        	          	type : 'get',
+        	          	traditional: true,
+        	          	data :dataId,
+        	            success : function(data){
+        	            	var dataObj = eval("("+data+")");
+        	            	formCode.setFieldValue('managerid',selection.managerid);
+        	            	formCode.setFieldValue('manager',dataObj);
+        	            }
+    				})
+    			}
+    			
+    			if(selection.belongorgcode!=null){
+    				dataId={id:selection.belongorgcode};
+    				$.ajax({
+        				url: '${rc.contextPath}/org/getOrgName',
+        				dataType : 'json',
+        				contentType : 'application/json',
+        	          	type : 'get',
+        	          	traditional: true,
+        	          	data :dataId,
+        	            success : function(data){
+        	            	var dataObj = eval("("+data+")");
+        	            	formCode.setFieldValue('sybcode',selection.belongorgcode);
+        	            	formCode.setFieldValue('sybname',dataObj);
+        	            }
+    				})
+    			}
+    			
+	    		formCode.setFieldValue('orgid',selection.orgid);
+	    		formCode.setFieldValue('orgcode',selection.orgcode);
+	    		formCode.setFieldValue('oldcode',selection.orgcode);
+	    		formCode.setFieldValue('orgname',selection.orgname);
+	    		formCode.setFieldValue('orglevel',selection.orglevel);
+	    		formCode.setFieldValue('orgaddr',selection.orgaddr);
+	    		formCode.setFieldValue('zipcode',selection.zipcode);
+	    		formCode.setFieldValue('manaposition',selection.manaposition);
+	    		formCode.setFieldValue('orgmanager',selection.orgmanager);
+	    		formCode.setFieldValue('email',selection.email);
+	    		formCode.setFieldValue('weburl',selection.weburl);
+	    		formCode.setFieldValue('orgindex',selection.orgindex);
+	    		formCode.setFieldValue('status',selection.status);
+	    		formCode.setFieldValue('area',selection.area);
+	    		formCode.setFieldValue('istoplevel',selection.istoplevel);
+	    		formCode.setFieldValue('remark',selection.remark);
+	    		
+	    		editingCode.show();
+    		}
+    	}
+    	
+    	function resizeFunction(){
+    		$('#orgAttribution1').attr('src','${rc.contextPath}/org/op/orgTranfor');
+			orgEditing.show();
+    	}
+
+    	//删除操作
+    	function delFunction(){
+      		var selections = grid.getSelection();
+      		if(selections==""){
+      			BUI.Message.Alert("请选择要删除的数据");
+      		}else{
+      			delItems(selections);
+      		}
+    	}
+    	
+    	//导入部门
+    	function importOrg(){
+    		orgediting.show();
+    	}
+    	
+    	//导入部门
+    	function importOrgtest(){
+    		orgeditingtest.show();
+    	}
+
+    	function delItems(items){
+      		var ids = [];
+      		BUI.each(items,function(item){
+      			ids.push({orgid:item.orgid});
+      		});
+      		if(ids.length){
+        		BUI.Message.Confirm('确认要删除选中的记录么？(部门删除将删除其所有子部门及其所有人员！)',function(){
+          			$.ajax({
+        					url : '${rc.contextPath}/org/op/delOrg',
+        	              	dataType : 'json',
+        	              	contentType : 'application/json',
+        	              	type : 'post',
+        	              	data : JSON.stringify(ids),
+        	                success : function(data){
+        	                	if(data=="success"){ 
+       	                  	   		BUI.Message.Alert('删除成功！',function(){
+	       	                  	   	var tempId = "$!{pid}";
+	       	                  		store.load({id : tempId});
+	                        		parent.findNodeAndReload(tempId);
+       	                         	},'info');
+       	                        }else{
+       	                            BUI.Message.Alert('删除失败！');
+       	                       	}
+        	                 }
+        	        });
+          		},'question');
+      		}
+    	}
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#orgcode1,#orgname1').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	}); 
+    	
+		$("#quyu input").click(function(){
+			editing2.show();
+		})
+		
+		$("#quyu2 input").click(function(){
+			editing3.show();
+		})
+		
+		$("#jigou2 input").click(function(){
+			editing4.show();
+		})
+		
+		$("#jigou input").click(function(){
+			editing5.show();
+		})
+		
+		$("#xuansyb input").click(function(){
+			editingsyb.show();
+		})
+		
+		$("#xuansybbj input").click(function(){
+			editingsybbj.show();
+		})
+
+		resizeMe();
+	});
+</script>
+</html>

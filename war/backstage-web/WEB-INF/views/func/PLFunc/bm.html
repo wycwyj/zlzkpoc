@@ -1,0 +1,639 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>部门权限</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/bui.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+   <style type="text/css">
+	code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+    }
+    .x-accordion-title{
+      background: #dfeaf2;
+      border-top: 2px solid white;
+      padding: 8px 10px;
+    }
+    .x-collapsed .x-accordion-body{
+      overflow: hidden;
+    }
+    
+    .ext-border-layout {
+	    padding:0 2px 0 0;	  
+	    margin:1px 1px;	    
+	    background:white;
+	}
+	.ext-border-layout .x-border-north,
+	.ext-border-layout .x-border-east,
+	.ext-border-layout .x-border-west,
+	.ext-border-layout .x-border-south,
+	.ext-border-layout .x-border-center {
+	}
+	.x-border-south{
+		position: fixed !important;
+		width: 100%;
+    	left: 0;
+    	bottom: 0;
+	}
+	.x-border-north{
+		border:none !important ;
+	}
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+		height:99.5%;
+		padding-bottom:1px;
+	}
+	.bui-nav-tab{
+		height:97%;
+	}
+	.tab-content-container{
+		height:97%;
+	}
+	.bui-form-field-text{
+		padding:20px 0 0 20px !important ;
+	}
+	.span13 {
+	    width:auto;
+	    text-align: center;
+	}
+	
+	.bui-list{
+		height:450px !important;
+		overflow-y:auto !important;
+		border:none !important;
+	}
+	.x-layout-item-border{
+		overflow-y:initial !important;
+	}
+	.bui-view-port{
+		width:1210px !important;
+	}
+	.x-border-body{
+		height:78% !important;
+	}
+   </style>
+ </head>
+ <body>
+ <!-- 20170817 -->
+	<!-- 此节点内部的内容会在弹出框内显示,默认隐藏此节点-->
+   <div id="importcontent" class="hide">
+      <form id="importform" action="${rc.contextPath}/funcm/importTemplate" class="form-horizontal" method="post" enctype="multipart/form-data">
+		 <div class="row">
+          <div class="control-group span15">
+            <label class="control-label" style="text-align: center;width: 70px;">权限模版:</label>
+            <div class="controls control-row4" style="margin-left: 0px;">
+              <input type="file" name="file"/>
+            </div>
+           </div>
+          </div>
+	  </form>   
+    </div>
+ 
+ <script type="text/javascript">
+ 
+	$(document).keydown(function(event){
+	  switch(event.keyCode){
+	     case 13:return false; 
+	     }
+	});
+ 
+ var thisTxt = '';
+ BUI.use(['layout','bui/picker','grid','data','tree','tab','toolbar','overlay','form','bui/list'],function (Layout,Picker,Grid,Data,Tree,Tab,Toolbar,overlay,Form,List){
+     var Store = Data.Store,
+         orgTreeStore = new Data.TreeStore({
+             root : {
+                 id : '-1',
+                 text : '组织机构'
+             },
+             pidField : 'pid',
+             url : '${rc.contextPath}/org/op/getSonsFunc',
+             autoLoad : true,
+             dataType:'json',
+             contentType:"application/json"
+         }),
+         
+         funcTreeStore = new Data.TreeStore({
+        	 root : {
+        		 id : '-1',
+                 text : '功能资源'
+             },
+             pidField : 'pid',
+             url : '${rc.contextPath}/funcm/funcm/getSonsAddLeaftb',
+             autoLoad : true,
+             dataType:'json',
+             contentType:"application/json"
+         }),
+         
+         dialog1 = new BUI.Overlay.Dialog({
+             title:'导入权限设置',
+             width:300,
+             height:100,
+             contentId:'importcontent',
+             buttons:[
+                      {
+                        text:'确定',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	test();
+                        	this.close();
+                        }
+                      },
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+                    ]
+           });
+     
+     function test(){  
+         var form = new FormData(document.getElementById("importform"));  
+         $.ajax({  
+	         url:"${rc.contextPath}/funcm/importTemplate",  
+	         type:"post",  
+	         data:form,  
+	         cache: false,  
+	         processData: false,  
+	         contentType: false,
+	         dataType:"json",
+	         async: false,
+	         success:function(data){  
+	        	 var dataObj1 = eval("("+data+")");
+	        	   functree.clearAllChecked();
+	        	   var dataArr = [];
+	        	   for(var da=0;da<dataObj1.length;da++){
+	        		   dataArr.push(dataObj1[da]);
+	        	   }
+	        	   
+      			$.ajax({
+      				url: '${rc.contextPath}/funcm/getData',
+      				dataType : 'json',
+      				contentType : 'application/json',
+      	          	type : 'post',
+      	          	traditional: true,
+      	          	data :JSON.stringify(dataArr),
+      	            success : function(data){
+      	            	var dataObj1 = eval("("+data+")");
+      	            	for(var ii=0;ii<dataObj1.length;ii++){
+      	            		var node = functree.findNode(dataObj1[ii]);
+         						functree.setNodeChecked(node,true);
+      	            	}
+      	            }
+      			})
+	         },  
+	         error:function(e){  
+	               alert("网络错误，请重试！！");  
+	          }  
+         });          
+       }
+
+     var control = new Layout.Viewport({
+			elCls : 'ext-border-layout',
+			children : [{
+             xclass : 'controller',
+             layout : {
+               	region : 'south',
+               	height : 0
+             },
+             width : 0,
+         	},{
+                xclass : 'list',
+                layout : {
+                  region : 'east',
+                  title : '权限资源列表',
+                  width : 500,
+                  fit:'none'
+                },
+                defaultChildClass : 'controller',
+                children : [{
+                	xclass : 'tree-list',
+                    layout : {
+                    	region : 'north',
+      	              	height:400
+                    },
+    	        	id : 'functree',
+    	        	store : funcTreeStore,
+    	        	showLine : true,
+    	        	showRoot : true,
+    	        	ot : true,
+    	        	checkType: 'all'              	
+                },
+                  {
+                	 xclass : 'bar', 
+        			 elCls : 'toolbar pull-right',
+        			 layout:{
+        	              region : 'south',
+        	              height:40
+        			 },
+        			 children : [
+					{
+					    xtype:'button',
+					    btnCls : 'button button-small',
+					    text:'导出设置模版',
+					    listeners : {
+					      'click':function(event){
+					    	   exportFunc();
+					      }
+					    }
+					  },           
+					  {
+					    xtype:'spacer',
+					    width : 5
+					  }, 
+					 {
+					    xtype:'button',
+					    btnCls : 'button button-small',
+					    text:'导入权限设置',
+					    listeners : {
+					      'click':function(event){
+					    	   importFunc();
+					      }
+					    }
+					  },           
+					  {
+					    xtype:'spacer',
+					    width : 5
+					  },
+                      {
+                        xtype:'button',
+                        btnCls : 'button button-small',
+                        text:'清除已选项',
+                        listeners : {
+                          'click':function(event){
+                        	  functree.clearAllChecked();
+                          }
+                        }
+                      },{
+                          xtype:'spacer',
+                          width : 5
+                        }, {
+                            xtype:'button',
+                            btnCls : 'button button-small',
+                            text:'取消授权',
+                            handler:function(event){
+                            	qxFuncBM();
+                            }
+                          },
+                      {
+                        xtype:'spacer',
+                        width : 5
+                      },
+                      {
+                        xtype:'button',
+                        btnCls : 'button button-small',
+                        text:'授予权限',
+                        handler:function(event){
+                          	var listItem = list.getItems();
+                          	if(listItem.length>1){
+                          		funcBM();
+                          	}else{
+                          		funcBM();
+                          	}
+                        }
+                      }
+                    ]
+                }],
+                plugins : [Layout.Border]
+              },{
+				xclass : 'controller',
+				layout : {
+					region : 'west',
+               		title : '部门机构树',
+               		width : 500,
+               		fit:'height'
+             },
+             defaultChildClass : 'controller',
+             children : [
+                { 
+                  xclass : 'controller',
+                  content : '<br/><form id="searchResultForm" class="form-horizontal" ><div class="control-group"><div class="control-group span8"><div class="controls" id="tiaojian">快速定位：<input type="hidden" id="orgcode"><input type="text" class="control-text" id="selCondition" autocomplete="off" placeholder="请输入查询的机构部门"></div></div></div><div class="span13" id="span13"><button type="button" id="btnSearchResult" class="button button-primary">定位</button>&nbsp;&nbsp;&nbsp;<button id="reset" type="reset" class="button">重置</button></div></form><br/>'
+                },
+                {
+            	 xclass : 'tree-list',
+             	 id : 'mytree',
+            	 store : orgTreeStore,
+            	 showLine : true/* ,
+            	 showRoot : true */
+            	 }],
+             plugins : [Layout.Border]
+         },{
+             xclass : 'list', //List
+             elCls:'bui-select-list',
+             layout : {
+               region : 'center',
+               title : '已选部门',
+             },
+             id : 'list'
+           }],
+         plugins : [Layout.Border]
+     });
+        
+        control.render();
+        var search = control.getChild('search',true);
+        var list = control.getChild('list');
+        var tree = control.getChild('mytree',true);
+        var functree = control.getChild('functree',true);
+        var form = control.getChild('form',true);
+        
+        tree.setSelectedByField('id','-1');
+        functree.setSelectedByField('id','-1');
+        
+        $("#reset").click(function(){
+        	$('#orgcode').val("");
+        	$('#selCondition').val('');
+        });
+        
+        $("#btnSearchResult").on('click',function(){
+        	var val = $('#orgcode').val();
+        	if(val==""){
+        		initTreeLoadNode();
+        	}else{
+        		MHZ={mhz:val};
+            	$.ajax({
+     				url: '${rc.contextPath}/funcg/funcr/selectidByorgname',
+     				dataType : 'json',
+     				contentType : 'application/json',
+     	          	type : 'get',
+     	          	traditional: true,
+     	          	data :MHZ,
+     	            success : function(data){
+     	            	var dataObj1 = eval("("+data+")");
+     	            	if(dataObj1==""){
+     	            		BUI.Message.Alert('请输入并选择需要搜索的项');
+     	            	}else{
+     	            		$("ul li").each(function() {    
+     	                       $(this).removeClass('bui-tree-item-selected');  
+     	                    });
+         	            	for(var i =0;i<dataObj1.length;i++){
+         	            		var tempArray = dataObj1[i].split(',');
+         	            		loadTreeNode(tree, dataObj1[i], tempArray[tempArray.length-1]);
+         	            	}
+     	            	}
+     	            }
+     			})
+        	}
+        });
+        
+        function loadTreeNode(tree,orgIdStr,empId){
+        	tree.collapseAll();
+        	tree.expandPath(orgIdStr,true,0);
+        	var item = tree.getItem(empId);
+        	var timer = setInterval(function(){
+        		item = tree.getItem(empId);
+        		if(item!=null){
+        			var emp = tree.findElement(item);
+        			$(emp).addClass('bui-tree-item-selected');
+        			clearInterval(timer);
+        		}
+        	},50);
+        }
+        
+        function initTreeLoadNode(){
+        	orgTreeStore.load({id:"-1"});
+        }
+        
+        $(function(){
+        	$("#selCondition").bind('input porpertychange',function(e){
+        		thisTxt=$("#selCondition").val();
+        	});
+        });
+        
+        var columns = [
+          		{title : '编号',dataIndex :'orgcode', width:'20%'},
+       			{title : '名称',dataIndex :'orgname', width:'20%'},
+       			{title : '所在路径',dataIndex :'allOrgName', width:'60%'},
+       			{title : '机构id',dataIndex : 'orgid',width:'0'}
+        ],
+        params = {remark:thisTxt},
+        store = new Store({
+    		url:'${rc.contextPath}/org/op/queryOrgsFunc',
+            autoLoad:true,
+            pageSize : 3,
+            proxy : {
+              	ajaxOptions : { 
+                	traditional : true,
+                	type : 'get'
+              	}
+            },
+            params : params
+        }),
+        grid = new Grid.Grid({
+            idField : 'orgcode', 
+            columns : columns,
+            textGetter: function(item){ 
+              	return item.orgname;
+            },
+            bbar:{
+              	pagingBar:false
+            },
+            store : store
+        }),
+		  picker = new Picker.ListPicker({
+		    trigger : '#selCondition',  
+		    valueField : '#orgcode', 
+		    width:420,  
+		    children : [grid] 
+		  });
+		picker.render();
+        
+		$("#selCondition").on("keyup",function(){
+    		params.remark = $(this).val();
+    		store.load(params)
+    	});
+		
+		grid.on('itemclick',function(e){
+			var node = e.item;
+			var tempOver = 0;
+			var tempArray = list.getItems();
+			for(var k=0;k<tempArray.length;k++){
+				if(node.orgid+""==tempArray[k].__attrVals.id){
+					BUI.Message.Alert('已存在于选项列表中，请勿重复选择');
+					tempOver = 1;
+					break;
+				}
+			}
+			if(tempOver==0){
+				 list.addItem({id :node.orgid+"",text :node.orgname+"["+node.orgcode+"]",value:node.orgname});
+				 var listid = node.orgid+"";
+				 BMID={bmid:listid};
+               	 $.ajax({
+        				url: '${rc.contextPath}/funcg/funcr/selectExistBM',
+        				dataType : 'json',
+        				contentType : 'application/json',
+        	          	type : 'get',
+        	          	traditional: true,
+        	          	data :BMID,
+        	            success : function(data){
+        					var dataObj = eval("("+data+")");
+        					functree.clearAllChecked();
+        					for(var i=0;i<dataObj.length;i++){
+        						if(dataObj[i]!=null){
+        							var node = functree.findNode(dataObj[i]);
+        							functree.setNodeChecked(node,true);
+        						}
+        					}
+        	            }
+        		})
+			}
+		})
+		
+        list.on('dblclick',function(e){
+        	list.removeItem(e.target.__attrVals);
+        });
+        
+        tree.on('itemclick',function(ev){
+        	var node = ev.item;
+        	console.log(node);
+        	if(list.getChild(node.id)){
+        		BUI.Message.Alert('已存在于选项列表中，请勿重复选择');
+        	}else{
+        		list.addItem({id :node.id,text :node.text,value:node.orgname});
+               	 var listid = node.id;
+               	 BMID={bmid:listid};
+               	 $.ajax({
+        				url: '${rc.contextPath}/funcg/funcr/selectExistBM',
+        				dataType : 'json',
+        				contentType : 'application/json',
+        	          	type : 'get',
+        	          	traditional: true,
+        	          	data :BMID,
+        	            success : function(data){
+        					var dataObj = eval("("+data+")");
+        					functree.clearAllChecked();
+        					for(var i=0;i<dataObj.length;i++){
+        						if(dataObj[i]!=null){
+        							var node = functree.findNode(dataObj[i]);
+        							functree.setNodeChecked(node,true);
+        						}
+        					}
+        	            }
+        		})
+        	}
+        })
+        
+	        list.on('itemclick', function(ev){
+	       	 var listid = ev.item.__attrVals.id;
+	       	 BMID={bmid:listid};
+	       	 $.ajax({
+					url: '${rc.contextPath}/funcg/funcr/selectExistBM',
+					dataType : 'json',
+					contentType : 'application/json',
+		          	type : 'get',
+		          	traditional: true,
+		          	data :BMID,
+		            success : function(data){
+						var dataObj = eval("("+data+")");
+						functree.clearAllChecked();
+						for(var i=0;i<dataObj.length;i++){
+							if(dataObj[i]!=null){
+								var node = functree.findNode(dataObj[i]);
+								functree.setNodeChecked(node,true);
+							}
+						}
+		            }
+				})
+	       })
+        
+        function funcBM(){
+        	var selectArr = [];
+        	var listVal = list.getItems();
+        	var selectVal = functree.getCheckedNodes();
+        	var bmIdVal = null;
+        	var funcBM =[];
+        		for(var i=0;i<listVal.length;i++){
+            		if(selectVal.length != 0){
+            		for(var j=0;j<selectVal.length;j++){
+            			bmIdVal = listVal[i].__attrVals.id;
+            			var selectIdVal = selectVal[j].funcid;
+            			selectArr.push(selectIdVal);
+            			}
+            			funcBM={bmid:bmIdVal,listQxid:selectArr};
+            			var selectArr = [];
+            		}else{
+            			bmIdVal = listVal[i].__attrVals.id;
+            			funcBM={bmid:bmIdVal};
+            		}
+            			$.ajax({
+            				url: '${rc.contextPath}/funcg/funcr/saveFuncBM',
+            				dataType : 'json',
+            				contentType : 'application/json',
+            	          	type : 'post',
+            	          	traditional: true,
+            	          	data :JSON.stringify(funcBM),
+            	            success : function(data){
+            				if(data=="success"){ 
+            					BUI.Message.Alert('授权成功');
+            	               }else{
+            	            	BUI.Message.Alert('授权失败');
+            	               }
+            	            }
+            			})
+        			}
+        }
+        
+        function importFunc(){
+        	dialog1.show();
+        }
+        
+        function exportFunc(){
+        	$.ajax({
+				url: '${rc.contextPath}/funcm/exportExcel',
+				dataType : 'json',
+	          	type : 'post',
+	          	contentType : 'application/json',
+	            success : function(data){
+					var dataObj = eval("("+data+")");
+					window.open("${rc.contextPath}/wood/file/not/crypto/download?fileUrl="+dataObj.filepath+"&fileName=权限模版.xls");
+	            }
+			})
+        }
+        
+        function qxFuncBM(){
+        	var selectArr = [];
+        	var listVal = list.getItems();
+        	var selectVal = functree.getCheckedNodes();
+        	var bmIdVal = null;
+        	var funcBM =[];
+        	for(var i=0;i<listVal.length;i++){
+        		for(var j=0;j<selectVal.length;j++){
+        			bmIdVal = listVal[i].__attrVals.id;
+        			var selectIdVal = selectVal[j].funcid;
+        			selectArr.push(selectIdVal);
+        			}
+        			funcBM={bmid:bmIdVal,listQxid:selectArr};
+        			var selectArr = [];
+        			$.ajax({
+        				url: '${rc.contextPath}/funcg/funcr/deleteBMObjByFuncid',
+        				dataType : 'json',
+        				contentType : 'application/json',
+        	          	type : 'post',
+        	          	traditional: true,
+        	          	data :JSON.stringify(funcBM),
+        	            success : function(data){
+        				if(data=="success"){ 
+        					BUI.Message.Alert('取消授权成功');
+        	               }else{
+        	            	BUI.Message.Alert('取消授权失败');
+        	               }
+        	            }
+        			})
+        	}
+        }
+        
+        $(".x-accordion-title").remove();
+        $(".bui-tree-list").parent().parent().height("99.8%");
+        $(".bui-tree-list").parent().height("100%");
+        $(".bui-tree-list").height("100%").css("border-bottom","1px solid #3892d3");
+        $(".bui-grid").parent().css("border-bottom","1px solid #3892d3");
+    });
+  </script>
+</body>
+</html>  

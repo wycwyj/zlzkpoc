@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>功能角色检索页面</title>
+<link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.web.frame.css">
+<link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/extends/layui/2.4.5/css/layui.css">
+<link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.common.css">
+<script src="${rc.contextPath}/wood/resource/webframe/extends/jquery/jquery.min.js"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/extends/layui/2.4.5/layui.js" charset="utf-8"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/js/wood.form.js"></script>
+</head>
+<body>
+	<div class="layui-form-item">
+    <div class="layui-inline">
+      <label class="layui-form-label">角色名称</label>
+      <div class="layui-input-inline">
+        <input style="width: auto;" type="text" id="select_rolename" name="select_rolename" placeholder="请输入角色名称" autocomplete="off" class="layui-input">
+      </div>
+    </div>
+    <div class="layui-inline">
+      <label class="layui-form-label">权限名称</label>
+      <div class="layui-input-inline">
+        <input style="width: auto;" type="text" id="select_authname" name="select_authname" placeholder="请输入权限名称" autocomplete="off" class="layui-input">
+      </div>
+    </div>
+  
+  <div class="site-demo-button" style="text-align:center;margin: 10px;">
+	  <button class="layui-btn site-demo-active" id="btnSearch" data-type="btnSearch">搜索</button>
+	  <button class="layui-btn site-demo-active" id="btnReset" data-type="btnReset">重置</button>
+  </div>
+<div class="body_bg">
+        <hr>
+        <table id="treeTable" class="layui-table" lay-filter="treeTable"></table>
+</div>
+<script>
+    var tableId='treeTable';
+    layui.config({
+    	base : '${rc.contextPath}/wood/resource/webframe/extends/layui/2.4.5/lay/modules/'
+    }).extend({
+    	treetable : 'treetable-lay/treetable'
+    }).use(['layer', 'table','treetable'], function(){
+        var $=layui.jquery;
+        var table = layui.table;
+        var layer = layui.layer;
+        var treetable = layui.treetable;//很重要
+        
+        var renderTable = function () {
+            layer.load(2);
+	        treetable.render({
+	        	treeColIndex:2,
+	        	treeSpid: -1,
+	        	treeDefaultClose: true,
+	        	treeLinkage: false,
+	        	elem: '#'+tableId,
+	        	url:'${rc.contextPath}/funcg/seln/getJsFuncInfo?rolename=&authname=',
+	        	cols: [[
+	                    {type: ''},
+	                    {field:'sort',width:'10%', title: 'ID'},
+	                    {field:'name',width:'90%', title: '角色与权限'}
+	            ]],
+	            done: function (res, curr, count) {
+                    layer.closeAll('loading');
+                }
+	        });
+        }
+        renderTable();
+        
+        $('#btnReset').click(function () {
+        	$("input[name='select_rolename']").val("");
+        	$("input[name='select_authname']").val("");
+        });
+        
+        $('#btnSearch').click(function(){
+        	//获取两个文本框的值
+        	var roleVal = $("input[name='select_rolename']").val();
+        	var authVal = $("input[name='select_authname']").val();
+        	var url = '${rc.contextPath}/funcg/seln/getJsFuncInfo?rolename='+roleVal+'&authname='+authVal;
+        	var renderTable = function () {
+                layer.load(2);
+                treetable.render({
+	        	treeColIndex:2,
+	        	treeSpid: -1,
+	        	treeDefaultClose: true,
+	        	treeLinkage: false,
+	        	elem: '#'+tableId,
+	        	url: url,
+	        	cols: [[
+	                    {type: ''},
+	                    {field:'sort',width:'10%', title: 'ID'},
+	                    {field:'name',width:'90%', title: '角色与权限'}
+	            ]],
+	            parseData: function (res) { //res 即为原始返回的数据
+                },
+                done: function (res, curr, count) {
+                    layer.closeAll('loading');
+                }
+	        });
+        	}
+        	renderTable();
+        });
+    });
+</script>
+</body>
+</html>

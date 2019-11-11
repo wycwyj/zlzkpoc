@@ -1,0 +1,315 @@
+<!-- ${rc.contextPath}/process/def-list.html -->
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>搜索表单</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+	.container {
+		padding:0px;
+	}
+   </style>
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+      <form id="searchForm" class="form-horizontal span24">
+      
+        <div class="row">
+	          <div class="control-group span8">
+		            <label class="control-label">流程定义ID</label>
+		            <div class="controls">
+		              	<select name="procDefId" id="procDefId1">
+			             </select>
+		            </div>
+	          </div>
+	          <div class="control-group span8">
+	            <label class="control-label">字段名称</label>
+	            <div class="controls">
+	              <input type="text" name="name">
+	            </div>
+	          </div>
+	           <div class="control-group span8">
+	            <label class="control-label">对象属性值</label>
+	            <div class="controls">
+	              <input type="text" name="modelProp">
+	            </div>
+	          </div>
+	          	<div class="control-group span8">
+	            <label class="control-label">数据库字段</label>
+	            <div class="controls">
+	              <input type="text"  name="dbCol">
+	            </div>
+	          </div>
+	          
+	           <div class="control-group span8">
+	            <label class="control-label">预览类型</label>
+	            <div class="controls">
+	              	<select name="previewType">
+	              	<option value="global">全局</option>
+			        </select>
+	            </div>
+	          </div>
+	          <div class="control-group span8">
+	            <label class="control-label">创建日期 </label>
+		            <div class="controls">
+		              <input type="text" class="calendar" name="createTime">
+		            </div>
+	          </div>
+	          <div class="span3 offset10">
+	            <button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	          </div>
+        </div>
+      </form>
+    </div>
+    <div class="search-grid-container">
+      <div id="grid"></div>
+    </div>
+    
+   <!-- 此节点内部的内容会在弹出框内显示,默认隐藏此节点-->
+   <div id="content" class="hide">
+      <form id="form1" action="${rc.contextPath}/workflow/task/preview/addPreview"  class="form-horizontal" method="post">
+          <input type="hidden" name="id" id="id"> 
+        	<div class="row">
+	          <div class="control-group span8">
+		            <label class="control-label">流程定义ID</label>
+		            <div class="controls">
+		              	<select name="procDefId" id="procDefId">
+			             </select>
+		            </div>
+	          </div>
+	          <div class="control-group span8">
+	            <label class="control-label">字段名称</label>
+	            <div class="controls">
+	              <input type="text" name="name" id="name">
+	            </div>
+	          </div>
+	           <div class="control-group span8">
+	            <label class="control-label">对象属性值</label>
+	            <div class="controls">
+	              <input type="text" name="modelProp" id="modelProp">
+	            </div>
+	          </div>
+	          	<div class="control-group span8">
+	            <label class="control-label">数据库字段</label>
+	            <div class="controls">
+	              <input type="text"  name="dbCol" id="dbCol">
+	            </div>
+	          </div>
+	          
+	           <div class="control-group span8">
+	            <label class="control-label">预览类型</label>
+	            <div class="controls">
+	              	<select name="previewType" id="previewType">
+	              	<option value="global">全局</option>
+			        </select>
+	            </div>
+	          </div>
+	         <div class="control-group span8">
+	            <label class="control-label">显示顺序</label>
+	            <div class="controls">
+	              	<input type="text" name="taskDefKey" id="taskDefKey">
+	            </div>
+	          </div>
+		          <div class="control-group span8">
+		            <label class="control-label">
+		            	创建日期
+		             </label>
+			            <div class="controls">
+			              <input type="text" class="calendar" name="createTime" id="createTime"  style="width:150px" >
+			            </div>
+		          </div>
+        	   </div>
+        	
+	  </form>   
+    </div>
+    
+  </div>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/js/tools.js"></script>
+  
+<script type="text/javascript">
+  BUI.use(['common/search'],function (Search) {
+    var columns = [
+          {title:'流程定义ID',dataIndex:'procDefId',width:'20%'},
+          {title:'字段名称',dataIndex:'name',width:'20%'},
+          {title:'对象属性值',dataIndex:'modelProp',width:'20%'},          
+          {title:'数据库字段',dataIndex:'dbCol',width:'20%'},
+          //{title:'预览类型',dataIndex:'previewType',width:'20%'},
+          {title:'顺序号',dataIndex:'taskDefKey',width:'20%'},
+          {title:'创建时间',dataIndex:'createTime',width:'20%',renderer:BUI.Grid.Format.dateRenderer},
+          {title:'任务描述ID',dataIndex:'id',width:40}
+        ],
+      store = Search.createStore('${rc.contextPath}/workflow/task/preview/list',{
+        proxy:{
+          autoLoad:true,
+          dataType:'json',
+          contentType:"application/json"
+        },
+        pageSize : 5,	// 配置分页数目
+        autoSync:true //保存数据后，自动更新
+      }),
+      gridCfg = Search.createGridCfg(columns,{
+    	  tbar : {
+              items : [
+                {text : '<i class="icon-plus"></i>新建',btnCls : 'button button-small',handler:addFunction},
+                {text : '<i class="icon-edit"></i>修改',btnCls : 'button button-small',handler:updateFunction},
+                {text : '<i class="icon-remove"></i>删除',btnCls : 'button button-small',handler:delFunction}
+              ]
+            },
+           plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.RowNumber,BUI.Grid.Plugins.AutoFit]// 插件形式引入多选表格
+      });
+
+    var  search = new Search({
+        store : store,
+        gridCfg : gridCfg,
+        bbar:{
+            // pagingBar:表明包含分页栏
+            pagingBar:true
+        }
+      }),
+      grid = search.get('grid');
+    
+    var form = new BUI.Form.Form({
+        srcNode : '#form1'
+      }).render();
+ 
+      var dialog1 = new BUI.Overlay.Dialog({
+            title:'新建任务描述',
+    		width:680,
+    		height:450,
+            //配置DOM容器的编号
+            contentId:'content',
+            buttons:[
+                     {
+                       text:'确定',
+                       elCls : 'button button-primary',
+                       handler : function(){
+                         //do some thing
+                         
+                         form.submit();
+                       }
+                     },
+                     {
+                       text:'关闭',
+                       elCls : 'button',
+                       handler : function(){
+                         this.close();
+                       }
+                     }
+                   ]
+          });
+
+    function addFunction(){
+    	  $("#id").val("");
+      	  $("#procDefId").val("");
+      	  $("#name").val("");
+      	  $("#modelProp").val("");
+      	  $("#dbCol").val("");
+      	  $("#previewType").val("");
+      	  $("#createTime").val(getNowFormatDateTime());
+    	  dialog1.show();
+    }
+    
+    function updateFunction(){
+    	var selections = grid.getSelection();
+  		if(selections==""){
+  			BUI.Message.Alert("请选择要修改的数据");
+  		}else{
+  			 $.ajax({  
+  			      type:"Get",  
+  			      url:"${rc.contextPath}/workflow/task/preview/getActRuPreview/"+selections[0].id,  
+  			      dataType:"json",  
+  			      success:function(preview){
+  			          if(preview != null){
+  			        	  $("#id").val(preview.id);
+  			        	  $("#procDefId").val(preview.procDefId);
+  			        	  $("#createTime").val(getNowFormatDateTime());
+	  			      	  $("#name").val(preview.name);
+	  			      	  $("#modelProp").val(preview.modelProp);
+	  			      	  $("#dbCol").val(preview.dbCol);
+	  			      	  $("#previewType").val(preview.previewType);
+  			        	  dialog1.show();
+  			          }  
+  			      } 
+  			  });  
+  		}
+  		
+    }
+    function delFunction(){
+    	var selections = grid.getSelection();
+  		if(selections==""){
+  			BUI.Message.Alert("请选择要删除的数据");
+  		}else{
+  			delItems(selections);
+  		}
+	}
+
+    function delItems(items){
+        var ids = [];
+        BUI.each(items,function(item){
+          ids.push(item.id);
+        });
+        if(ids.length){
+            BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+            $.ajax({
+              url : '${rc.contextPath}/workflow/task/preview/deletePreviewChecked',
+              dataType : 'json',
+              data : {ids :''+ids+''},
+              success : function(data){//
+               if(data=="success"){ //删除成功
+            	   BUI.Message.Alert('删除成功！');
+                   search.load();
+                  }else{ //删除失败
+                      BUI.Message.Alert('删除失败！');
+                 }
+              }
+          });
+          },'question');
+        }
+      }
+    
+    var datepicker2 = new BUI.Calendar.DatePicker({
+        trigger:'.calendar-time',
+        showTime:true,
+        autoRender : true
+      });  
+
+
+  });
+  
+  $.ajax({  
+      type:"get",  
+      url:"${rc.contextPath}/workflow/task/depute/deputeProcDeflist",  
+      dataType:"json",  
+      success:function(fieldList){
+          if(fieldList != null && fieldList.length > 0){
+        	  $("<option value=''></option>").appendTo("#procDefId1");  
+              for(var i = 0; i< fieldList.length; i++){  
+                  $("<option value='"+fieldList[i].id+"'>"+fieldList[i].name+"-v"+fieldList[i].version+"</option>").appendTo("#procDefId1");  
+                  $("<option value='"+fieldList[i].id+"'>"+fieldList[i].name+"-v"+fieldList[i].version+"</option>").appendTo("#procDefId");  
+              }  
+          }  
+      },  
+  });  
+  
+</script>
+</body>
+</html>  
+

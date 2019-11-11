@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+        http://www.springframework.org/schema/beans/spring-beans.xsd  
+        http://code.alibabatech.com/schema/dubbo  
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
+	<dubbo:application name="wood-backstage-web-consumer">
+		<dubbo:parameter key="qos.enable" value="true"/>
+		<dubbo:parameter key="qos.accept.foreign.ip" value="false"/>
+		<dubbo:parameter key="qos.port" value="11112"/>
+	</dubbo:application>
+
+	<dubbo:consumer filter="tracing"/>
+
+	<bean id="woodServiceTrack" class="com.ztj.wood.config.other.WoodServiceTrack">
+		<property name="serviceName" value="wood-backstage-web-consumer"/>
+	</bean>
+
+	<!-- 使用zookeeper注册中心暴露服务地址 -->
+	<!-- 注册中心地址 -->
+	<dubbo:registry protocol="zookeeper" address="${dubbo.registry.address}" />
+	
+	<!-- 统一登录服务 -->
+	<dubbo:reference interface="com.ztj.wood.auth.facade.AuthFacade" id="authFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.auth.facade.UserPasswordFacade" id="userPasswordFacade" check="false" retries="0" timeout="12000"/>
+
+	<!-- 后台管理系统对外服务 -->
+	<dubbo:reference interface="com.ztj.wood.backstage.outer.facade.APPOutFacade" id="appOutFacade" check="false" retries="0" timeout="12000"/>
+	
+	<!-- 三员及用户操作日志服务接口 -->
+	<dubbo:reference interface="com.ztj.wood.common.facade.OpLogFacade" id="opLogFacade" check="false" retries="0" timeout="12000"/>
+
+	<!-- 自定义查询条件服务接口 -->
+	<dubbo:reference interface="com.ztj.wood.common.facade.QueryConditionFacade" id="queryConditionFacade" check="false" retries="0" timeout="22000"/>
+	
+	<!-- 组织机构对外接口 -->
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.OrganizationFacade" id="organizationFacade" check="false" retries="0" timeout="12000"/>
+	
+	<!-- 导出excel -->
+	<dubbo:reference interface="com.ztj.wood.common.facade.CommonExportExcelFacade" id="commonExportExcelSubstance" check="false" retries="0" timeout="12000"/>
+	
+	<!-- 系统用户对外接口 -->
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.EmpFacade" id="empFacade" check="false" retries="0" timeout="12000"/>
+	<!-- 机构用户对外接口 -->
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.OrgEmpRelationFacade" id="orgEmpRelationFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.outer.facade.OrgFacade" id="orgFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.auditadmin.facade.SecadminLogBFacade" id="secadminLogBFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.auditadmin.facade.SysadminLogBFacade" id="sysadminLogBFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.secadmin.facade.AuditadminLogBFacade" id="auditadminLogBFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.secadmin.facade.RoleEmpFacade" id="roleEmpFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.secadmin.facade.RoleFacade" id="roleFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.secadmin.facade.UserLogBFacade" id="userLogBFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.outer.facade.EmailOutFacade" id="emailOutFacade" check="false" retries="0" timeout="12000"/>
+	
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.FuncFacade" id="funcFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.FuncModelFacade" id="funcModelFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.PwdResetFacade" id="pwdResetFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.APPFacade" id="aPPFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.func.facade.FuncBMFacade" id="funcBMFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.func.facade.FuncJSFacade" id="funcJSFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.func.facade.FuncRYFacade" id="funcRYFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.func.facade.FuncResPermissionFacade" id="funcResPermissionFacade" check="false" retries="0" timeout="12000"/>
+
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.EmailFacade" id="emailFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.EmailInfoSetFacade" id="emailInfoSetService" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.ConditionMeFacade" id="conditionMeFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.ConditionBMFacade" id="conditionBMFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.ConditionJSFacade" id="conditionJSFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.DataConfigFacade" id="dataConfigFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.DataConfigTPFacade" id="dataConfigTPFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.SecFacade" id="secFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.UserSecFacade" id="userSecFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.DataSecFacade" id="dataSecFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.DictClassFacade" id="dictClassFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.DictPropsFacade" id="dictPropsFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.DictValueFacade" id="dictValueFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.MobAppFacade" id="mobAppFacade" check="false" retries="0" timeout="12000"/>
+	
+	
+	<!--添加dynamic所需接口 -->
+	<dubbo:reference interface="com.ztj.wood.dynamic.datamodel.facade.ModelMasterFacade" id="modleMasterFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.datamodel.facade.ModelFiledFacade" id="modelFiledFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.codefunc.facade.WoodFuncFacade" id="codeAutoFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.codefunc.facade.MasterFiledsFacade" id="masterFiledsFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.codefunc.facade.SubTableFiledsFacade" id="subTableFiledsFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.rootProject.facade.RootprojectFacade" id="rootprojectSubstance" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.datamodel.facade.ModelDeFineFacade" id="modelDeFineSubstance" check="false" retries="0" timeout="1200"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.datamodel.facade.ModelDeFineSubFacade" id="modelDeFineSubSubstance" check="false" retries="0" timeout="1200"/>
+
+	<dubbo:reference interface="com.ztj.wood.dynamic.facade.WoodCommonFacade" id="woodCommonFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.codefunc.facade.WorkFlowApprovalFacade" id="workFlowApprovalFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.dictionary.facade.DictionaryFacade" id="dictionaryFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.dictionary.facade.DictionaryChildFacade" id="dictionaryChildFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.example.facade.DynamicExampleFacade" id="dynamicExampleFacade" check="false" retries="0" timeout="1200"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.formdesign.facade.FormDesignFacade" id="formDesignFacade" check="false" retries="0" timeout="1200"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.formdesign.facade.FormFiledsFacade" id="formFiledsFacade" check="false" retries="0" timeout="1200"/>
+	<dubbo:reference interface="com.ztj.wood.dynamic.formdesign.facade.FormMainFieldsFacade" id="formMainFieldsFacade" check="false" retries="0" timeout="1200"/>
+	<dubbo:reference retries="0" id="projectFacade" check="false" interface="com.ztj.wood.dynamic.project.facade.ProjectFacade" timeout="1200"/>
+	<!--dynamic服务-->
+	<dubbo:reference interface="com.ztj.wood.dynamic.datamodel.facade.GetModelDataFacade" id="getModelDataSubstance" check="false" retries="0" timeout="1200"/>
+	<!-- 工作流启动流程服务接口 -->
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.ProMngFacade" id="processMngSubstance" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.TaskFacade" id="taskFacade" check="false" retries="0" timeout="12000"/>
+
+	<!--消息推送服务接口-->
+	<dubbo:reference interface="com.ztj.wood.plugin.activemq.push.WoodActiveMQFacade" id="woodActiveMQSubstance" check="false" retries="0" timeout="12000"/>
+
+	<!--wood总插件服务-->
+	<dubbo:reference interface="com.ztj.wood.plugin.service.WoodPluginFacade" id="woodPluginFacade" check="false" retries="0" timeout="12000"/>
+
+	<!--密码规则管理服务-->
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.PwdRuleFacade" id="pwdRuleFacade" check="false" retries="0" timeout="12000"/>
+	<!--安全策略管理服务-->
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.SafestrategyFacade" id="safestrategyFacade" check="false" retries="0" timeout="12000"/>
+	<!--在线用户管理服务-->
+	<!--<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.OnlineUserFacade" id="onlineUserFacade" check="false" retries="0" timeout="12000"/>-->
+
+</beans>

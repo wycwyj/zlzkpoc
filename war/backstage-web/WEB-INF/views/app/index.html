@@ -1,0 +1,533 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>应用管理</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:60px;
+	}
+	.span8 {
+	    width:380px;
+	}
+	#J_Form .span8{
+		width:400px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:400px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 5px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">应用名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="appname" name="appname">
+					</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">应用key：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="appkey" name="appkey">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">主机地址：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="hostname" name="hostname">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+      	<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/appm/appr/saveApp">
+        	<div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>应用名称</label>
+	            	<div class="controls">
+	            		<input type="hidden" name="id" id="id1">
+	              		<input name="appname" id="appname2" type="text" data-rules="{required:true}" class="input-normal control-text">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>应用key</label>
+	            	<div class="controls">
+	            		<input name="appkey" id="appkey2" type="text" id="appkey2" data-rules="{required:true}" class="input-normal control-text">
+	            	</div>
+	          	</div>
+        	</div>
+        	  <div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label"><s>*</s>主机地址</label>
+            		<div class="controls">
+              			<input name="hostname" id="hostname2" type="text" data-rules="{required:true}" class="input-normal control-text">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">端口</label>
+            		<div class="controls">
+              			<input name="appport" id="appport2" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">Potal：</label>
+					<div class="controls">
+						启用<input id="radioy" type="radio" name="attr1" value="y" /> 
+						不启用<input id="radion" type="radio" name="attr1" value="n" />
+					</div>
+				</div>
+			</div>
+        	
+        	<div class="row">
+          		<div class="control-group span15">
+            		<label class="control-label">备注</label>
+            		<div class="controls control-row4">
+              			<textarea name="rmark" id="rmark2" class="input-large" type="text"></textarea>
+            		</div>
+          		</div>
+        	</div>
+      	</form>
+	</div>
+	
+	<div id="content2" class="hide">
+	    <form id="K_Form" class="form">
+	    <div class="detail-section">  
+	    	<div class="row detail-row">
+			    <div class="span9">
+			      <label>应用名称：</label><span class="detail-text" id="appname1"></span>
+			    </div>
+			    <div class="span9">
+			      <label>应用key：</label><span class="detail-text" id="appkey1"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>主机地址：</label><span class="detail-text" id="hostname1"></span>
+			    </div>
+			    <div class="span9">
+			      <label>端口：</label><span class="detail-text" id="appport1"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span10">
+			      <label>备注：</label><span class="detail-text" id="rmark1"></span>
+			    </div>
+ 			</div>
+        </div>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript">
+	
+	$(function(){
+		$("input[name='attr1'][value=n]").prop("checked", true);
+	})
+	
+	$("#appkey2").blur(function(){
+		var idVal = $("#id1").val();
+		var appkeyVal = $("#appkey2").val();
+		var key={id:idVal,appkey:appkeyVal};
+			$.ajax({
+				url : '${rc.contextPath}/appm/appr/selectAppKey',
+		      	dataType : 'json',
+		      	contentType : 'application/json',
+		      	type : 'get',
+		      	data :key,
+		        success : function(data){
+		        	if(data=="one"){ 
+		        		
+		            }else if(data == "many"){
+		               BUI.Message.Alert('系统中存在有相同应用Key值，不能使用重复Key值');
+		               $("#appkey2").val("").focus();
+		        	}else{}
+				}
+			})
+	});
+	
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+	
+	BUI.use('common/search',function (Search) {
+		
+		$(document).ready(function(){
+			window.setInterval(function(){timing()},15000);
+		});
+		
+		var editing = new BUI.Overlay.Dialog({
+    		title:'应用详细信息',
+    		width:500,
+    		height:320,
+        	contentId : 'content2', 
+        	autoSave : true, 
+        	buttons:[
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+		selecting = new BUI.Overlay.Dialog({
+    		title:'应用操作',
+    		width:880,
+    		height:250,
+        	contentId : 'content', 
+        	autoSave : true, 
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var idVal = $("#id1").val();
+                    		var appkeyVal = $("#appkey2").val();
+                    		var key={id:idVal,appkey:appkeyVal};
+                    		
+                    		form.submit();
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                        	this.close();
+                        }
+                      },
+                      {
+                          text:'测试连接',
+                          elCls : 'button',
+                          handler : function(){
+                        	  var hostname = document.getElementById("hostname2").value;
+                        	  var port = document.getElementById("appport2").value;
+                        	  var appkey = document.getElementById("appkey2").value;
+                        	  var Str = "http://"+hostname+":"+port+"/"+appkey+"/wood/common/try/connect";
+                        	  
+                        	  if(hostname==""||appkey==""){
+                        		  BUI.Message.Alert("请将必填项填写完整,然后再进行测试！");
+                        	  }else{
+                        		  $.ajax({  
+                          	         url:Str,  
+                          	         type:"get",  
+                          	         success:function(tryConnectIsOk){  
+                        	        	   if(tryConnectIsOk.tryConnectIsOk=="ok"){
+                        	        			BUI.Message.Alert("连通正常！");
+                        	        	   }else{
+                        	        			BUI.Message.Alert("连通失败！");
+                        	        	   }
+                          	         },  
+                          	         error:function(e){  
+                          	        	BUI.Message.Alert("网络错误，请重试！！");  
+                          	          }  
+                                   }); 
+                        	  }
+                          }
+                      }
+              ]
+      	}),
+      	
+      	columns = [
+			{title:'主键ID',dataIndex:'id',visible:false,width:0},
+          	{title:'应用名称',dataIndex:'appname',width:100,renderer:function(value,obj){
+          		return '<span class="grid-command btn-edit">'+value+'</span>';
+          	}},
+          	{title:'应用key',dataIndex:'appkey',width:100},
+            {title:'主机地址(host)',dataIndex:'hostname',width:150},
+          	{title:'端口',dataIndex:'appport',width:100},
+          	{title:'是否potal',dataIndex:'attr1',width:50,renderer : function(value) {
+				if (value == 'y') {
+					return '是';
+				}else {
+					return '否';
+				}
+			}},
+          	{title:'连接状态',dataIndex:'image',width:50,renderer:function(value){
+                if(value == 'error'){
+                    return '<img src="${rc.contextPath}/images/red20.gif" title="连接异常，请检查服务器启动情况！"/>'
+                  }else{
+                    return '<img src="${rc.contextPath}/images/green20.gif" title="连接正常！"/>'
+                  }
+                }
+          	}
+        ],
+        
+        searchURL = '${rc.contextPath}/appm/appr/queryAppsByPage',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit : true,
+        	tbar : {
+          		items : [
+         				{
+        				    btnCls : 'button button-small',
+        				    text : '<i class="icon-plus"></i>新建',
+        				    listeners : {
+        				      'click' : addFunction
+        				    }
+        				  },
+        				{
+        				  	btnCls : 'button button-small',
+        				    text : '<i class="icon-edit"></i>编辑',
+        				    listeners : {
+        				      'click' : editFunction
+        				    }
+        				},
+        				{
+       					  btnCls : 'button button-small',
+       				      text : '<i class="icon-remove"></i>删除',
+       				      listeners : {
+       				          'click' : delFunction
+       				      }
+        				},{
+							btnCls : 'button button-small',
+							text : '<i class="icon-user"></i>是否Potal',
+							listeners : {
+								'click' : isPotalFunction
+							}
+						}
+                  	]
+        	},
+        	plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit]
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+    	
+    	grid.on('cellclick',function(ev){
+	          var record = ev.record, 
+	          field = ev.field, 
+	          target = $(ev.domTarget); 
+	          if(target.hasClass('btn-edit')){
+	        	  	if(record.appname == null){
+		          		$("#appname1").text("");
+		          	}else{
+		          		$("#appname1").text(record.appname);
+		          	}
+	        	  	if(record.appkey == null){
+		          		$("#appkey1").text("");
+		          	}else{
+		          		$("#appkey1").text(record.appkey);
+		          	}
+	        	  	if(record.hostname == null){
+		          		$("#hostname1").text("");
+		          	}else{
+		          		$("#hostname1").text(record.hostname);
+		          	}
+		          	if(record.appport == null){
+		          		$("#appport1").text("");
+		          	}else{
+		          		$("#appport1").text(record.appport);
+		          	}
+		          	if(record.rmark == null){
+		          		$("#rmark1").text("");
+		          	}else{
+		          		$("#rmark1").text(record.rmark);
+		          	}
+		          	editing.show();
+	          }
+	 	});
+    	
+    	function addFunction(){
+    		form.clearFields();
+    		selecting.show();
+    	}
+    	
+    	function editFunction(){
+    		var selection = grid.getSelected();
+    		if(selection==null){
+    			BUI.Message.Alert("请选择要编辑的数据");
+    		}else{
+	    		form.setFieldValue('id',selection.id);
+	    		form.setFieldValue('appname',selection.appname);
+	    		form.setFieldValue('appkey',selection.appkey);
+	    		form.setFieldValue('hostname',selection.hostname);
+	    		form.setFieldValue('appport',selection.appport);
+	    		form.setFieldValue('attr1', selection.attr1);
+	    		form.setFieldValue('rmark',selection.rmark);
+	    		
+	    		selecting.show();
+    		}
+    	}
+    	
+    	function delFunction(){
+    		var selections = grid.getSelection();
+      		if(selections==""){
+      			BUI.Message.Alert("请选择要删除的数据");
+      		}else{
+      			delItems(selections);
+      		}
+    	}
+    	
+    	function delItems(items){
+      		var ids = [];
+      		BUI.each(items,function(item){
+      			ids.push({id:item.id});
+      		});
+      		if(ids.length){
+        		BUI.Message.Confirm('确认要彻底删除选中的记录么？(操作不可恢复)',function(){
+          			$.ajax({
+        					url : '${rc.contextPath}/appm/appr/delete',
+        	              	dataType : 'json',
+        	              	contentType : 'application/json',
+        	              	type : 'post',
+        	              	data : JSON.stringify(ids),
+        	                success : function(data){
+        	                	if(data=="success"){ 
+       	                  	   		BUI.Message.Alert('删除成功！');
+       	                         	search.load();
+       	                        }else{
+       	                            BUI.Message.Alert('删除失败！');
+       	                       	}
+        	                 }
+        	        });
+          		},'question');
+      		}
+    	}
+    	
+    	function isPotalFunction() {
+			var selection = grid.getSelected();
+			var potal = [];
+			potal.push({
+				id : selection.id,
+				attr1 : selection.attr1
+			});
+			if (selection == "") {
+				BUI.Message.Alert("请选择要设置为Potal的数据");
+			} else {
+				BUI.Message.Confirm('是否进行切换Potal操作？(同一时间仅能开启一项)',function() {
+				$.ajax({
+						url : '${rc.contextPath}/appm/appr/isPotal',
+						dataType : 'json',
+						contentType : 'application/json',
+						type : 'post',
+						data : JSON.stringify(potal),
+						success : function(data) {
+							if (data == "success") {
+								BUI.Message.Alert('切换成功！');
+								search.load();
+							} else {
+								BUI.Message.Alert('切换失败！');
+							}
+						}
+					});
+				}, 'question');
+			}
+		}
+    	
+    	function timing(){
+    		var storeObj = store.getResult();
+    		for(var i=0;i<storeObj.length;i++){
+    			setTimeout(tryConnect(storeObj[i]),300);
+    		}
+    	}
+    	
+    	function tryConnect(storeObj){
+    		var id1 = storeObj.id;
+    		var hostname = storeObj.hostname;
+      	  	var port = storeObj.appport;
+      	  	var appkey = storeObj.appkey;
+      	  	var Str = "http://"+hostname+":"+port+"/"+appkey+"/wood/common/try/connect";
+      	  
+      	    $.ajax({  
+    	         url:Str,  
+    	         type:"get",  
+    	         success:function(tryConnectIsOk){  
+            	   if(tryConnectIsOk.tryConnectIsOk=="ok"){
+            		   var record = store.find('id',id1);
+            		   record.image = 'success';
+            		   store.update(record);
+            	   }else{
+            		   var record = store.find('id',id1);
+            		   record.image = 'error';
+            		   store.update(record);
+            	   }
+    	         },
+    	         error:function(e){
+      	    		var record = store.find('id',id1);
+         		    record.image = 'error';
+         		    store.update(record);
+      	    	}
+            });
+    	}
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#appname,#appkey,#hostname').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+    	
+    	 setTimeout(function(){
+    		timing();
+    	},400);
+
+		resizeMe();
+	});
+</script>
+</html>

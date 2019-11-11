@@ -1,0 +1,191 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>在线管理</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:60px;
+	}
+	.span8 {
+	    width:380px;
+	}
+	#J_Form .span8{
+		width:400px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:400px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 5px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">用户账号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="empcode" name="empcode">
+					</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">中文名：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="empname" name="empname">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">登录IP：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="loginIP" name="loginIP">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+
+</body>
+<script type="text/javascript">
+
+	BUI.use(['common/search','bui/grid'],function (Search,Grid) {
+		
+		$(document).ready(function(){
+			//window.setInterval(function(){timing()},15000);
+		});
+
+		var columns = [
+			{title:'主键ID',dataIndex:'id',visible:false,width:0},
+          	{title:'用户账号',dataIndex:'empcode',width:100},
+          	{title:'中文名',dataIndex:'empname',width:150},
+            {title:'登录IP',dataIndex:'loginIP',width:100},
+          	{title:'登录时间',dataIndex:'loginTime',width:150,renderer : Grid.Format.datetimeRenderer},
+          	{title:'在线时长',dataIndex:'onlineTime',width:150},
+			{title:'状态',dataIndex:'state',width:150,renderer:function(){
+					return "在线";
+				}}
+        ],
+        
+        searchURL = '${rc.contextPath}/onlineUser/appr/queryOnlineUsersByPage',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit : true,
+        	tbar : {
+          		items : [
+        				{
+       					  btnCls : 'button button-small',
+       				      text : '<i class="icon-remove"></i>强制下线',
+       				      listeners : {
+       				          'click' : forceExit
+       				      }
+        				}
+                  	]
+        	},
+        	plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit]
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+
+    	
+    	function forceExit(){
+    		var selections = grid.getSelection();
+      		if(selections==""){
+      			BUI.Message.Alert("请选择要强制下线的用户");
+      		}else{
+      			forceExits(selections);
+      		}
+    	}
+    	
+    	function forceExits(items){
+      		var ids = [];
+      		BUI.each(items,function(item){
+      			ids.push({id:item.id});
+      		});
+      		if(ids.length){
+        		BUI.Message.Confirm('确认要强制下线选中的用户么？(操作不可恢复)',function(){
+          			$.ajax({
+        					url : '${rc.contextPath}/onlineUser/appr/forceExit',
+        	              	dataType : 'json',
+        	              	contentType : 'application/json',
+        	              	type : 'post',
+        	              	data : JSON.stringify(ids),
+        	                success : function(data){
+        	                	if(data=="success"){ 
+       	                  	   		BUI.Message.Alert('强制下线成功！');
+       	                         	search.load();
+       	                        }else{
+       	                            BUI.Message.Alert('强制下线失败！');
+       	                       	}
+        	                 }
+        	        });
+          		},'question');
+      		}
+    	}
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#empcode,#empname,#loginIP').bind('keypress',function(event){
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+		resizeMe();
+	});
+</script>
+</html>

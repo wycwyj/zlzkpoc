@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>子机构信息</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width:290px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">机构编号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" name="orgcode">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">机构名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" name="orgname">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+	    <form id="J_Form" class="form-horizontal">
+	       	 详情表单页
+	    </form>
+    </div>
+</body>
+<script type="text/javascript">
+
+	BUI.use('bui/overlay',function(Overlay){
+    	var dialog = new Overlay.Dialog({
+      	title:'查看详情窗口',
+      	width:700,
+     	height:400,
+     	contentId:'content'
+   		});
+	});
+	
+	//插件初始化
+	BUI.use(['common/search','grid'],function (Search,Grid) {
+    	var columns = [
+			{title:'机构ID',dataIndex:'orgid',visible:false,width:0},
+			{title : '操作',renderer : function(){
+				var editStr = Search.createLink({
+					 title : '查看机构详细信息',
+					 href : '${rc.contextPath}/org/search/show'
+				 })
+				editStr1 = '<span class="grid-command btn-edit" title="详情">查看详情</span>'
+				return editStr +  editStr1;
+			  }},
+          	{title:'机构编号',dataIndex:'orgcode',width:90},
+          	{title:'机构名称',dataIndex:'orgname',width:120},
+          	{title:'机构等级',dataIndex:'orglevel',width:60},
+          	{title:'创建人',dataIndex:'creator',width:120},
+          	{title:'创建日期',dataIndex:'createtime',width:160,renderer:BUI.Grid.Format.datetimeRenderer},
+          	{title:'更新人',dataIndex:'updator',width:120},
+          	{title:'更新日期',dataIndex:'lastupdate',width:160,renderer:BUI.Grid.Format.datetimeRenderer},
+        ],
+        //搜索的项
+        searchURL = '${rc.contextPath}/org/op/queryOrgsByPage?parentorgid=$!{pid}',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'{parentorgid:$!{pid}}',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true //保存数据后，自动更新
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns);
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+    	
+    	var editing = new Grid.Plugins.DialogEditing({
+            contentId : 'content',//弹出框显示的内容的id 
+            autoSave : true, //添加数据或者修改数据时，自动保存
+            triggerCls : 'btn-edit'
+          });
+	});
+</script>
+</html>

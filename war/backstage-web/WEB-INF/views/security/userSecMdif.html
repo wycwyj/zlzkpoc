@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>用户密级变更</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width:290px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:350px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+	.secClass{
+		color:red;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">用户账号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="code1" name="code">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">人员名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="name1" name="name">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+   		<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/secModif/saveSec">
+   			<div class="row detail-row">
+			    <div class="span9">
+			      <label>用户账号：</label><span class="detail-text" id="code_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>中文名：</label><span class="detail-text" id="name_show"></span>
+			    </div>
+ 			</div>
+ 			<div class="row detail-row">
+        		<div class="span10">
+            		<label><s style="color:red">*</s>变更密级：</label>
+            		<span class="detail-text">
+            			<input type='hidden' name="empid">
+            			<input type='hidden' name="code">
+            			<input type='hidden' name="name">
+              			<select name="sec" id="sec" data-rules="{required:true}">
+
+           				</select>
+            		</span>
+          		</div>
+        	</div>
+     	</form>
+    </div>
+</body>
+<script type="text/javascript">
+
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+	
+	var result = {};
+	
+	function getSecShow(sec){
+		if(result[sec]==""||result[sec]==null){
+			return "未知"
+		}else{
+			return result[sec];
+		}
+	}
+	
+	$(function(){
+		getInitSelectData();
+	})
+	
+	/* 动态获取密级数据 */
+	function getInitSelectData(){
+		$.ajax({  
+		    type:"GET",  
+		    url:"${rc.contextPath}/secc/secNameUser",  
+		    dataType:"json",  
+		    success:function(data){
+		    	$("<option value='0'>无</option>").appendTo("#sec");
+		    	result[0] = '无';
+		    	 if(data != null && data.length > 0){
+		            for(var i = 0; i< data.length; i++){  
+		                $("<option value='"+data[i].secId+"'>"+data[i].secNameuser+"</option>").appendTo("#sec");  
+		                var demo = data[i].secId;   
+		                result[demo]=data[i].secNameuser;             
+		            }
+		        }
+		    },  
+		});
+	}
+
+	//插件初始化
+	BUI.use('common/search',function (Search) {
+    	var editing = new BUI.Overlay.Dialog({
+    		title:'用户密级变更',
+    		width:500,
+    		height:150,
+        	contentId : 'content', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	form.submit();
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+      	//表格的行
+      	columns = [
+			{title:'主键ID',dataIndex:'empid',visible:false,width:0},
+          	{title:'用户账号',dataIndex:'code',width:80},
+          	{title:'中文名',dataIndex:'name',width:50},
+          	{title:'密级',dataIndex:'sec',width:35,renderer:function(value,obj){
+          		var secv_ = obj.secv_;
+          		if(secv_==value){
+          			return getSecShow(value);
+          		}else{
+          			return "<span class='secClass' title='密级被篡改，篡改前为["+getSecShow(secv_)+"]，篡改后为["+getSecShow(value)+"]'>"+getSecShow(value)+"</span>";
+          		}
+          	}},
+          	{title:'性别',dataIndex:'sex',width:35,renderer:function(value){
+          		if( value == 0){
+	          		return '男';
+	          	}else {
+	          		return '女';
+	          	}
+            }},
+            {title:'主职机构',dataIndex:'orgname',width:270},
+          	{title:'电子邮箱',dataIndex:'email',width:180},
+          	{title:'手机号',dataIndex:'mobileno',width:120},
+          	{title:'状态',dataIndex:'status',width:40,renderer:function(value){
+          		if(value==null||value==""){
+	          		return '正常';
+	          	}else if(value=="n"){
+	          		return '锁定';
+	          	}else{
+	          		return '';
+	          	}
+            }}
+        ],
+        //搜索的项
+        searchURL = '${rc.contextPath}/secModif/query/user',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true //保存数据后，自动更新
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit:true,
+        	tbar:{
+          		items:[
+				{
+				    btnCls : 'button button-small',
+				    text : '<i class="icon-retweet"></i>密级变更',
+				    listeners : {
+				      'click' : secModif
+				    }
+				}]
+        	},
+        	plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] // 插件形式引入多选表格
+      	});
+        
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+    	
+    	function secModif(){
+    		var selection = grid.getSelected();
+      		if(selection==null){
+      			BUI.Message.Alert("请选需要变更密级的记录");
+      		}else{
+      			form.setFieldValue('empid',selection.empid);
+      			form.setFieldValue('sec',selection.sec);
+      			form.setFieldValue('code',selection.code);
+      			form.setFieldValue('name',selection.name);
+      			$("#code_show").text(selection.code);
+      			$("#name_show").text(selection.name);
+      			editing.show();
+      		}
+    	}
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#code1,#name1').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+	 	resizeMe();
+	});
+</script>
+</html>

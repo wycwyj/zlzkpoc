@@ -1,0 +1,29 @@
+@charset"utf-8";
+.panel-body{border-width:0;}
+.datagrid .datagrid-wrap{border-bottom-width:1px;}
+.datagrid-toolbar{background:#f6f6f6;}
+.datagrid-toolbar .datagrid-toolbar{border-width:0;}
+/*toolpanel*/
+.toolpanel{height:auto;padding:0;zoom:1;position:relative;}
+.toolpanel button.extend-button{position:absolute;top:-1px;right:3px;z-index:1000;}
+.extend-panel{float:right;margin-right:24px;position:relative;zoom:1;background:#f6f6f6;}
+.extend-panel samp{display:none;}
+.extend-panel samp span.combo{
+	position:relative;
+	top:2px;
+	margin-right:2px;
+}
+.extend-panel samp span.name{display:none;width:93px;text-align:right;}
+.extend-panel samp.sch-item{display:inline-block;}
+.open button.extend-button{top:2px;}
+.open .extend-panel{float:none;display:block;padding:5px 0 10px;margin:0;clear:both;}
+.open .datagrid-toolbar{background:#f6f6f6;border-width:1px 0 0;}
+.open samp{float:none;display:inline-block;width:270px;}
+.open samp span.name{display:inline-block;}
+.sch-item .txt{color:#ccc;}
+.sch-item .on{color:#000;}
+.sch-btns button.sbutton{width:66px;height:23px;font-size:14px;color:#fff;background:#287fe7;border:1px solid #287fe7;margin:3px 1px 0;}
+.sch-btns button.sbutton2{display:none;background-color:#16aeec;border-color:#16aeec;}
+.sch-btns button.sbutton3{display:none;background-color:#ec8a16;border-color:#ec8a16;}
+.open .sch-btns button.sbutton2,.open .sch-btns button.sbutton3{display:inline-block;}
+.splitline{display:inline-block;zoom:1;width:18px;border-top:2px solid #d7d7d7;margin:0 3px 5px;}

@@ -1,0 +1,18 @@
+ .datagrid-toolbar{width:100%;padding:0;}
+div.table{width:900px;padding:20px;margin:0 auto;color:#000;position:relative;}
+div.script{padding-top:0;}
+table{width:100%;table-layout:fixed;border-collapse:collapse;}
+th,td{border:1px solid #000;color:#000;font:14px/24px "宋体";padding:3px;text-align:center;overflow:visible;}
+th{line-height:42px;font-weight:bold;}
+th.caption{font:bold 32px/52px "宋体";letter-spacing:3px;border-width:0 0 1px;}
+th.caption span.cap{font:normal 12px/1 "宋体";letter-spacing:normal;white-space:nowrap;position:absolute;top:55px;left:17px;}
+td span{white-space:nowrap;}
+th.caption span.cap{font-size:11pt;}
+td.pic-panel{position:relative;}
+td.pic-panel img{position:absolute;margin:-96px 0 0 25px;border-color:#000;}
+.print-mode div.table{width:550pt;margin:0;padding:0;}
+.print-mode th,.print-mode td{font-size:11.5pt;}
+.print-mode .trainexam-table th,.print-mode .trainexam-table td{font-size:10.5pt;}
+.print-mode th.caption{font-size:32pt;padding-bottom:15pt;}
+.print-mode td.pic-panel img{margin-left:8px;}
+.print-mode th.caption span.cap{left:0;}

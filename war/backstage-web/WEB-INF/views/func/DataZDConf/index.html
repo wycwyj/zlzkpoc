@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>数据权限配置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+	<link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+	<link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/bui.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+</head>
+<style type="text/css">
+   
+	.x-border-south{
+		position: fixed !important;
+		width: 100%;
+    	left: 0;
+    	bottom: 0;
+	}
+	.x-border-north{
+		border:none !important ;
+	}
+	.span13 {
+	    width:auto;
+	    text-align: center;
+	}
+	.x-border-body{
+		height:95% !important;
+	}
+	.bui-tree-list{
+		overflow:auto;
+		height:452px;
+	}
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+		
+		height:99.5%;
+		padding-bottom:1px;
+	}
+	.bui-nav-tab{
+		height:97%;
+	}
+	.tab-content-container{
+		height:97%;
+	}
+	.bui-form-field-text{
+		padding:20px 0 0 20px !important ;
+	}
+	.bui-list{
+		height:450px !important;
+		overflow-y:auto !important;
+		border:none !important;
+	}
+	.x-layout-item-border{
+		overflow-y:initial !important;
+	}
+	.bui-view-port{
+		width:1210px !important;
+	}
+	.ext-border-layout .x-border-east, .ext-border-layout .x-border-west, .ext-border-layout .x-border-center {
+   	 	height: 99% !important;
+	} 
+	.bui-grid{
+		width: 100% !important;
+		height: 500px !important;
+		overflow: hidden;
+		overflow-y:auto;
+	}
+	.bui-grid-header{
+		width: 100% !important;
+	}
+	.bui-grid-body,.bui-grid-body table,.bui-grid-body table tbody{
+		width: 100% !important;
+	}
+   </style>
+<body>
+	<div id="Orgcontent" class="hide">
+    	<iframe src="" id="orgAttribution1" name="orgAttribution" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+
+	<script type="text/javascript">
+	BUI.use(['layout','picker','grid','data','tree','tab','toolbar','bui/editor','bui/select'],function (Layout,Picker,Grid,Data,Tree,Tab,Toolbar,Editor,Select){
+		var inputData = [];
+		var orgEditing = new BUI.Overlay.Dialog({
+    		title:'客体记录列表挂载',
+    		width:838,
+    		height:462,
+        	contentId : 'Orgcontent', 
+        	autoSave : true, 
+        	closeable:false,
+        	buttons:[
+					{
+					    text:'挂载',
+					    elCls : 'button button-primary',
+					    handler : function(){
+					    	orgAttribution.window.mount();
+					    	}
+					  },
+					  {
+                        text:'移除',
+                        elCls : 'button',
+                        handler : function(){
+                        	orgAttribution.window.del();
+                  		}
+	                  },
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                        	location.reload();
+                        	this.close();
+                        }
+                      }
+              ]
+      	})
+		
+		var Store = Data.Store,
+	         orgTreeStore = new Data.TreeStore({
+	             root : {
+	                 id : '-1',
+	                 text : '组织机构'
+	             },
+	             pidField : 'pid',
+	             url : '${rc.contextPath}/dataFuncZD/get/DataConfs',
+	             autoLoad : true,
+	             dataType:'json',
+	             contentType:"application/json"
+	         });
+		var editing = new Grid.Plugins.CellEditing();
+		
+		var enumObj = {"w" : "文本控件","s" : "时间控件","r" : "选人员控件","b" : "选部门控件"};
+		var columns = [{
+	            title : '字段',
+	            dataIndex :'a',
+	            width:'50%',
+	            elCls : 'center'
+	          },{
+	            title : '输入方式',
+	            dataIndex :'b',
+	            width:'50%',
+	            elCls : 'center',
+	            editor : {
+	            	xtype :'select',
+	            	items : enumObj
+	            },
+	          	renderer : Grid.Format.enumRenderer(enumObj)
+	          	},{
+            	dataIndex :'c',
+            	visible : false
+            	},
+	          ];
+		
+		var gridStore = new Data.Store({
+        });
+		
+	     var control = new Layout.Viewport({
+				elCls : 'ext-border-layout',
+				children : [{
+	             xclass : 'controller',
+	             layout : {
+	               	region : 'south',
+	               	height : 0
+	             },
+	             width : 0,
+	         	},{
+					xclass : 'controller',
+					layout : {
+						region : 'west',
+	               		title : '客体记录列表树',
+	               		width : 400,
+	               		fit:'height'
+	             },
+	             defaultChildClass : 'controller',
+	             children : [
+	             { 
+	               xclass : 'controller',
+	               content : '<br/><div class="span13" id="span13"><button type="button" id="btnAdd" class="button button-primary">添加</button>&nbsp;&nbsp;&nbsp;<button id="btnMount" type="button" class="button">挂载</button>&nbsp;&nbsp;&nbsp;<button id="btnDel" type="button" class="button">删除</button></div><br/>'
+	             },{
+	            	xclass : 'tree-list',
+	 	        	id : 'mytree',
+	 	        	store : orgTreeStore,
+	 	        	showLine : true,
+	 	        	showRoot : true
+	             }],
+	             plugins : [Layout.Border]
+	         },{
+	        	 xclass : 'grid',
+	             layout : {
+	               region : 'center',
+	               title : '字段输入方式设置'
+	             },
+	             id : 'grid',
+            	 columns : columns,
+            	 store : gridStore,
+            	 plugins : [editing]
+	           }],
+	         plugins : [Layout.Border]
+	     });
+	        
+	        control.render();
+	        var search = control.getChild('search',true);
+	        var zdlist = control.getChild('zdlist',true);
+	        var tree = control.getChild('mytree',true);
+	        var grid = control.getChild('grid');
+	        
+	        tree.setSelectedByField('id','-1');
+	        
+	        editing.on('accept',function(e){
+	        	var tempItem = e.record;
+	        	var configArr = {inputtype:tempItem.b,id:tempItem.c};
+	        	  $.ajax({
+	   				url: '${rc.contextPath}/dataFuncZD/df/saveInputType',
+	   				dataType : 'json',
+	   				contentType : 'application/json',
+	   	          	type : 'get',
+	   	          	traditional: true,
+	   	          	data :configArr,
+	   	            success : function(){
+	   	            	/* BUI.Message.Alert("变更输入方式成功!"); */
+	   	            }
+	   			})
+	        });
+	        
+	        var store = tree.get('store'),
+		        editor = new Editor.Editor({
+		            field : {
+		              rules : {
+		                required : true
+		              }
+		            },
+		            autoUpdate : false,
+		            changeSourceEvent : null
+		          });
+	        
+		        editor.render();
+		   
+		        editor.on('accept',function(){
+		          var text = editor.getValue(),
+		          node = editor.get('curNode');
+		          var reg = /^[a-zA-Z_\u4e00-\u9fa5][a-zA-Z_0-9\u4e00-\u9fa5\:\：\/]*$/;
+		          if(!reg.test(text)){
+		        	  BUI.Message.Alert("命名中不允许数字开头,且仅能包含:和/用来做分隔符，请重新修改！");
+		          }else{
+		         	  node.text = text;
+		        	  store.update(node);
+			          var array = node.path;
+			          var pid = array[node.level-1];
+			          var isExist = array[node.level];
+			          if(isExist==null){
+			        	  var configArr = {name:node.text,parentorgid:pid};
+			        	  $.ajax({
+			   				url: '${rc.contextPath}/dataFuncZD/df/saveTreeConfig',
+			   				dataType : 'json',
+			   				contentType : 'application/json',
+			   	          	type : 'get',
+			   	          	traditional: true,
+			   	          	data :configArr,
+			   	            success : function(data){
+			   	            	var dataObj1 = eval("("+data+")");
+			   	            	orgTreeStore.load({id:pid});
+			   	            }
+			   			})
+			          }else{
+			        	  var configArr = {id:isExist,name:node.text,parentorgid:pid};
+			        	  $.ajax({
+				   				url: '${rc.contextPath}/dataFuncZD/df/saveTreeConfig',
+				   				dataType : 'json',
+				   				contentType : 'application/json',
+				   	          	type : 'get',
+				   	          	traditional: true,
+				   	          	data :configArr,
+				   	            success : function(data){
+				   	            	var dataObj1 = eval("("+data+")");
+				   	            	orgTreeStore.load({id:pid});
+				   	            }
+				   			})
+			          }
+		          }
+		        });
+		   
+		        function showEditor(node){
+		          var element = tree.findElement(node);
+		          editor.setValue(node.text);
+		          editor.set('curNode',node); 
+		          editor.set('align',{ 
+		            node : $(element).find('.x-tree-icon-wraper'),
+		            points : ['tr','tl']
+		          });
+		          editor.show();
+		          editor.focus(); 
+		        }
+	        
+	        tree.on('itemdblclick',function(ev){
+		          var node = ev.item;
+		          showEditor(node);
+	        });
+	      	
+	      	tree.on('itemclick',function(e){
+	      		grid.clearData();
+	      		if(e.item.requestPath!=null){
+	      			var configArr = {id:e.item.id};
+		            $.ajax({
+			   				url: '${rc.contextPath}/dataFuncZD/df/selectExistPath',
+			   				dataType : 'json',
+			   				contentType : 'application/json',
+			   	          	type : 'get',
+			   	          	traditional: true,
+			   	          	data :configArr,
+			   	            success : function(data){
+			   	            	var dataObj = eval("("+data+")");
+			   	            	if(dataObj==0){
+			   	            		$.ajax({
+			   		            		url: '${rc.contextPath}/dataFuncZD/df/getZD?requestpath='+e.item.requestPath,
+			   		      				dataType : 'json',
+			   		      				contentType : 'application/json',
+			   		      	          	type : 'get',
+			   		      	          	traditional: true,
+			   		      	            success : function(data){
+			   		      					var dataObj = eval("("+data+")");
+			   		      					var dataZD = [];
+					   		      			
+			   		      					for(var num=0;num<dataObj.length;num++){
+			   		      						if(dataObj[num].text!=null){
+				   		      						var single = {"name":dataObj[num].text,"fk_id":e.item.id,"requestpath":e.item.requestPath,"code":dataObj[num].id};
+				   		      						dataZD.push(single);
+			   		      						}
+			   		      					}
+			   		      					
+			   					        	 $.ajax({
+			   					   				url: '${rc.contextPath}/dataFuncZD/df/saveConfigTP',
+			   					   				dataType : 'json',
+			   					   	          	type : 'post',
+			   					   	          	traditional: true,
+			   					   	      		data :  {array: JSON.stringify(dataZD)},
+			   					   	            success : function(data){
+			   					   	          		var dataObj = eval("("+data+")");
+			   					   	            	inputData = [];
+			   					   	            	for(var n=0;n<dataObj.length;n++){
+			   					   	            		if(dataObj[n].name!=null){
+			   					   	            			inputData.push({a:dataObj[n].name,b:dataObj[n].inputtype,c:dataObj[n].id});
+			   					   	            		}
+			   					   	            	}
+			   					   	          		gridStore.setResult([]);
+			   					   	          		gridStore.setResult(inputData);
+			   					   	            }
+			   					   			})
+			   		      					
+			   		      	            }
+			   		      			})
+			   	            	}else{
+			   	            		var configArr = {id:e.item.id};
+						            $.ajax({
+							   				url: '${rc.contextPath}/dataFuncZD/df/selectZD',
+							   				dataType : 'json',
+							   				contentType : 'application/json',
+							   	          	type : 'get',
+							   	          	traditional: true,
+							   	          	data :configArr,
+							   	            success : function(data){
+							   	            	var dataObj1 = eval("("+data+")");
+							   	            	inputData = [];
+							   	            	for (var i = 0; i < dataObj1.length; i++) {
+													inputData.push({a:dataObj1[i].name,b:dataObj1[i].inputtype,c:dataObj1[i].id});
+												}
+							   	            	gridStore.setResult([]);
+		   					   	          		gridStore.setResult(inputData);
+							   	          }
+						            })	
+			   	            	}
+			   	            }
+			   		})	
+	      		}
+	      	})
+	      	
+	        function add(){
+	        	var selectedNode = tree.getSelected(),
+	        	newNode = {text : '新增节点'};
+	        	newNode = store.add(newNode,selectedNode);
+	        	tree.expandNode(selectedNode);
+	        	showEditor(newNode);
+	        }
+	        
+	        function mount(){
+	        	$('#orgAttribution1').attr('src','${rc.contextPath}/dataFuncZD/df/orgMount');
+				orgEditing.show();
+	        }
+	        
+	        function del(){
+	          var selectedNode = tree.getSelected();
+              if(selectedNode){
+                store.remove(selectedNode);
+              }
+              var configArr = {id:selectedNode.id};
+              $.ajax({
+	   				url: '${rc.contextPath}/dataFuncZD/df/deleteConfig',
+	   				dataType : 'json',
+	   				contentType : 'application/json',
+	   	          	type : 'get',
+	   	          	traditional: true,
+	   	          	data :configArr,
+	   	            success : function(){
+	   	            	BUI.Message.Alert("删除成功！");
+	   	            }
+	   			})
+	        }
+	             
+	        $("#btnDel").click(function(){
+	        	del();
+	        });
+	        
+	        $("#btnAdd").click(function(){
+	        	add();
+	        });
+	        
+	        $("#btnMount").click(function(){
+	        	mount();
+	        });
+	})
+	</script>
+</body>
+</html>

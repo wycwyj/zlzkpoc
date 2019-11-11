@@ -1,0 +1,451 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>人员权限查询</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/bui.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+   <style type="text/css">
+   html,body{
+		height:100%;
+   }
+   
+	.x-border-north{
+		border:none !important ;
+	}
+	.span13 {
+	    width:auto;
+	    text-align: center;
+	}
+	
+	.x-layout-item-border{
+		overflow-y:initial !important;
+	}
+	.bui-view-port{
+		width:100% !important;
+		height:100% !important;
+	}
+	.bui-grid-cell , .grid-td-col11{
+		word-break:normal !important;
+		word-wrap:normal !important;
+	}
+	/*  2017.12.12  */
+	.x-border-middle{
+		height:100%;
+	}
+	.x-border-body{
+		height:100%;
+	}
+	.bui-list{
+		height:500px !important;
+	}
+   </style>
+ </head>
+ <body>
+</body>
+</html>  
+<script type="text/javascript">
+ 
+	$(document).keydown(function(event){
+	  switch(event.keyCode){
+	     case 13:return false; 
+	     }
+	});
+	
+ var ryObj = "";
+	
+ var thisTxt = '';
+ var thisTxtRever = '';
+ BUI.use(['layout','picker','grid','data','tree','tab','toolbar','form','bui/list'],function (Layout,Picker,Grid,Data,Tree,Tab,Toolbar,Form,List){
+	 var Store = Data.Store;
+	 
+	 var columns1 = [
+		          	  {
+		          		  title:'人员编号',
+		          		  dataIndex:'q',
+		          		  width:'50%',
+		          		  elCls:'center'
+		          	  },
+		          	  {
+		                  title : '人员名称',
+		                  dataIndex :'a',
+		                  width:'50%',
+		                  elCls : 'center'
+		                }
+		            ];
+	 
+	 var columns = [
+	              {
+	            	  title:'所属模块',
+	            	  dataIndex:'s',
+	            	  width:'33.3%',
+	            	  elCls:'center'
+	              },
+	          	  {
+	          		  title:'类型',
+	          		  dataIndex:'q',
+	          		  width:'33.3%',
+	          		  elCls:'center'
+	          	  },
+	          	  {
+	                  title : '权限编号',
+	                  dataIndex :'a',
+	                  width:'33.4%',
+	                  elCls : 'center'
+	                }
+	            ];
+	 
+	 var gridStore = new Data.Store({
+     });
+	 
+	 var gridStore1 = new Data.Store({
+		 pageSize:10	
+     });
+	 
+     var control = new Layout.Viewport({
+			elCls : 'ext-border-layout',
+			children : [{
+             xclass : 'controller',
+             layout : {
+               	region : 'south',
+               	height : 0
+             },
+             width : 0,
+         	},{
+                xclass : 'list',
+                layout : {
+                  region : 'east',
+                  title : '资源列表',
+                  width : 600
+                },
+                defaultChildClass : 'controller',
+                children : [
+                {
+	               	 xclass:'grid',
+	            	 height : 460,
+	            	 width : 600,
+	            	 id:'grid_cdd',
+	            	 columns : columns,
+	            	 store : gridStore
+	             },{
+	             	 xclass : 'bar', 
+	     			 elCls : 'toolbar',
+	     			 layout:{
+	     	              region : 'south',
+	     	              width:"100%",
+	     	              height:40
+	     			 },
+	     			 children : [
+					{
+						xtype:'spacer',
+						width : 2
+					},         
+			         {
+		                content:'<div class="controls" id="tiaojian">精确筛选：<input type="text" class="control-text" id="sel" autocomplete="off" placeholder="请输入筛选的所属模块"></div>'
+			         },
+					 {
+		        	 	xtype:'button',
+					    btnCls : 'button button-small',
+					    text:'筛选',
+					    handler:function(event){
+					    	findResult();
+					    }
+					 }
+	                 ]
+	             }],
+                plugins : [Layout.Border]
+              },{
+				xclass : 'controller',
+				layout : {
+					region : 'west',
+               		title : '数据列表',
+               		width : 400
+             },
+             defaultChildClass : 'controller',
+             children:[
+             //20171204
+             { 
+               xclass : 'controller',
+               content : '<br/><form id="searchResultForm" class="form-horizontal" ><div class="control-group"><div class="control-group span8"><div class="controls" id="tiaojian">模糊匹配：<input type="hidden" id="orgcode"><input type="text" class="control-text" id="selCondition" autocomplete="off" placeholder="请输入查询的人员名称"></div></div></div><div class="span13" id="span13"><button id="reset" type="reset" class="button button-primary">重置</button></div></form><br/>'
+             },
+             {
+            	 xclass:'controller',
+            	 content:'<hr/>'
+             },
+             {
+           	 	xclass : 'controller',
+                content : '<br/><form id="reverSearchResultForm" class="form-horizontal" ><div class="control-group"><div class="control-group span8"><div class="controls" id="tiaojian">反向检索：<input type="hidden" id="orgcode"><input type="text" class="control-text" id="selConditionRever" autocomplete="off" placeholder="请输入模块名称选择"></div></div></div><div class="span13" id="span13"><button id="resetRever" type="reset" class="button button-primary">重置</button></div></form><br/>'
+             },
+             {
+            	 xclass:'controller',
+            	 content:'<hr/>'
+             },
+             {
+               	 xclass:'grid',
+            	 height : 163,
+            	 render: '#t1',
+            	 id:'grid_qxj',
+            	 columns : columns1,
+            	 store : gridStore1,
+            	 autoRender : true,
+            	 loadMask: true,
+            	 bbar:{
+                     pagingBar:true
+                 }
+             }
+             ],
+             plugins : [Layout.Border]
+         },{
+             xclass : 'list', 
+             elCls:'bui-select-list',
+             layout : {
+               region : 'center',
+               title : '已选结果'
+             },
+             id : 'list'
+           }],
+         plugins : [Layout.Border]
+     });
+        
+        control.render();
+        var list = control.getChild('list');
+        var form = control.getChild('form',true);
+        var search = control.getChild('search',true);
+        
+        $("#reset").click(function(){
+        	$('#selCondition').val('');
+        	gridStore.setResult([]);
+        });
+        
+        $("#resetRever").click(function(){
+        	$('#selConditionRever').val('');
+        	gridStore1.setResult([]);
+        });
+        
+        $(function(){
+        	$("#selCondition").bind('input porpertychange',function(e){
+        		thisTxt=$("#selCondition").val();
+        	});
+        	
+        	$("#selConditionRever").bind('input porpertychange',function(e){
+        		thisTxtRever=$("#selConditionRever").val();
+        	});
+        });
+        var columnsRever = [
+        		{title : '模块名称',dataIndex :'MODELNAME', width:'43.3%'},
+        		{title : '权限名称',dataIndex :'FUNC_NAME', width:'23.3%'},
+        		{title : '权限编号',dataIndex :'FUNC_ID', width:'33.4%'},
+        ],
+        paramsRever = {modelname:thisTxtRever},
+        store1 = new Store({
+    		url:'${rc.contextPath}/funcg/sel/queryEmpsRever',
+            autoLoad:true,
+            pageSize : 3,
+            proxy : {
+              	ajaxOptions : { 
+                	traditional : true,
+                	type : 'get'
+              	}
+            },
+            params : paramsRever
+        }),
+        grid1 = new Grid.Grid({
+            idField : 'FUNC_ID', 
+            columns : columnsRever,
+            textGetter: function(item){ 
+              	return item.MODELNAME+" ["+item.FUNC_NAME+"]";
+            },
+            bbar:{
+              	pagingBar:false
+            },
+            store : store1
+        }),
+		  picker1 = new Picker.ListPicker({
+		    trigger : '#selConditionRever',  
+		    width:320, 
+		    height:200,
+		    children : [grid1] 
+		  });
+        
+		picker1.render();
+        
+		$("#selConditionRever").on("keyup",function(){
+			paramsRever.modelname = $(this).val();
+    		store1.load(paramsRever)
+    	});
+        
+		var columns = [
+          		{title : '编号',dataIndex :'code', width:'15%'},
+       			{title : '名称',dataIndex :'name', width:'11%'},
+       			{title : '部门',dataIndex :'allOrgName', width:'74%'},
+       			{title : '人员id',dataIndex : 'empid',width:'0'}
+        ],
+        params = {name:thisTxt},
+        store = new Store({
+    		url:'${rc.contextPath}/emp/op/queryEmps',
+            autoLoad:true,
+            pageSize : 3,
+            proxy : {
+              	ajaxOptions : { 
+                	traditional : true,
+                	type : 'get'
+              	}
+            },
+            params : params
+        }),
+        grid = new Grid.Grid({
+            idField : 'code', 
+            columns : columns,
+            textGetter: function(item){ 
+              	return item.name;
+            },
+            bbar:{
+              	pagingBar:false
+            },
+            store : store
+        }),
+        //20170817
+		  picker = new Picker.ListPicker({
+		    trigger : '#selCondition',  
+		    valueField : '#orgcode', 
+		    width:420, 
+		    children : [grid] 
+		  });
+		picker.render();
+        
+		$("#selCondition").on("keyup",function(){
+    		params.name = $(this).val();
+    		store.load(params)
+    	});
+		
+		grid1.on('itemclick',function(e){
+			var node = e.item;
+	       	JSID={funcid:node.FUNC_ID};
+	       	$.ajax({
+				url: '${rc.contextPath}/funcg/sel/getInfoByfuncidry',
+				dataType : 'json',
+				contentType : 'application/json',
+	          	type : 'get',
+	          	traditional: true,
+	          	data :JSID,
+	            success : function(data){
+	            	var dataObj1 = eval("("+data+")");
+					var inputData = [];
+	            	for(var n=0;n<dataObj1.length;n++){
+	            		inputData.push({q:dataObj1[n].EMPCODE,a:dataObj1[n].EMPNAME});
+	            	}
+	            	gridStore1.setResult([]);
+	            	gridStore1.setResult(inputData);
+	            }
+			})
+		})
+		
+		grid.on('itemclick',function(e){
+			var node = e.item;
+			ryObj = node;
+			var tempOver = 0;
+			var tempArray = list.getItems();
+			for(var k=0;k<tempArray.length;k++){
+				if(node.code==tempArray[k].__attrVals.id){
+					BUI.Message.Alert('已存在于选项列表中，请勿重复选择');
+					tempOver = 1;
+					break;
+				}
+			}
+			if(tempOver==0){
+				 list.addItem({id :node.code,text :node.name+"("+node.code+")",value:node.orgname,orgcode:node.code});
+            	 var listid = node.code;
+              	 JSID={empcode:listid};
+               	 $.ajax({
+       				url: '${rc.contextPath}/funcg/sel/getInfoByEmpcocde',
+       				dataType : 'json',
+       				contentType : 'application/json',
+       	          	type : 'get',
+       	          	traditional: true,
+       	          	data :JSID,
+       	            success : function(data){
+       	            	var dataObj1 = eval("("+data+")");
+       					var inputData = [];
+       	            	for(var n=0;n<dataObj1.length;n++){
+       	            		inputData.push({s:dataObj1[n].MODELNAME,q:dataObj1[n].FUNC_NAME,a:dataObj1[n].FUNC_ID});
+       	            	}
+       	          		gridStore.setResult([]);
+       	          		gridStore.setResult(inputData);
+       	            }
+       			})
+			}
+		})
+		
+        list.on('dblclick',function(e){
+        	list.removeItem(e.target.__attrVals);
+        });
+		
+        list.on('itemclick', function(ev){
+      	 	var tempid = ev.item.__attrVals.orgcode;
+      	 	JSID={empcode:tempid};
+          	 $.ajax({
+   				url: '${rc.contextPath}/funcg/sel/getInfoByEmpcocde',
+   				dataType : 'json',
+   				contentType : 'application/json',
+   	          	type : 'get',
+   	          	traditional: true,
+   	          	data :JSID,
+   	            success : function(data){
+   	            	var dataObj1 = eval("("+data+")");
+   					var inputData = [];
+   	            	for(var n=0;n<dataObj1.length;n++){
+   	            		inputData.push({s:dataObj1[n].MODELNAME,q:dataObj1[n].FUNC_NAME,a:dataObj1[n].FUNC_ID});
+   	            	}
+   	          		gridStore.setResult([]);
+   	          		gridStore.setResult(inputData);
+   	            }
+   			})
+      	});
+        
+        function findResult(){
+        	//获取list选中的对象
+        	var listVal = list.getSelected();
+        	if(listVal==null){
+        		if(ryObj==null||ryObj==""){
+        			BUI.Message.Alert('请在列表中选择您需要筛选的项');
+        		}else{
+        			var lsitValId = ryObj.code;
+        			publicFindResult(lsitValId);
+        		}
+        	}else{
+        		var lsitValId = listVal.__attrVals.orgcode;
+        		publicFindResult(lsitValId);
+        	}
+        }
+        
+        function publicFindResult(lsitValId){
+        	//获取输入的值
+        	var inputVal = $("#sel").val();
+        	JSID={empcode:lsitValId,modelname:inputVal};
+         	 $.ajax({
+  				url: '${rc.contextPath}/funcg/sel/getInfoByEmpcodeAndValue',
+  				dataType : 'json',
+  				contentType : 'application/json',
+  	          	type : 'get',
+  	          	traditional: true,
+  	          	data :JSID,
+  	            success : function(data){
+  	            	var dataObj1 = eval("("+data+")");
+  					var inputData = [];
+  	            	for(var n=0;n<dataObj1.length;n++){
+  	            		inputData.push({s:dataObj1[n].MODELNAME,q:dataObj1[n].FUNC_NAME,a:dataObj1[n].FUNC_ID});
+  	            	}
+  	          		gridStore.setResult([]);
+  	          		gridStore.setResult(inputData);
+  	            }
+  			})
+        	
+        }
+        
+        $(".x-accordion-title").remove();
+    });
+  </script>

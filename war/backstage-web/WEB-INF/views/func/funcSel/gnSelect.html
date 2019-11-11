@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>功能权限查询</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/bui.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+   <style type="text/css">
+	.bui-nav-tab{
+		height:98%;
+	}
+	
+	.tab-content-container{
+		height:98%;
+	}
+	.x-layout-item-border{
+		overflow-y:initial !important;
+	}
+	html,body{
+		height:100%;
+		width:100%;
+	}
+   </style>
+ </head>
+ <body>
+ <body>
+ <script type="text/javascript">
+ 
+    BUI.use(['layout','grid','data','tab'],function (Layout,Grid,Data,Tab){
+    	
+        var Store = Data.Store,
+            orgContentTab = new Tab.NavTab({
+                forceFit : true,
+                children : [
+                  {
+                	width : '110',
+                    title : '按人员查询',
+                    //loader : {url : '${rc.contextPath}/funcg/sel/gnry'},
+                    href : '${rc.contextPath}/funcg/sel/gnry',
+                    actived:true,
+                    closeable:false
+                  },
+                  {
+                  	width : '110',
+                      title : '按角色查询',
+                      //loader : {url : '${rc.contextPath}/funcg/sel/gnjs'},
+                      href : '${rc.contextPath}/funcg/sel/gnjs',
+                      actived:false,
+                      closeable:false
+                    },
+                  {
+                  	width : '110',
+                      title : '按部门查询',
+                      //loader : {url : '${rc.contextPath}/funcg/sel/gnbm'},
+                      href : '${rc.contextPath}/funcg/sel/gnbm',
+                      actived:false,
+                      closeable:false
+                    }
+                ]
+            });
+        orgContentTab.render();
+        
+        var control = new Layout.Viewport({
+        	width:600,
+			height:"100%",
+			elCls : 'ext-border-layout',
+			children : [{
+            	xclass : 'controller',
+            	layout : {
+            		region : 'center',
+            		fit : 'both'
+                },
+                id : 'content',
+                children : [orgContentTab]
+            }],
+            plugins : [Layout.Border]
+        });
+        control.render();
+    });
+  </script>
+</html>  

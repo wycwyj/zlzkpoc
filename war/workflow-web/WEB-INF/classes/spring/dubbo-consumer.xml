@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+        http://www.springframework.org/schema/beans/spring-beans.xsd  
+        http://code.alibabatech.com/schema/dubbo  
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
+	<dubbo:application name="wood-workflow-web-consumer">
+		<dubbo:parameter key="qos.enable" value="true"/>
+		<dubbo:parameter key="qos.accept.foreign.ip" value="false"/>
+		<dubbo:parameter key="qos.port" value="33334"/>
+	</dubbo:application>
+
+	<dubbo:consumer filter="tracing"/>
+
+	<bean id="woodServiceTrack" class="com.ztj.wood.config.other.WoodServiceTrack">
+		<property name="serviceName" value="wood-workflow-web-consumer"/>
+	</bean>
+
+	<!-- 使用zookeeper注册中心暴露服务地址 -->
+	<!-- 注册中心地址 -->
+	<dubbo:registry protocol="zookeeper" address="${dubbo.registry.address}" />
+	
+	<!-- 统一登录服务 -->
+	<dubbo:reference interface="com.ztj.wood.auth.facade.AuthFacade" id="authFacade" check="false" retries="0" timeout="12000"/>
+	
+	<!-- 后台管理系统对外服务 -->
+	<dubbo:reference interface="com.ztj.wood.backstage.outer.facade.APPOutFacade" id="appOutFacade" check="false" retries="0" timeout="12000"/>
+	
+	<!-- 三员及用户操作日志服务接口 -->
+	<dubbo:reference interface="com.ztj.wood.common.facade.OpLogFacade" id="opLogFacade" check="false" retries="0" timeout="12000"/>
+	
+	<!-- 组织机构对外接口 -->
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.OrganizationFacade" id="organizationFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.outer.facade.EmailOutFacade" id="emailOutFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.EmailInfoSetFacade" id="emailInfoSetService" check="false" retries="0" timeout="12000"/>
+
+	<!-- 导出excel -->
+	<dubbo:reference interface="com.ztj.wood.common.facade.CommonExportExcelFacade" id="commonExportExcelSubstance" check="false" retries="0" timeout="12000"/>
+
+	<!-- 系统用户对外接口 -->
+	<dubbo:reference interface="com.ztj.wood.backstage.sysadmin.facade.EmpFacade" id="empFacade" check="false" retries="0" timeout="12000"/>
+	<!--安全策略管理服务-->
+	<dubbo:reference interface="com.ztj.wood.backstage.security.facade.SafestrategyFacade" id="safestrategyFacade" check="false" retries="0" timeout="12000"/>
+
+	<!-- 系统角色对外接口 -->
+	<dubbo:reference interface="com.ztj.wood.backstage.secadmin.facade.RoleFacade" id="roleFacade" check="false" retries="0" timeout="12000"/>
+
+	<!--消息推送服务接口-->
+	<dubbo:reference interface="com.ztj.wood.plugin.activemq.push.WoodActiveMQFacade" id="woodActiveMQSubstance" check="false" retries="0" timeout="12000"/>
+
+	<!--wood总插件服务-->
+	<dubbo:reference interface="com.ztj.wood.plugin.service.WoodPluginFacade" id="woodPluginFacade" check="false" retries="0" timeout="12000"/>
+	
+	<!-- 自定义查询条件服务接口 -->
+	<dubbo:reference interface="com.ztj.wood.common.facade.QueryConditionFacade" id="queryConditionFacade" check="false" retries="0" timeout="12000"/>
+
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.DatabaseFacade" id="databaseFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.EngineInfoFacade" id="engineInfoFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.JobFacade" id="jobFacade" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.ModelFacade" id="modelFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.ProMngFacade" id="processMngSubstance" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.ProInstFacade" id="processInstSubstance" check="false" retries="0" timeout="12000"/>
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.TaskFacade" id="taskFacade" check="false" retries="0" timeout="12000"/>
+	
+	<dubbo:reference interface="com.ztj.wood.workflow.facade.outer.ActCommonFacade" id="actCommonFacade" check="false" retries="0" timeout="12000"/>
+</beans>  

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新建模块</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.web.frame.css">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/extends/layui/2.4.5/css/layui.css">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.common.css">
+    <style>
+        .layui-select-title{
+            width:98.9%;
+            margin-bottom: 2px;
+        }
+        .layui-form-select .layui-edge {
+            right: 20px;
+        }
+        .layui-form-select dl {
+            left: 0px;
+            top: 39px;
+            width:98.9%;
+            min-width:98.9%;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-container">
+    <form class="layui-form layui-form-pane" lay-filter="formDemo" id="formDemo" style="top: 10px">
+        <div class="layui-field-box">
+            <input type="hidden" name="id" id="id">
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px"><span style="color:red;">*</span>密码长度范围：</label>
+                <div class="layui-input-inline" style="margin-left:200px;left:11px;top:1px;width: 300px">
+                    <select name="pwdLendthMin"  id="pwdLendthMin"  lay-filter="pwdLendthMin" lay-verify="required" style="width: 300px">
+                        <option value="">请选择密码最小长度...</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                    </select>
+                </div>
+                    <div class="layui-form-mid">---</div>
+                <div class="layui-input-inline" lay-filter="pwdLendthMax1" style="margin-left:1px;top:1px;width: 300px">
+                    <select name="pwdLendthMax"  id="pwdLendthMax"  lay-filter="pwdLendthMax" lay-verify="required" style="width: 300px">
+                        <option value="">请选择密码最大长度...</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px"><span style="color:red;">*</span>允许最大校验失败次数：</label>
+                <div class="layui-input-block" style="margin-left:200px;left:11px;top:1px;width: 300px">
+                    <select name="failNum" id="failNum"  lay-filter="failNum" lay-verify="required" style="width: 300px">
+                        <option value="">请选择失败次数...</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px"><span style="color:red;">*</span>周期提醒(天)：</label>
+                <div class="layui-input-block" style="margin-left:200px;height:40px;left:11px;top:20px;">
+                    <div id="cycleNotify" class="demo-slider" style="width: 500px;"></div>
+                    <input type="hidden" name="cycleNotify" value="" id="cycleNotify1" placeholder="请输入..." class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px"><span style="color:red;">*</span>密码不允许使用最近次数：</label>
+                <div class="layui-input-block" style="margin-left:200px;height:40px;left:11px;top:20px;">
+                    <div id="nearCount" class="demo-slider" style="width: 500px;"></div>
+                    <input type="hidden" name="nearCount" value="" id="nearCount1" placeholder="请输入..." class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px"><span style="color:red;">*</span>会话时长(分钟)：</label>
+                <div class="layui-input-block" style="margin-left:200px;left:11px;top:20px;height:40px;">
+                    <div id="sessionTimer" class="demo-slider" style="width: 500px"></div>
+                    <input type="hidden" name="sessionTimer" value="" id="sessionTimer1" placeholder="请输入..."  class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px"><span style="color:red;">*</span>锁定类型：</label>
+                <div class="layui-input-block" style="margin-left:200px;height:40px;left:11px;top:1px;">
+                    <input type="radio" id="lockType1" name="lockType" lay-filter="lockType" value="永久" title="永久">
+                    <input type="radio" id="lockType2" name="lockType" lay-filter="lockType" value="临时" title="临时" checked>
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px"><span style="color:red;">*</span>锁定时长(分钟)：</label>
+                <div class="layui-input-block" style="margin-left:200px;left:11px;top:20px;height:40px;">
+                    <div id="lockTimer" class="demo-slider" style="width: 500px"></div>
+                    <input type="hidden" name="lockTimer" value="" id="lockTimer1" placeholder="请输入..." class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px">安全加严：</label>
+                <div class="layui-input-block" style="margin-left:200px;height:40px;left:11px;">
+                	<input name="strictSave" type="hidden" value="off" >
+                    <input type="checkbox" class="strictSave" name="strictSave" id="strictSave" lay-skin="switch" lay-filter="strictSaveFilter" lay-text="是|否"/>
+                </div>
+            </div>
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;width: 200px">是否启用：</label>
+                <div class="layui-input-block" style="margin-left:200px;height:40px;left:11px;">
+                	<!--<input name="isUsed" type="hidden" value="off" >-->
+                	<input type="checkbox" class="isUsed" name="isUsed" id="isUsed" lay-skin="switch"  lay-filter="isUsedFilter" lay-text="是|否"/>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="${rc.contextPath}/wood/resource/webframe/extends/jquery/jquery.min.js"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/extends/layui/2.4.5/layui.js" charset="utf-8"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/js/wood.form.js"></script>
+<script>
+var cycleNotifyslider,lockTimerslider,sessionTimerslider,slider,nearCountslider;
+    $(function(){
+
+        layui.use('slider', function () {
+            slider = layui.slider;
+
+            //周期提醒
+            cycleNotifyslider =  slider.render({
+                elem: '#cycleNotify'
+                , input: true //输入框
+                , min: 0 //最小值
+                , max: 100 //最大值
+                , change: function (value) {
+                    $("input[name=cycleNotify]").val(value);
+                }
+            });
+
+            //最近密码次数
+            nearCountslider =  slider.render({
+                elem: '#nearCount'
+                , input: true //输入框
+                , min: 0 //最小值
+                , max: 5 //最大值
+                , change: function (value) {
+                    $("input[name=nearCount]").val(value);
+                }
+            });
+
+            //锁定时长
+            lockTimerslider =  slider.render({
+                elem: '#lockTimer'
+                , input: true //输入框
+                , min: 0 //最小值
+                , max: 60 //最大值
+                , change: function (value) {
+                    $("input[name=lockTimer]").val(value);
+                }
+            });
+            //会话时长
+            sessionTimerslider =  slider.render({
+                elem: '#sessionTimer'
+                //, step: 10
+                , input: true //输入框
+                , min: 0 //最小值
+                , max: 1440 //最大值
+                , change: function (value) {
+                    $("input[name=sessionTimer]").val(value);
+                }
+            });
+        });
+
+        $("#formDemo").initFormNew({getDataUrl:"${rc.contextPath}/safestrategy/wood/be/operate/getObj?id=${strategySetId}",
+            saveDataUrl:"${rc.contextPath}/safestrategy/wood/be/operate/save",method:"POST",loadingCallback:function(form,formData){
+            var isUsed = formData.isUsed;
+            var isUsedM = $(".isUsed");
+            var $isUsed = $("#isUsed");
+//            if(isUsed!=undefined){
+                if(isUsed=="on"){
+                    isUsedM.attr("checked","");
+                    isUsedM.val("on");
+                }else{
+                    isUsedM.removeAttr("checked")
+                    isUsedM.val("off");
+                };
+//            }
+
+            var strictSave = formData.strictSave;
+            var strictSaveM = $(".strictSave");
+            var $strictSave = $("#strictSave");
+            if(strictSave=="on"){
+            	strictSaveM.attr("checked","");
+            	strictSaveM.val("on");
+            }else{
+            	strictSaveM.removeAttr("checked")
+                strictSaveM.val("off");
+            };
+            if(formData.cycleNotify!=undefined && formData.lockTimer!=undefined && formData.sessionTimer!=undefined&& formData.nearCount!=undefined){
+            	cycleNotifyslider.setValue(formData.cycleNotify);
+            	if(formData.lockType == "永久"){
+            		lockTimerslider.setValue(0);
+            		lockTimerslider =  slider.render({
+                        elem: '#lockTimer'
+                        ,disabled: true
+                    });
+            	}else{
+            		lockTimerslider.setValue(formData.lockTimer);
+            	}
+                sessionTimerslider.setValue(formData.sessionTimer);
+                nearCountslider.setValue(formData.nearCount);
+            }else{
+                cycleNotifyslider.setValue(5);
+                lockTimerslider.setValue(30);
+                sessionTimerslider.setValue(1);
+                nearCountslider.setValue(5);
+            }
+            form.render("checkbox");
+
+           form.on("switch(strictSaveFilter)",function(obj){
+            	if(obj.value=="on"){
+            		if(strictSaveM.attr("checked"))
+            			strictSaveM.removeAttr("checked")
+                    strictSaveM.val("off");
+            		$strictSave.val("off");
+            		strictSaveM.next().prop("class","layui-unselect layui-form-switch");
+            		strictSaveM.next().find("em").text("否");
+            	}else{
+            		strictSaveM.attr("checked","");
+            		strictSaveM.val("on");
+            		strictSaveM.next().prop("class","layui-unselect layui-form-switch layui-form-onswitch");
+            		strictSaveM.next().find("em").text("是");
+            	}
+            })
+
+            form.on("switch(isUsedFilter)",function(obj){
+                if(obj.value=="on") {
+                    if(isUsedM.attr("checked"))
+                        isUsedM.removeAttr("checked")
+                    isUsedM.val("off");
+//                	$isUsed.val("off");
+                    isUsedM.next().prop("class","layui-unselect layui-form-switch");
+                    isUsedM.next().find("em").text("否");
+                }else{
+                    layer.confirm("只有一条安全策略可启用，启用此条将导致其他安全策略不启用，" +
+                        "确定启用吗", { btn: ['确定','取消'],btn1: function(index){
+                        $.ajax({
+                            url: "${rc.contextPath}/safestrategy/changeIsUsed"
+                            ,type:"get"
+                            ,async:false
+                            , success: function(result){
+                               if(result.indexOf("成功")!=-1){
+                                   isUsedM.attr("checked","");
+                                   isUsedM.val("on");
+//                                   $isUsed.val("on");
+                                   isUsedM.next().prop("class","layui-unselect layui-form-switch layui-form-onswitch");
+                                   isUsedM.next().find("em").text("是");
+                                }else{
+                                   if(isUsedM.attr("checked"))
+                                       isUsedM.removeAttr("checked")
+                                   isUsedM.val("off");
+//                                   $isUsed.val("off");
+                                   isUsedM.next().prop("class","layui-unselect layui-form-switch");
+                                   isUsedM.next().find("em").text("否");
+                               }
+                            }
+                        });
+                        layer.close(index);
+                    },
+                        btn2: function(index){
+                            if(isUsedM.attr("checked"))
+                            isUsedM.removeAttr("checked")
+                            isUsedM.val("off");
+//                            $isUsed.val("off");
+                            isUsedM.next().prop("class","layui-unselect layui-form-switch");
+                            isUsedM.next().find("em").text("否");
+                            layer.close(index);
+                        }
+                    })
+                }
+            });
+
+            form.on('radio(lockType)', function(data) {
+                var lockTypepage = data.value;
+                if(lockTypepage=='永久'){
+                	lockTimerslider.setValue(0);
+                    lockTimerslider =  slider.render({
+                        elem: '#lockTimer'
+                        ,disabled: true
+                    });
+                }else if(lockTypepage=='临时'){
+                	lockTimerslider =  slider.render({
+                        elem: '#lockTimer'
+                        , input: true //输入框
+                        , min: 0 //最小值
+                        , max: 60 //最大值
+                        , change: function (value) {
+                            $("input[name=lockTimer]").val(value);
+                        }
+                    });
+                    lockTimerslider.setValue(30);
+                }
+            });
+
+            form.on('select(pwdLendthMax)', function(data){
+                var pwdLendthMaxpage = data.value;
+                var pwdLendthMinpage = $("#pwdLendthMin").val();
+                if(pwdLendthMinpage!='' && Number(pwdLendthMaxpage)<Number(pwdLendthMinpage)){
+                    alert("密码最大长度应大于密码最小长度，请重新选择！");
+                    $("#pwdLendthMax").val('');
+                    form.render();
+                }
+            });
+        }});
+    });
+
+    function save(layerIndex){
+        saveOrSubmit(true,layerIndex);
+//        saveOrSubmit(false,layerIndex);
+    }
+
+    function submit(layerIndex){
+        saveOrSubmit(false,layerIndex);
+    }
+
+    function saveOrSubmit(isSave,layerIndex){
+        var isUsedM = $(".isUsed");
+        var $isUsed = $("#isUsed");
+        if(!isSave){
+            //若为提交，则只有一条数据改为启用
+            if(isUsedM.val()=='off'){
+                $.ajax({
+                    url: "${rc.contextPath}/safestrategy/isUsedNum"
+                    ,type:"get"
+                    ,async:false
+                    , success: function(result){
+
+                        if(result.indexOf("没有")!=-1){
+                            layer.msg("必须有一条认证策略配置是启用状态");
+                            isUsedM.attr("checked","");
+                            isUsedM.val("on");
+//                            $isUsed.val("on");
+                            isUsedM.next().prop("class","layui-unselect layui-form-switch layui-form-onswitch");
+                            isUsedM.next().find("em").text("是");
+                        }
+                    }
+                });
+            }
+        }else{
+            isUsedM.val("off");
+//            $isUsed.val("off");
+            layer.msg("只有提交才能启用认证策略配置");
+        }
+        formObject.submitForm(isSave,function(msg){
+            if(!isSave){
+                parent.layer.close(layerIndex);
+            }else{
+                var currID = $("#id").val();
+                if(currID==""||currID==null){
+                    $("#id").val(msg.entity.id);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

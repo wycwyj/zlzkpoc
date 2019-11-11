@@ -1,0 +1,920 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>人员数据授权页面</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/bui.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .x-accordion-title{
+      background: #dfeaf2;
+      border-top: 2px solid white;
+      padding: 8px 10px;
+    }
+    .x-collapsed .x-accordion-body{
+      height: 0;
+      overflow: hidden;
+    }
+    
+    .ext-border-layout {
+	    padding-left:0px;
+	    padding-top:0px;
+	    padding-bottom:0px;
+	    padding-right:2px;
+	    margin-top:1px;
+	    margin-left:1px;
+	    margin-right:1px;
+	    margin-bottom:1px;
+	    background:white;
+	}
+	
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+	}
+	
+	.ext-border-layout .x-border-center {
+	    border-top：0px;
+	}
+	
+
+	.bui-nav-tab{
+		height:97%;
+	}
+	
+	.tab-content-container{
+		height:99%;
+	}
+	.span13 {
+	    width:auto;
+	    text-align: center;
+	}
+	.x-border-body{
+		height:78% !important;
+	}
+	.bui-tree-list  ul{
+		padding-bottom:10px !important;
+	}
+   </style>
+ </head>
+ <body>
+ 
+ 	<div id="c1" style="display:none">
+      <form id="J_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">值：</label>
+            <div class="controls">
+            	<input type="hidden" name="c">
+                <input name="b" type="text" class="input-normal control-text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div id="s1" style="display:none">
+      <form id="Q_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">值：</label>
+            <div class="controls">
+            	<input type="hidden" name="c">
+                <input name="b" type="text" class="input-normal control-text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div id="c2" style="display:none">
+      <form id="K_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">值：</label>
+            <div class="controls">
+            	<input type="hidden" name="c">
+                <input name="b" class="calendar" type="text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div id="s2" style="display:none">
+      <form id="R_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">值：</label>
+            <div class="controls">
+            	<input type="hidden" name="c">
+                <input name="b" class="calendar" type="text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div id="s3" style="display:none">
+         <iframe src="${rc.contextPath}/dataFuncZD/empRoleDial" id="orgAttribution1" name="orgAttribution1" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+    <div id="s4" style="display:none">
+          <iframe src="${rc.contextPath}/dataFuncZD/orgRoleDial" id="orgAttribution2" name="orgAttribution2" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+ </body>
+ <script type="text/javascript">
+ 
+	$(document).keydown(function(event){
+	  switch(event.keyCode){
+	     case 13:return false; 
+	     }
+	});
+ 
+	var tempVal = "";
+ 	/* 用来存储人员值 */
+ 	var tempRyVal = "";
+ 	/* 临时存放该路径下所有字段值，用来循环 */
+	var tempZDArray="";
+ 	/* 临时存放字段对应的值 */
+ 	var thisTxt = '';
+ 	
+ 	var requestpath = "";
+	var ZDCode = "";
+	var title ="";
+ 	
+    BUI.use(['layout','picker','grid','data','tree','tab','bui/form','bui/overlay'],function (Layout,Picker,Grid,Data,Tree,Tab,Form,Overlay){
+    	var orgform = new BUI.Form.Form({
+    		srcNode : '#ZD_Form'
+    	}).render();
+    	
+    	var formQ = new BUI.Form.Form({
+    		srcNode : '#Q_Form'
+    	}).render();
+    	
+    	var formR = new BUI.Form.Form({
+    		srcNode : '#R_Form'
+    	}).render();
+    	
+    	var formS = new BUI.Form.Form({
+    		srcNode : '#S_Form'
+    	}).render();
+    	
+    	var formT = new BUI.Form.Form({
+    		srcNode : '#T_Form'
+    	}).render();
+    	
+    	var Store = Data.Store,
+    	orgTreeStore = new Data.TreeStore({
+            root : {
+                id : '-1',
+                text : '组织机构'
+            },
+            pidField : 'pid',
+            url : '${rc.contextPath}/external/get/leafsBak',
+            autoLoad : true,
+            dataType:'json',
+            contentType:"application/json"
+        });
+    	
+    	var columns = [
+    	  {
+    		  title:'字段',
+    		  dataIndex:'q',
+    		  width:'20%',
+    		  elCls:'center'
+    	  },
+    	  {
+            title : '方式',
+            dataIndex :'a',
+            width:'8%',
+            elCls : 'center'
+          },{
+            title : '值',
+            dataIndex :'b',
+            width:'30%',
+            elCls : 'center'
+          	},
+         {
+       		dataIndex :'c',
+       		visible : false
+       	  },
+       	  {
+       		  title:'路径',
+       		  dataIndex:'d',
+       		  visible:false
+       	  },
+       	  {
+       		  title:'字段编码',
+       		  dataIndex:'e',
+       		  visible:false
+       	  },
+       	  {
+       		  title:'输入类型',
+       		  dataIndex:'f',
+       		  visible:false
+       	  },
+       	  {
+	       	 title : '操作',
+	       	 elCls : 'center',
+	       	 renderer : function(value,obj){
+	       		if(obj.f=="s"){
+	       			return '<span class="grid-command btn-edit-time">编辑</span>'
+	       		 }else if(obj.f=="w"){
+	       			return '<span class="grid-command btn-edit">编辑</span>' 
+	       		 }
+	         }
+       	  }
+	   ];
+		
+    	var editing1 = new Grid.Plugins.DialogEditing({
+          contentId : 'c1' ,
+          triggerCls : 'btn-edit' 
+        });
+    	
+    	var editing2 = new Grid.Plugins.DialogEditing({
+            contentId : 'c2' ,
+            triggerCls : 'btn-edit-time' 
+        });
+    	
+    	var editing3 = new Grid.Plugins.DialogEditing({
+            contentId : 'c3' ,
+            triggerCls : 'btn-edit-ry' 
+        });
+      	
+      	var editing4 = new Grid.Plugins.DialogEditing({
+            contentId : 'c4' ,
+            triggerCls : 'btn-edit-bm' 
+        });
+    	
+    	var gridStore = new Data.Store({
+        });
+          
+        var control = new Layout.Viewport({
+			width:600,
+			height:"99%",
+			elCls : 'ext-border-layout',
+			children : [{
+                xclass : 'controller',
+                layout : {
+                  	region : 'south',
+                  	height : 0
+                },
+                width : 0,
+            },
+            {
+	             xclass : 'controller',
+	             layout : {
+	               region : 'east',
+	               title : '设置字段条件',
+	               width : "48%",
+	               fit:'height'
+	             },
+	             defaultChildClass : 'controller',
+	             children : [{
+	               	 xclass:'grid',
+	            	 id:'grid_cdd',
+	            	 columns : columns,
+	            	 store : gridStore,
+	            	 plugins : [editing1,editing2,editing3,editing4,Grid.Plugins.CheckSelection]
+	             },{
+	             	 xclass : 'bar', 
+	     			 elCls : 'toolbar',
+	     			 layout:{
+	     	              region : 'south',
+	     	              height:40
+	     			 },
+	     			 children : [
+						{
+						xtype:'spacer',
+						width : 2
+						},
+						{
+						    xtype:'button',
+						    btnCls : 'button button-small',
+						    text:'删除条件',
+						    handler:function(event){
+						    	delFunction();
+						    }
+						},
+						{
+				            xtype:'separator'
+				         },
+						 {
+				        	 	xtype:'button',
+							    btnCls : 'button button-small',
+							    text:'授予最高权限',
+							    handler:function(event){
+							    	hightest();
+							    }
+						 },
+				         {
+				                content:'<label class="checkbox"><input id="highest" type="checkbox" disabled="disabled"></label>'
+				         },
+						 {
+				        	 	xtype:'button',
+							    btnCls : 'button button-small',
+							    text:'取消最高权限',
+							    handler:function(event){
+							    	unhightest();
+							    }
+						 }
+	                 ]
+	             }],
+	             plugins : [Layout.Border]
+	           },
+            {
+                xclass : 'controller',
+                layout : {
+                    region : 'center',
+                    width : "52%",
+                    fit:'both'
+                },
+                defaultChildClass : 'controller',
+                children : [{
+                    xclass : 'list',
+                    elCls:'bui-select-list',
+                    layout : {
+                        region : 'west',
+                        title : '请选择人员',
+                        width : "75%",
+                        fit:'height'
+                    },
+                    id : 'rylist',
+                    defaultChildClass : 'controller',
+                    children : [{
+                    	xclass : 'controller',
+                        content : '<br/><form id="searchResultForm" class="form-horizontal" ><div class="control-group"><div class="control-group span8"><div class="controls" id="tiaojian">快速定位：<input type="hidden" id="orgcode"><input type="text" class="control-text" id="selCondition" autocomplete="off" placeholder="请输入查询的人员名称"></div></div></div><div class="span13" id="span13"><button type="button" id="btnSearchResult" class="button button-primary">定位</button>&nbsp;&nbsp;&nbsp;<button id="reset" type="reset" class="button">重置</button></div></form><br/>'
+                    },{
+                    	xclass : 'tree-list',
+        	        	id : 'mytree',
+        	        	store : orgTreeStore,
+        	        	showLine : true,
+        	        	checkType: 'onlyLeaf'
+                    }],
+                    plugins : [Layout.Border]
+                },
+                {
+                    xclass : 'list',
+                    elCls:'bui-select-list',
+                    layout : {
+                        region : 'east',
+                        title : '请选择字段',
+                        width : "25%",
+                        fit:'height'
+                    },
+                    id : 'zdlist'
+                }],
+                plugins : [Layout.Border]
+            }],
+            plugins : [Layout.Border]
+        });
+        
+        control.render();
+        var tree = control.getChild('mytree',true);
+        var zdlist = control.getChild('zdlist',true);
+        var gridcdd = control.getChild('grid_cdd',true);
+        
+        tree.setSelectedByField('id','-1');
+        
+        editing1.on('accept',function(ev){
+        	
+        	var tempTreeVals = tree.getCheckedNodes();
+        	var tempSelected = tree.getSelection();
+        	var tempTreeValObj = tempTreeVals.attributes;
+        	
+        	var record = ev.record;
+        	var configArr = {id:record.c,value:record.b};
+	      	$.ajax({
+	 				url: '${rc.contextPath}/dataFuncZD/df/saveInputValue',
+	 				dataType : 'json',
+	 				contentType : 'application/json',
+	 	          	type : 'get',
+	 	          	traditional: true,
+	 	          	data :configArr,
+	 	            success : function(){
+	 	            }
+	 		})
+        })
+        
+        editing2.on('accept',function(ev){
+        	
+        	var tempTreeVals = tree.getCheckedNodes();
+        	var tempSelected = tree.getSelection();
+        	var tempTreeValObj = tempTreeVals.attributes;
+        	
+        	var record = ev.record;
+        	var configArr = {id:record.c,value:record.b};
+	      	$.ajax({
+	 				url: '${rc.contextPath}/dataFuncZD/df/saveInputValue',
+	 				dataType : 'json',
+	 				contentType : 'application/json',
+	 	          	type : 'get',
+	 	          	traditional: true,
+	 	          	data :configArr,
+	 	            success : function(){
+	 	            }
+	 		})
+        })
+        
+        $("#reset").click(function(){
+        	$('#orgcode').val("");
+        	$('#selCondition').val('');
+        });
+        
+        $("#btnSearchResult").on('click',function(){
+        	var val = $('#orgcode').val();
+        	if(val==""){
+        		initTreeLoadNode();
+        	}else{
+        		MHZ={mhz:val};
+            	$.ajax({
+     				url: '${rc.contextPath}/funcg/funcr/selectidByname',
+     				dataType : 'json',
+     				contentType : 'application/json',
+     	          	type : 'get',
+     	          	traditional: true,
+     	          	data :MHZ,
+     	            success : function(data){
+     	            	var dataObj1 = eval("("+data+")");
+     	            	if(dataObj1==""){
+     	            		BUI.Message.Alert('请输入并选择需要搜索的项');
+     	            	}else{
+         	            	var orgIdStr = dataObj1[0];
+         	            	var empId = dataObj1[1];
+     	            		loadTreeNode(tree,orgIdStr,empId);
+     	            	}
+     	            }
+     			})
+        	}
+        });
+        
+        function loadTreeNode(tree,orgIdStr,empId){
+        	tree.collapseAll();
+        	tree.expandPath(orgIdStr,true,0);
+        	var item = tree.getItem(empId);
+        	var timer = setInterval(function(){
+        		item = tree.getItem(empId);
+        		if(item!=null){
+        			var emp = tree.findElement(item);
+                    $(emp).click();
+        			// $(emp).addClass('bui-tree-item-selected');
+        			clearInterval(timer);
+        		}
+        	},50);
+        }
+        
+        function initTreeLoadNode(){
+        	orgTreeStore.load({id:"-1"});
+        }
+        
+        
+        $(function(){
+        	$("#selCondition").bind('input porpertychange',function(e){
+        		thisTxt=$("#selCondition").val();
+        	});
+        });
+        
+        var columns = [
+          		{title : '编号',dataIndex :'code', width:'15%'},
+       			{title : '名称',dataIndex :'name', width:'13%'},
+       			{title : '部门',dataIndex :'allOrgName', width:'72%'},
+       			{title : '人员id',dataIndex : 'empid',width:'0'}
+        ],
+        params = {name:thisTxt},
+        store = new Store({
+    		url:'${rc.contextPath}/emp/op/queryEmps',
+            autoLoad:true,
+            pageSize : 3,
+            proxy : {
+              	ajaxOptions : { //ajax的配置项，不要覆盖success,和error方法
+                	traditional : true,
+                	type : 'get'
+              	}
+            },
+            params : params
+        }),
+        grid = new Grid.Grid({
+            idField : 'code', //设置作为key 的字段，放到valueField中
+            columns : columns,
+            textGetter: function(item){ //返回选中的文本
+              	return item.name;
+            },
+            bbar:{
+              	// pagingBar:表明包含分页栏
+              	pagingBar:false
+            },
+            store : store
+        }),
+        //20170817
+		  picker = new Picker.ListPicker({
+		    trigger : '#selCondition',  
+		    valueField : '#orgcode', //如果需要列表返回的value，放在隐藏域，那么指定隐藏域
+		    width:400,  //指定宽度
+		    children : [grid] //配置picker内的列表
+		  });
+		picker.render();
+        
+		$("#selCondition").on("keyup",function(){
+    		params.name = $(this).val();
+    		store.load(params)
+    	});
+		
+		var dialogText = new Overlay.Dialog({
+            title:'添加操作',
+            width:380,
+            height:122,
+            mask:false,
+            buttons:[
+              {
+                text:'确定',
+                elCls : 'button button-primary',
+                handler : function(){
+                	var tVal = formQ.getFieldValue("b");
+                	var tempTreeVals = tree.getCheckedNodes();
+                	for(var u=0;u<tempTreeVals.length;u++){
+                		addVal(tempTreeVals[u].attributes.empid,requestpath,ZDCode,title,tVal);
+                	}
+                	formQ.setFieldValue("b","");
+                	this.close();
+                }
+              },{
+                text:'关闭',
+                elCls : 'button',
+                handler : function(){
+                  this.close();
+                }
+              }
+            ],
+            	contentId:'s1'
+          });
+        
+        var dialogTime = new Overlay.Dialog({
+            title:'添加操作',
+            width:362,
+            height:122,
+            mask:false,
+            buttons:[
+              {
+                text:'确定',
+                elCls : 'button button-primary',
+                handler : function(){
+                	var tVal = formR.getFieldValue("b");
+                	var d = new Date(tVal); 
+                	var youWant = "";
+                	if(d.getMonth()+1<10&&d.getDate()>10){
+                		youWant=d.getFullYear() + '-0' + (d.getMonth() + 1) + '-' + d.getDate();  
+                	}else if(d.getMonth()+1<10&&d.getDate()<10){
+                		youWant=d.getFullYear() + '-0' + (d.getMonth() + 1) + '-0' + d.getDate();
+                	}else{
+                		youWant=d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                	}
+                	
+                	var tempTreeVals = tree.getCheckedNodes();
+                	for(var u=0;u<tempTreeVals.length;u++){
+                		addVal(tempTreeVals[u].attributes.empid,requestpath,ZDCode,title,youWant); 
+                	}
+                	formR.setFieldValue("b","");
+                	this.close();
+                }
+              },{
+                text:'关闭',
+                elCls : 'button',
+                handler : function(){
+                  this.close();
+                }
+              }
+            ],
+            	contentId:'s2'
+          });
+        
+        var dialogRY = new Overlay.Dialog({
+            title:'添加操作',
+            width:828,
+            height:442,
+            mask:false,
+            buttons:[
+              {
+                text:'确定',
+                elCls : 'button button-primary',
+                handler : function(){
+                	var arrayItems = window.orgAttribution1.getArrayItems();
+                	var tempTreeVals = tree.getCheckedNodes();
+                	for(var u=0;u<tempTreeVals.length;u++){
+                		for(var y=0;y<arrayItems.length;y++){
+                			addVal(tempTreeVals[u].attributes.empid,requestpath,ZDCode,title,arrayItems[y].text); 
+                		}
+                	}
+                	this.close();
+                }
+              },{
+                text:'关闭',
+                elCls : 'button',
+                handler : function(){
+                  this.close();
+                }
+              }
+            ],
+            	contentId:'s3'
+          });
+        
+        var dialogBM = new Overlay.Dialog({
+            title:'添加操作',
+            width:828,
+            height:442,
+            mask:false,
+            buttons:[
+              {
+                text:'确定',
+                elCls : 'button button-primary',
+                handler : function(){
+                	var arrayItems = window.orgAttribution2.getArrayItems();
+                	var tempTreeVals = tree.getCheckedNodes();
+                	for(var u=0;u<tempTreeVals.length;u++){
+                		for(var y=0;y<arrayItems.length;y++){
+                			addVal(tempTreeVals[u].attributes.empid,requestpath,ZDCode,title,arrayItems[y].text); 
+                		}
+                	}
+                	this.close();
+                }
+              },{
+                text:'关闭',
+                elCls : 'button',
+                handler : function(){
+                  this.close();
+                }
+              }
+            ],
+            	contentId:'s4'
+          });
+		
+        $(function(){
+        	tempVal = "${tempPath}";
+        	if(tempVal==""){}
+        	else{
+        		$.ajax({
+            		url: '${rc.contextPath}/dataFuncZD/df/getZDNew?requestpath='+tempVal,
+      				dataType : 'json',
+      				contentType : 'application/json',
+      	          	type : 'get',
+      	          	traditional: true,
+      	            success : function(data){
+      					var dataObj = eval("("+data+")");
+      					if(dataObj.length==0){
+      						BUI.Message.Alert('请检查是否已在配置中进行配置');
+      					}else{
+      						zdlist.addItems(dataObj);
+          					tempZDArray=dataObj;
+      					}
+      	            }
+      			})	
+        	}
+        	
+        	/*监听输入框的回车操作*/  
+    	 	$('#selCondition').bind('keypress',function(event){  
+    	 	    if(event.keyCode == "13")
+    	 	    	$('#btnSearchResult').click();
+    	 	});
+        	
+        })
+        
+        tree.setSelectedByField('id','-1');
+        
+        //修改行数 ↓
+        
+        //function temp
+        function zdClick(ev){
+        	var node = ev.item;
+        	var tempPath = "${tempPath}";
+        	if(tempPath==""){}
+        	else{
+        		var selectVal = tree.getSelected();
+            	if(selectVal==null){
+            		BUI.Message.Alert('请选择查看的人员');
+            	}else{	
+            	tempRyVal = selectVal.orgcode;
+            	//获取人员相关信息 这里
+            	//重新编写 20171019
+            	var selectVals = tree.getCheckedNodes();
+            	if(selectVals.length==0){
+            		BUI.Message.Alert('请进行人员勾选');
+            	}else{
+		            	var tempZDObj = node.__attrVals;
+		            	requestpath = tempZDObj.requestpath;
+		            	ZDCode = tempZDObj.id;
+		            	title = tempZDObj.text;
+		            	
+		            	if(tempZDObj.type=="s"){
+                    		dialogTime.show();
+                    	}else if(tempZDObj.type=="r"){
+                    		dialogRY.show();
+                    	}else if(tempZDObj.type=="b"){
+                    		dialogBM.show();
+                    	}else{
+                    		dialogText.show();
+                    	}
+            		}
+            	}
+        	}
+        }
+        
+        function hightest(){
+      	  if(requestpath==""){
+      		  BUI.Message.Alert("请先选择需要设置的模块！");   	
+      	  }else{
+      		  var allNodes = tree.getCheckedNodes();
+      		  if(allNodes.length==0){
+      			  BUI.Message.Alert("请勾选需要设置的人员！");
+      		  }else{
+      			  for(var all=0;all<allNodes.length;all++){
+              		  var configArr = {userid:allNodes[all].attributes.empid,requestpath:requestpath,attr1:"hight",value:"hight"};
+          	        	$.ajax({
+          		   				url: '${rc.contextPath}/dataFuncZD/df/saveZDRYHight',
+          		   				dataType : 'json',
+          		   				contentType : 'application/json',
+          		   	          	type : 'get',
+          		   	          	traditional: true,
+          		   	          	data :configArr,
+          		   	            success : function(data){
+          		   	            	if(data=="success"){
+          		   	            		var sele=document.getElementById('highest');
+          			   	            	sele.checked = true;
+          		   	            		BUI.Message.Alert("已授予最高权限！");   	
+          		   	            	}else if(data=="exist"){
+          		   	            		BUI.Message.Alert("已是最高权限！");   	
+          		   	            	}else{
+          		   	            		BUI.Message.Alert("授予最高权限失败！");   	
+          		   	            	}
+          		   	            }
+          		   		})
+              	  }
+      		  }
+      	  }
+        }
+        
+        function unhightest(){
+      	  if(requestpath==""){
+      		  BUI.Message.Alert("请先选择需要设置的模块！");   	
+      	  }else{
+      		  var allNodes = tree.getCheckedNodes();
+      		  if(allNodes.length==0){
+      			  BUI.Message.Alert("请勾选需要设置的人员！");
+      		  }else{
+      			  for(var all=0;all<allNodes.length;all++){
+              		  var configArr = {userid:allNodes[all].attributes.empid,requestpath:requestpath};
+          	        	$.ajax({
+          		   				url: '${rc.contextPath}/dataFuncZD/df/deleteZDRYHight',
+          		   				dataType : 'json',
+          		   				contentType : 'application/json',
+          		   	          	type : 'get',
+          		   	          	traditional: true,
+          		   	          	data :configArr,
+          		   	            success : function(data){
+          		   	            	if(data=="success"){
+          		   	            		var sele=document.getElementById('highest');
+          			   	            	sele.checked = false;
+          		   	            		BUI.Message.Alert("已取消最高权限！");   	 
+          		   	            	}else if(data=="unexist"){
+          		   	            		BUI.Message.Alert("目前不是最高权限！");   	
+          		   	            	}else{
+          		   	            		BUI.Message.Alert("取消最高权限失败！");   	 
+          		   	            	}
+          		   	            }
+          		   		})
+              	  } 
+      		  }
+      	  }
+        }
+        
+        
+        function addVal(empUserId,requestpath,ZDCode,title,Val){
+        	var configArr = {userid:empUserId,requestpath:requestpath,name:ZDCode,title:title,type:"=",value:Val};
+	      	  $.ajax({
+		   				url: '${rc.contextPath}/dataFuncZD/df/saveZDConfig',
+		   				dataType : 'json',
+		   				contentType : 'application/json',
+		   	          	type : 'get',
+		   	          	traditional: true,
+		   	          	data :configArr,
+		   	            success : function(data){
+		   	            	var dataObj1 = eval("("+data+")");
+		   	            	var inputData = [];
+		   	            	for(var n=0;n<dataObj1.length;n++){
+		   	            		inputData.push({q:dataObj1[n].text,a:dataObj1[n].type,b:dataObj1[n].value,c:dataObj1[n].uId,d:dataObj1[n].requestrequestpath,e:dataObj1[n].id,f:dataObj1[n].inputType});
+		   	            	}
+		   	          		gridStore.setResult([]);
+		   	          		gridStore.setResult(inputData);
+		   	            }
+		   			})
+        }
+        
+        
+      	//菜单选中
+        zdlist.on('itemclick', function(ev){
+        	zdClick(ev);
+        });
+        
+        tree.on('selectedchange',function(ev){
+        	gridcdd.clearData();
+        	zdlist.clearSelection();
+        	var nodeItem = ev.item;
+        	if(nodeItem.hasOwnProperty("attributes")){
+		          	var node = ev.item.attributes;
+		          	var tempPath = "${tempPath}";
+		          	requestpath = "${tempPath}";
+		          	if(tempPath==""){}
+		          	else{
+		        		var configArr = {userid:node.empid,requestpath:tempPath};
+				        	  $.ajax({
+				   				url: '${rc.contextPath}/dataFuncZD/df/getRyZDValNew',
+				   				dataType : 'json',
+				   				contentType : 'application/json',
+				   	          	type : 'get',
+				   	          	traditional: true,
+				   	          	data :configArr,
+				   	            success : function(data){
+				   	            	var dataObj1 = eval("("+data+")");
+				   	            	inputData = [];
+				   	            	for(var n=0;n<dataObj1.length;n++){
+				   	            		inputData.push({a:dataObj1[n].type,b:dataObj1[n].value,q:dataObj1[n].text,c:dataObj1[n].uId,d:dataObj1[n].requestrequestpath,e:dataObj1[n].id,f:dataObj1[n].inputType});
+				   	            	}
+				   	          		gridStore.setResult([]);
+				   	          		gridStore.setResult(inputData);
+				   	            	
+				   	            }
+				   		})
+				   		
+		   				var configArr = {userid:node.empid,requestpath:requestpath,attr1:"hight"};
+        	        	$.ajax({
+        		   				url: '${rc.contextPath}/dataFuncZD/df/selectZDRYHight',
+        		   				dataType : 'json',
+        		   				contentType : 'application/json',
+        		   	          	type : 'get',
+        		   	          	traditional: true,
+        		   	          	data :configArr,
+        		   	            success : function(data){
+        		   	            	if(data=="exist"){
+        		   	            		var sele=document.getElementById('highest');
+        			   	            	sele.checked = true;
+        		   	            	}else{
+        		   	            		var sele=document.getElementById('highest');
+        			   	            	sele.checked = false;
+        		   	            	}
+        		   	            }
+        		   		})
+		         }
+        	}else{
+        		BUI.Message.Alert('请选择需要设置的人员');
+        		tree.setNodeChecked(nodeItem,false);
+        	}
+      });
+        
+        function delFunction(){
+            var selections = gridcdd.getSelection();
+            gridStore.remove(selections);
+            
+            var tempArrayId = [];
+            
+            for(var u=0;u<selections.length;u++){
+            	tempArrayId.push(selections[u].c);
+            }
+            var configArr = {arrayId:tempArrayId};
+	      	$.ajax({
+	 				url: '${rc.contextPath}/dataFuncZD/df/deleteZDConfig',
+	 				dataType : 'json',
+	 				contentType : 'application/json',
+	 	          	type : 'get',
+	 	          	traditional: true,
+	 	          	data :configArr,
+	 	            success : function(){
+	 	            }
+	 		})
+        }
+        
+        $(".x-accordion-title").remove();
+        $(".bui-tree-list").parent().parent().height("99.8%");
+        $(".bui-tree-list").parent().height("100%");
+        $(".bui-tree-list").height("100%").css("border-bottom","1px solid #3892d3");
+        $(".bui-grid").parent().css("border-bottom","1px solid #3892d3");
+       
+        $(".bui-list").css("overflow","hidden");
+        $(".bui-list").css("overflow-y","auto");
+        
+        $(".x-layout-item-border").css("overflow","hidden");
+        $(".x-layout-item-border").css("overflow-y","auto");
+        $(".x-layout-item-border").css("border-bottom","none");
+        $(".x-layout-item-border").css("border-right","none");
+        $(".x-layout-item-border").css("border-left","none");
+        $(".ext-border-layout").css("width","1060px");
+    });
+  </script>
+</html>  

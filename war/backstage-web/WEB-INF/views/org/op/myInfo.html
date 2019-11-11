@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>机构详细信息</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width: 400px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:44%;
+	}
+  </style>
+</head>
+<body>
+  <div class="demo-content">
+    <form id="J_Form" class="form-horizontal" action="${rc.contextPath}/org/op/updateMe" method="post">
+        <br>
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">机构编号：</label>
+            <div class="controls">
+              <input type="hidden" name="orgid" value="$!org.orgid">
+              <input type="hidden" name="orgcode" value="$!org.orgcode">
+              <input type="text" disabled="disabled" data-rules="{required:true}" data-messages="{required:'机构编号不能为空'}" class="input-normal control-text" data-tip="{text:'请输入机构编号'}" value="$!{org.orgcode}">
+            </div>
+          </div>
+          <div class="control-group span8">
+            <label class="control-label"><s>*</s>机构名称：</label>
+            <div class="controls">
+              <input type="text" data-rules="{required:true}" name="orgname" data-messages="{required:'机构名称不能为空'}" class="input-normal control-text" data-tip="{text:'请输入机构名称'}" value="$!{org.orgname}">
+            </div>
+          </div>
+          <div class="control-group span8">
+            <label class="control-label">机构等级：</label>
+            <div class="controls">
+              <input type="hidden" name="orglevel" id="orglevel" value="$!{org.orglevel}"/>
+              <input type="text" disabled="disabled" id="orglevel_show" data-rules="{required:true}" data-messages="{required:'机构等级不能为空'}" class="input-normal control-text" data-tip="{text:'请输入机构等级'}" value="$!{org.orglevel}">     
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <!-- <div class="control-group span8">
+            <label class="control-label">父机构：</label>
+            <div class="controls">
+              <input type="hidden" id="parentorgid" name="parentorgid" value="$!org.parentorgid">
+              <input type="hidden" id="parentid">
+              <input type="text" id="parentname" name="parentname" autocomplete="off" class="input-normal control-text" data-tip="{text:'请输入机构编号/名称匹配'}" value="$!org.parentname">
+            </div>
+          </div> -->
+          <div class="control-group span8">
+            <label class="control-label">地址：</label>
+            <div class="controls">
+              <input type="text" name="orgaddr" class="input-normal control-text" value="$!{org.orgaddr}">
+            </div>
+          </div>
+          <div class="control-group span8">
+            <label class="control-label">邮编：</label>
+            <div class="controls">
+              <input type="text" name="zipcode" class="input-normal control-text" value="$!{org.zipcode}" data-rules="{number:true,maxlength:6}">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">电子邮箱：</label>
+            <div class="controls">
+              <input type="text" name="email" class="input-normal control-text" value="$!org.email" data-rules="{email:true}">
+            </div>
+          </div>
+          <div class="control-group span8">
+            <label class="control-label">网站地址：</label>
+            <div class="controls">
+              <input type="text" name="weburl" class="input-normal control-text" value="$!{org.weburl}" data-messages="{regexp:'不是正确的网址格式'}" data-rules="{regexp:/^((ht|f)tps?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?$/}">
+            </div>
+          </div>
+          <div class="control-group span8">
+            <label class="control-label">所属地区：</label>
+            <div class="controls">
+              <input type="text" name="area" class="input-normal control-text" value="$!{org.area}">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="control-group span15">
+            <label class="control-label">备注：</label>
+            <div class="controls control-row4">
+              <textarea name="remark" class="input-large">$!org.remark</textarea>
+            </div>
+          </div>
+        </div>
+        <div class="span13 offset3 ">
+          <button type="submit" class="button button-primary">保存</button>
+          <button type="reset" class="button">重置</button>
+        </div>
+    </form>
+  <script type="text/javascript">
+    BUI.use(['form','picker','grid','data'],function(Form,Picker,Grid,Data){
+    	var Store = Data.Store,
+    	columns = [
+			{title : '机构编号',dataIndex :'orgcode', width:'40%'},
+			{title : '机构名称',dataIndex :'orgname', width:'40%'},
+			{title : '机构等级',dataIndex :'orglevel', width:'20%'},
+			{title : '机构id',dataIndex : 'orgid',width:'0'}
+    	],params = {orgid:'$!org.orgid',remark:'$!org.parentname'},
+    	store = new Store({
+    		url:'${rc.contextPath}/org/op/queryOrgs',
+            autoLoad:true,
+            pageSize : 3,
+            proxy : {
+              	ajaxOptions : { //ajax的配置项，不要覆盖success,和error方法
+                	traditional : true,
+                	type : 'post'
+              	}
+            },
+            params : params
+        }),
+    	grid = new Grid.Grid({
+            idField : 'orgid', //设置作为key 的字段，放到valueField中
+            columns : columns,
+            textGetter: function(item){ //返回选中的文本
+            	$("#parentid").val(item.orgid);
+            	$("#parentorgid").val(item.orgid);
+            	$("#orglevel").val(parseInt(item.orglevel)+1);
+            	$("#orglevel_show").val(parseInt(item.orglevel)+1);
+              	return item.orgname;
+            },
+            bbar:{
+              	// pagingBar:表明包含分页栏
+              	pagingBar:false
+            },
+            store : store
+        }),
+    	picker = new Picker.ListPicker({
+    		trigger : '#parentname',
+    		valueField : '#parentid', //如果需要列表返回的value，放在隐藏域，那么指定隐藏域
+    		width:400,  //指定宽度
+    		children : [grid] //配置picker内的列表
+    	});
+    	picker.render();
+    	
+    	$("#parentname").on("keyup",function(){
+    		params.remark = $(this).val();
+    		store.load(params)
+    	});
+    	
+    	new Form.HForm({
+    		srcNode : '#J_Form',
+    		defaultChildCfg : {
+    			validEvent : 'blur' //移除时进行验证
+    		}
+    	}).render();
+    });
+  </script>
+  </div>
+</body>
+</html>

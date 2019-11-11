@@ -1,0 +1,385 @@
+<!-- ${rc.contextPath}/process/def-list.html -->
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>搜索表单</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+	.container {
+		padding:0px;
+	}
+   </style>
+ </head>
+ <body>
+  签收列表页面于2016年10月27日下午13:31分开始停止维护
+  <div class="container">
+    <div class="row">
+      <form id="searchForm" class="form-horizontal span24">
+      
+          <div class="row">
+	         	          <div class="control-group span8">
+		            <label class="control-label">任务名称</label>
+		            <div class="controls">
+		              <input type="text" class="control-text" name="name">
+		            </div>
+	          </div>
+	          <div class="control-group span8">
+	            <label class="control-label">流程定义名称</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="pdname">
+	            </div>
+	          </div>
+	           <!--div class="control-group span8">
+	            <label class="control-label">流程定义ID</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="processDefinitionId">
+	            </div>
+	          </div>
+	          	<div class="control-group span8">
+	            <label class="control-label">流程实例ID</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="assignee">
+	            </div>
+	          </div-->
+	          	<div class="control-group span8">
+	            <label class="control-label">任务描述</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="preview">
+	            </div>
+	          </div>
+	           <div class="control-group span8">
+	            <label class="control-label">处理人员</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="assignee">
+	            </div>
+	          </div>
+	        <div class="control-group span8">
+            <label class="control-label">状态</label>
+            <div class="controls">
+              	<select name=isactive id="isactive">
+              	<option/>
+              	<option value="active">激活</option>
+              	<option value="suspend">挂起</option>
+			    </select>
+            </div>
+          </div>
+	          <div class="control-group span8">
+              <label class="control-label">发起时间</label>
+		        <div class="controls">
+		           <input type="text" class="calendar" name="startTimeF" id="startTimeF">--<input type="text" class="calendar" name="startTimeT" id="startTimeT">
+		       </div>
+             </div>
+        </div>
+        <div class="row">
+	          <div class="span3 offset10">
+	            <button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	          </div>
+        </div>
+      </form>
+    </div>
+    <div class="search-grid-container">
+      <div id="grid"></div>
+    </div>
+    
+    
+    <!-- 此节点内部的内容会在弹出框内显示,默认隐藏此节点-->
+   <div id="content" class="hide">
+      <input type="hidden" name="taskID" id="taskID">
+        	<div class="row">
+		          <div class="control-group span8">
+		            <label class="control-label">选择人员</label>
+		            <div class="controls">
+		               <select name="assignee" id="assignee">
+		               
+		               </select>
+		            </div>
+		          </div>
+	          </div>
+    </div>
+    
+   <!-- 任务跳转选择-->
+	<div id="jumpNext" class="hide">
+	   <input type="hidden" value="" name="jtaskID" id="jtaskID">
+		<table>
+			<tr>
+				<td>选择跳转节点</td>
+				<td>
+					 <select id="jnext" name="jnext">
+					</select>
+				</td>
+			</tr>
+		</table>
+	</div>
+  </div>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+  
+<script type="text/javascript">
+
+var i18n=new Array();
+
+i18n['wood.tasksubstance.alarm0']="success";
+i18n['wood.tasksubstance.alarm1']="ERROR:根据任务ID,查找任务出错！！";
+i18n['wood.tasksubstance.alarm2']="ERROR:任务为空！";
+i18n['wood.tasksubstance.alarm3']="ERROR:根据任务ID,查找流程定义出错！！";
+i18n['wood.tasksubstance.alarm4']="ERROR:没有找到流程定义！！";
+i18n['wood.tasksubstance.alarm5']="ERROR:没有找到可驳回节点！！";
+i18n['wood.tasksubstance.alarm6']="ERROR:没有找到回退的节点，不能回退！！";
+i18n['wood.tasksubstance.alarm7']="流程已经结束";
+i18n['wood.tasksubstance.alarm8']="存在已经完成的下一步，流程不能取回";
+i18n['wood.tasksubstance.alarm9']="取回成功！！！";
+i18n['wood.tasksubstance.alarm10']="取回任务节点不是当前正在执行的任务节点的前一个节点，不能取回";
+i18n['wood.tasksubstance.alarm11']="没有找到此任务节点的下一个节点的任务正在执行";
+i18n['wood.tasksubstance.alarm12']="流程取回失败，未知错误.";
+
+  BUI.use(['common/search'],function (Search) {
+    
+    var columns = [
+          {title:'任务ID',dataIndex:'id',width:'0',visible:false},
+          {title:'任务名称',dataIndex:'name',width:'20%'},
+          {title:'任务创建时间',dataIndex:'createTime',width:'20%'},
+          {title:'流程定义名称',dataIndex:'pdname',width:'20%',renderer:function(v,obj){
+              return Search.createLink({
+                  id : 'imgShow_' + v,
+                  title : v+'流程图',
+                  text : v,
+                  href : '${rc.contextPath}/workflow/business/trace/'+obj.processDefinitionId+'/'+obj.processInstanceId
+                  //href : '${rc.contextPath}/process/resource/read?processDefinitionId='+obj.processDefinitionId+'&resourceType=image'
+                });
+              }},
+          {title:'流程任务描述',dataIndex:'preview',width:'30%'},
+          {title:'流程版本号',dataIndex:'pdversion',width:'0',visible:false},
+          {title:'流程定义ID',dataIndex:'processDefinitionId',width:'0',visible:false},
+          {title:'流程实例ID',dataIndex:'processInstanceId',width:'0',visible:false},
+          {title:'处理人员',dataIndex:'assignee',width:'20%'},
+          {title:'是否挂起',dataIndex:'_suspendedState',width:'10%'},
+          {title:'state',dataIndex:'_suspended',width:'0%',visible:false},
+          {title:'操作',dataIndex:'',width:155,renderer:function(v,obj){
+              var delStr = '<span class="grid-command btn-view">查看</span><span class="grid-command btn-0">跳转</span><span class="grid-command btn-1">回退</span><span class="grid-command btn-4">任务指派</span>';//
+              var defCN = '<span class="grid-command btn-suspended">'+obj._suspendedCN+'</span>';
+              return  delStr+defCN;
+          }}
+        ],
+      store = Search.createStore('${rc.contextPath}/workflow/business/task/todo/signlist/${userId}',{
+        proxy:{
+          autoLoad:true,
+          dataType:'json',
+          contentType:"application/json"
+        },
+        pageSize : 10,	// 配置分页数目
+        autoSync:true //保存数据后，自动更新
+      }),
+      gridCfg = Search.createGridCfg(columns,{
+           plugins : [BUI.Grid.Plugins.RowNumber,BUI.Grid.Plugins.AutoFit]// 插件形式引入多选表格
+      });
+
+    var  search = new Search({
+        store : store,
+        gridCfg : gridCfg,
+       bbar:{
+            // pagingBar:表明包含分页栏
+            pagingBar:true
+        }
+      }),
+      grid = search.get('grid');
+    
+    function huitui(item){
+        $.ajax({
+          url : '${rc.contextPath}/workflow/business/activity/callback/'+item.id,
+          dataType : 'json',
+          //data : {},
+          success : function(data){//
+              if(data=="success"){ //
+            	  BUI.Message.Alert('成功！');
+                  search.load();
+              }else{ 
+                  BUI.Message.Alert(i18n[data]);
+             }
+          }
+      });
+  }
+    
+    
+    var dialog1 = new BUI.Overlay.Dialog({
+        title:'任务指派',
+		width:300,
+		height:200,
+        //配置DOM容器的编号
+        contentId:'content',
+        buttons:[
+                 {
+                   text:'确定',
+                   elCls : 'button button-primary',
+                   handler : function(){
+                     //do some thing
+                     submitZhipai();
+                     this.close();
+                   }
+                 },
+                 {
+                   text:'关闭',
+                   elCls : 'button',
+                   handler : function(){
+                     this.close();
+                   }
+                 }
+               ]
+      });
+
+    
+    function showZhipai(item){
+       $("#taskID").val(item.id);
+    	dialog1.show();
+   }
+   
+    function submitZhipai(){
+        var assignee=$("#assignee").val();
+        var taskID=$("#taskID").val();
+        $.ajax({
+            url : '${rc.contextPath}/workflow/business/transferTask/'+taskID+'/'+assignee+'/1',
+            dataType : 'json',
+            success : function(data){//
+                if(data=="success"){ //
+              	  BUI.Message.Alert('指派成功！');
+                    search.load();
+                }else{ 
+                    BUI.Message.Alert('失败！');
+               }
+            }
+        });
+    }
+    
+    function suspended_(items){
+      	BUI.each(items,function(item){
+              $.ajax({
+                url : '${rc.contextPath}/processinstance/update/'+item._suspended+'/'+item.processInstanceId,
+                dataType : 'json',
+                success : function(data){//
+                    if(data=="success"){ //
+                  	  BUI.Message.Alert('更改状态成功！');
+                        search.load();
+                    }else{ 
+                        BUI.Message.Alert('更改状态失败！');
+                   }
+                }
+            });
+     
+          });
+        }
+    
+    
+    function view_(item){
+      	 window.open("${rc.contextPath}/workflow/business/viewTask/"+item.id);
+      }
+    
+    //监听事件，删除一条记录
+    grid.on('cellclick',function(ev){
+      var sender = $(ev.domTarget); //点击的Dom
+      if(sender.hasClass('btn-1')){
+           var record = ev.record;
+           huitui([record][0]);
+       }else if(sender.hasClass('btn-suspended')){
+           var record = ev.record;
+           suspended_([record]);
+         }else if(sender.hasClass('btn-4')){
+           var record = ev.record;
+           showZhipai([record][0]);
+       }else if(sender.hasClass('btn-0')){
+           var record = ev.record;
+           jumpNext([record][0]);
+      }else if(sender.hasClass('btn-view')){
+          var record = ev.record;
+          view_([record][0]);
+      }
+       
+   });
+   
+   var dialogi = new BUI.Overlay.Dialog({
+       title:'选择流程跳转节点',
+		width:300,
+		height:200,
+       //配置DOM容器的编号
+       contentId:'jumpNext',
+       buttons:[
+                {
+                  text:'确定',
+                  elCls : 'button button-primary',
+                  handler : function(){
+                    //do some thing
+                    var taskID=$("#jtaskID").val();
+                    var jnext=$("#jnext").val();
+					  $.ajax({  
+					      type:"post",  
+					      url:"${rc.contextPath}/workflow/business/activity/jump",  
+					      dataType:"json",  
+					      data:{taskId:taskID,toTaskKey:jnext},
+					      success:function(data){
+				              if(data==true){ //
+				            	  BUI.Message.Alert('任务跳转成功！');
+				                  search.load();
+				              }else{ 
+				                  BUI.Message.Alert('任务跳转失败！');
+				             }  
+					      },  
+					  });  
+                    this.close();
+                  }
+                },
+                {
+                  text:'关闭',
+                  elCls : 'button',
+                  handler : function(){
+                    this.close();
+                  }
+                }
+              ]
+     });
+   
+   function jumpNext(item){
+   	
+   	$("#jtaskID").val(item.id);
+	$("#jnext").empty();
+       $.ajax({
+         url : '${rc.contextPath}/workflow/business/activity/chooseJumpNext/'+item.id,
+         dataType : 'json',
+         success : function(rl){//
+             $.each(rl,function(i,v){  
+           	  $("<option value='"+v.id+"'>"+v.name+"</option>").appendTo("#jnext");   
+             }); 
+             dialogi.show();
+         }
+     });
+ }
+   
+  });
+  
+  $.ajax({  
+      type:"get",  
+      url:"${rc.contextPath}/workflow/business/depute/deputeUserList",  
+      dataType:"json",  
+      success:function(fieldList){
+          if(fieldList != null && fieldList.length > 0){
+              for(var i = 0; i< fieldList.length; i++){  
+                  $("<option value='"+fieldList[i].id+"'>"+fieldList[i].id+"</option>").appendTo("#assignee");  
+              }  
+          }  
+      },  
+  });  
+</script>
+</body>
+</html>  
+

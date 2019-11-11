@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>人员回收站删除</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width:400px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:400px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">用户账号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="code1" name="code">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">人员名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="name1" name="name">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+</body>
+<script type="text/javascript">
+
+	var result = {};
+	
+	function getSecShow(sec){
+		if(result[sec]==""||result[sec]==null){
+			return "未知"
+		}else{
+			return result[sec];
+		}
+	}
+	
+	$(function(){
+		getInitSelectData();
+	})
+	
+	/* 动态获取密级数据 */
+	function getInitSelectData(){
+		$.ajax({  
+		    type:"GET",  
+		    url:"${rc.contextPath}/secc/secNameUser",  
+		    dataType:"json",  
+		    success:function(data){
+		    	$("<option value='0'>无</option>").appendTo("#sec");
+		    	result[0] = '无';
+		    	 if(data != null && data.length > 0){
+		            for(var i = 0; i< data.length; i++){  
+		                $("<option value='"+data[i].secId+"'>"+data[i].secNameuser+"</option>").appendTo("#sec");  
+		                var demo = data[i].secId;   
+		                result[demo]=data[i].secNameuser;             
+		            }
+		        }
+		    },  
+		});
+	}
+
+	BUI.use('common/search',function (Search) {
+      	columns = [
+			{title:'主键ID',dataIndex:'empid',visible:false,width:0},
+          	{title:'用户账号',dataIndex:'code',width:100},
+          	{title:'中文名',dataIndex:'name',width:80},
+          	{title:'密级',dataIndex:'sec',width:60,renderer:function(value){
+          		return getSecShow(value);
+          	}},
+          	{title:'性别',dataIndex:'sex',width:40,renderer:function(value){
+          		if( value == 0){
+	          		return '男';
+	          	}else {
+	          		return '女';
+	          	}
+            }},
+            {title:'职位类型',dataIndex:'iskeepparttime',width:100,renderer:function(value){
+            	if(value=='y'){
+            		return "兼职";
+            	}else{
+            		return "主职";
+            	}
+            }},
+            {title:'所属机构',dataIndex:'orgname',width:150},
+            {title:'工号',dataIndex:'cardcode',width:100},
+          	{title:'电子邮箱',dataIndex:'email',width:120},
+          	{title:'手机号',dataIndex:'mobileno',width:120},
+          	{title:'创建人',dataIndex:'creator',width:100},
+          	{title:'创建日期',dataIndex:'createtime',width:150,renderer:BUI.Grid.Format.datetimeRenderer},
+          	{title:'状态',dataIndex:'status',width:60,renderer:function(value){
+          		if(value==null||value==""){
+          			return "正常";
+          		}else if(value=='n'){
+          			return "锁定";
+          		}else{
+          			return value;
+          		}
+          		
+          	}}
+        ],
+        searchURL = '${rc.contextPath}/emp/delete/queryEmpsByPage',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true 
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit : true,
+        	tbar : {
+          		items : [
+    				{
+    			    btnCls : 'button button-small',
+    			    text : '<i class="icon-plus"></i>还原人员到系统',
+    			    listeners : {
+    			      'click' : addFunction
+    			    }
+    			  },
+    				{
+    				  btnCls : 'button button-small',
+    			      text : '<i class="icon-remove"></i>彻底删除人员',
+    			      listeners : {
+    			          'click' : delFunction
+    			      }
+    			  }
+          		]
+        	},
+        	plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] 
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+    	
+    	function addFunction(){
+    		var cha = [];
+    		var selections = grid.getSelection();
+    		if(selections==""){
+      			BUI.Message.Alert("请选择要还原的数据");
+      		}else{
+      			addItems(selections);
+      		}
+    	}
+    	
+    	function addItems(items){
+      		var ids = [];
+      		var noty = [];
+      		BUI.each(items,function(item){
+      			if(item.chaid == 'y'){
+      				ids.push({empid:item.empid,code:item.code,iskeepparttime:item.iskeepparttime,chaid:item.chaid});
+      			}else{
+      				noty.push({chaid:item.chaid});
+      			}
+      		});
+      		if(ids.length){
+        		BUI.Message.Confirm('确认要还原选中的记录么？',function(){
+          			$.ajax({
+        					url : '${rc.contextPath}/emp/op/addEmp',
+        	              	dataType : 'json',
+        	              	contentType : 'application/json',
+        	              	type : 'post',
+        	              	data : JSON.stringify(ids),
+        	                success : function(data){
+        	                	if(data=="success"){ 
+       	                  	  		if(noty.length){
+       	          						BUI.Message.Alert('含有人员所在机构已销毁，不能还原其信息,其余人员还原成功');
+       	          					}else{
+       	          						BUI.Message.Alert('还原成功！');
+       	          					}
+       	                         	search.load();
+       	                        }else{
+       	                            BUI.Message.Alert('还原失败！');
+       	                       	}
+        	                 }
+        	        });
+          		},'question');
+      		}else{
+      			if(noty.length){
+      				BUI.Message.Alert('该人员所在机构已销毁，不能还原');
+      			}
+      		}
+    	}
+    	
+    	function delFunction(){
+    		var selections = grid.getSelection();
+      		if(selections==""){
+      			BUI.Message.Alert("请选择要删除的数据");
+      		}else{
+      			delItems(selections);
+      		}
+    	}
+    	
+    	function delItems(items){
+      		var ids = [];
+      		BUI.each(items,function(item){
+      			ids.push({empid:item.empid,iskeepparttime:item.iskeepparttime});
+      		});
+      		if(ids.length){
+        		BUI.Message.Confirm('确认要彻底删除选中的记录么？(操作不可恢复)',function(){
+          			$.ajax({
+        					url : '${rc.contextPath}/emp/op/delEmp',
+        	              	dataType : 'json',
+        	              	contentType : 'application/json',
+        	              	type : 'post',
+        	              	data : JSON.stringify(ids),
+        	                success : function(data){
+        	                	if(data=="success"){ 
+       	                  	   		BUI.Message.Alert('删除成功！');
+       	                         	search.load();
+       	                        }else{
+       	                            BUI.Message.Alert('删除失败！');
+       	                       	}
+        	                 }
+        	        });
+          		},'question');
+      		}
+    	}
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#code1,#name1').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+
+	 	resizeMe();
+	});
+</script>
+</html>

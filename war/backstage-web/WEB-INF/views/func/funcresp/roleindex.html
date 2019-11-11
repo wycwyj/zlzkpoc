@@ -1,0 +1,594 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>角色权限</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet"/>
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet"/>
+    <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+    <script src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+    <script src="${rc.contextPath}/bui/common/bui.js"></script>
+    <script src="${rc.contextPath}/bui/common/config-min.js"></script>
+    <style type="text/css">
+        code {
+            padding: 0 4px;
+            color: #d14;
+            background-color: #f7f7f9;
+        }
+
+        .x-accordion-title {
+            background: #dfeaf2;
+            border-top: 2px solid white;
+            padding: 8px 10px;
+        }
+
+        .x-collapsed .x-accordion-body {
+            overflow: hidden;
+        }
+
+        .ext-border-layout {
+            padding: 0 2px 0 0;
+            margin: 1px 1px;
+            background: white;
+        }
+
+        .x-border-south {
+            position: fixed !important;
+            width: 100%;
+            left: 0;
+            bottom: 0;
+        }
+
+        .bui-tree-list bui-simple-list x-tree-show-line{
+            height: 99.9% !important;
+        }
+
+        .x-border-north {
+            border: none !important;
+        }
+
+        .span13 {
+            width: hidden;
+            text-align: center;
+        }
+
+        .x-border-body {
+            height: 99.9%;
+        }
+
+        .ext-border-layout .x-border-west {
+            border-right: 0;
+            height: 99.9%;
+            padding-bottom: 1px;
+        }
+
+        .bui-nav-tab {
+            height: 100%;
+        }
+
+        .tab-content-container {
+            height: 100%;
+        }
+
+        .bui-form-field-text {
+            padding: 20px 0 0 20px !important;
+        }
+
+        .bui-list {
+            height: 100% !important;
+            overflow-y: auto !important;
+            border: none !important;
+        }
+
+        .x-layout-item-border {
+            overflow-y: initial !important;
+        }
+        .x-border-north,.ext-border-layout .x-border-east,.ext-border-layout .x-border-west,.ext-border-layout .x-border-south,.ext-border-layout .x-border-center {
+            border: 1px solid #c3c3d6;
+        }
+        .x-viewport-container,.bui-view-port{
+            height : 99.9%;
+        }
+        .x-border-title {
+            font-weight: bold;
+            font-size: 14px;
+            padding: 5px 10px;
+            background-color: #e2eaf4;
+            color: #333;
+        }
+        .bui-tree-list {
+            border: none;
+            overflow: auto;
+            background-color: #fff;
+        }
+        .x-border-body {
+            height: 99.9%;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+<div id="importcontent" class="hide">
+    <form id="importform" action="${rc.contextPath}/funcm/importTemplate" class="form-horizontal" method="post"
+          enctype="multipart/form-data">
+        <div class="row">
+            <div class="control-group span15">
+                <label class="control-label" style="text-align: center;width: 70px;">权限模版:</label>
+                <div class="controls control-row4" style="margin-left: 0px;">
+                    <input type="file" name="file"/>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    //阻止页面的所有enter键盘点击
+    $(document).keydown(function (event) {
+        switch (event.keyCode) {
+            case 13:
+                return false;
+        }
+    });
+    var thisTxt = '';
+    BUI.use(['layout', 'picker', 'grid', 'data', 'tree', 'tab', 'toolbar', 'form', 'bui/list'], function (Layout, Picker, Grid, Data, Tree, Tab, Toolbar, Form, List) {
+        var Store = Data.Store,
+            orgTreeStore = new Data.TreeStore({
+                root: {
+                    text: '角色列表'
+                },
+                url: '${rc.contextPath}/external/get/role',
+                autoLoad: true,
+                dataType: 'json',
+                contentType: "application/json"
+            }),
+            //权限树
+            funcTreeStore = new Data.TreeStore({
+                map: {
+                    'modelName': 'text',
+                    'parentId': 'pid',
+                    'isLeaf': 'leaf',
+                    'nodes': 'children',
+                    'expandedNode': 'expanded'
+                },
+                root: {
+                    id: '-1',
+                    text: '资源菜单'
+                },
+                pidField: 'pid',
+                url: '${rc.contextPath}/funcresp/funcm/getAllFuncRes',
+                autoLoad: true,
+                dataType: 'json',
+                contentType: "application/json"
+            }),
+            orgTree = {
+                xclass: 'tree-list',//生成tree
+                id: 'mytree',
+                store: orgTreeStore,
+                showLine: true,
+                showRoot: true
+            };
+
+        var control = new Layout.Viewport({
+            elCls: 'ext-border-layout',
+            children: [{
+                xclass: 'controller',
+                layout: {
+                    region: 'south',
+                    height: 0
+                },
+                width: 0,
+            }, {
+                xclass: 'list',
+                layout: {
+                    region: 'east',
+                    title: '权限资源列表',
+                    width: 500,
+                    fit: 'none'
+                },
+                defaultChildClass: 'controller',
+                children: [{
+                    xclass: 'tree-list',//生成tree
+                    layout: {
+                        region: 'north',
+                        height: 500
+                    },
+                    id: 'functree',
+                    store: funcTreeStore,
+                    showLine: true,
+                    showRoot: true,
+                    checkType: 'all'
+                },
+                    {
+                        xclass: 'bar', //生成按钮工具栏
+                        elCls: 'toolbar pull-right',
+                        layout: {
+                            region: 'south',
+                            height: 40
+                        },
+                        children: [
+                            {
+                                xtype: 'button',
+                                btnCls: 'button button-small',
+                                text: '授予权限',
+                                handler: function (event) {
+                                    funcJS();
+                                }
+                            }
+                        ]
+                    }],
+                plugins: [Layout.Border]
+            }, {
+                xclass: 'controller',
+                layout: {
+                    region: 'west',
+                    title: '角色列表',
+                    width: 500,
+                    fit: 'height'
+                },
+                defaultChildClass: 'controller',
+                //children : [orgTree],
+                children: [
+                    //在这里预留位置
+                    //20171117
+                    {
+                        xclass: 'controller',
+                        content: '<br/><form id="searchResultForm" class="form-horizontal" ><div class="control-group"><div class="control-group span8"><div class="controls" id="tiaojian">快速定位：<input type="hidden" id="orgcode"><input type="text" class="control-text" id="selCondition" autocomplete="off" placeholder="请输入查询的角色名称"></div></div></div><div class="span13" id="span13"><button type="button" id="btnSearchResult" class="button button-primary">定位</button>&nbsp;&nbsp;&nbsp;<button id="reset" type="reset" class="button">重置</button></div></form><br/>'
+                    },
+                    {
+                        xclass: 'tree-list',//生成tree
+                        id: 'mytree',
+                        store: orgTreeStore,
+                        showLine: true,
+                        showRoot: true
+                    }],
+                plugins: [Layout.Border]
+            }, {
+                xclass: 'list', //List
+                elCls: 'bui-select-list',
+                layout: {
+                    region: 'center',
+                    title: '已选角色'
+                },
+                id: 'list'
+            }],
+            plugins: [Layout.Border]
+        });
+
+        control.render();
+        var list = control.getChild('list');
+        var tree = control.getChild('mytree', true);//级联查找树节点
+        var functree = control.getChild('functree', true);//级联查找树节点
+        var form = control.getChild('form', true);
+        var search = control.getChild('search', true);
+
+        tree.setSelectedByField('id', '-1');
+        functree.setSelectedByField('id', '-1');
+
+        $("#reset").click(function () {
+            $('#selCondition').val('');
+        });
+
+        //20171117
+        //搜索
+        $("#btnSearchResult").on('click', function () {
+            var val = $('#orgcode').val();
+            if (val == "") {
+                initTreeLoadNode();
+            } else {
+                MHZ = {mhz: val};
+                $.ajax({
+                    url: '${rc.contextPath}/funcg/funcr/selectidByrolename',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    type: 'get',
+                    traditional: true,
+                    data: MHZ,
+                    success: function (data) {
+                        //20171117重新构造搜索树
+                        //待修改
+                        var dataObj1 = eval("(" + data + ")");
+                        if (dataObj1 == "") {
+                            BUI.Message.Alert('请输入并选择需要搜索的项');
+                        } else {
+                            $("ul li").each(function () {
+                                $(this).removeClass('bui-tree-item-selected');
+                            });
+                            tree.expandPath(dataObj1);
+                            var item = tree.getItem(dataObj1); //获取选项
+                            var element = tree.findElement(item);
+                            $(element).addClass('bui-tree-item-selected');
+                            //loadTreeNode(tree, dataObj1, tempArray, 0);
+                            $('#orgcode').val("");
+                        }
+                    }
+                })
+            }
+        });
+
+        function initTreeLoadNode() {
+            orgTreeStore.load({id: "-1"});
+        }
+
+        $(function () {
+            $("#selCondition").bind('input porpertychange', function (e) {
+                thisTxt = $("#selCondition").val();
+            });
+            // $(".x-border-middle").css("height","0px");
+            if(window.parent.getHeight()>0){
+                $(".x-border-east").height(window.parent.getHeight());
+            }
+        });
+
+        var columns = [
+                {title: '角色名称', dataIndex: 'rolename', width: '100%'},
+                {title: '角色id', dataIndex: 'roleid', width: '0'}
+            ],
+            params = {rolename: thisTxt},
+            store = new Store({
+                url: '${rc.contextPath}/funcg/op/queryRoles',
+                autoLoad: true,
+                pageSize: 3,
+                proxy: {
+                    ajaxOptions: { //ajax的配置项，不要覆盖success,和error方法
+                        traditional: true,
+                        type: 'get'
+                    }
+                },
+                params: params
+            }),
+            grid = new Grid.Grid({
+                idField: 'roleid', //设置作为key 的字段，放到valueField中
+                columns: columns,
+                textGetter: function (item) { //返回选中的文本
+                    return item.rolename;
+                },
+                bbar: {
+                    // pagingBar:表明包含分页栏
+                    pagingBar: false
+                },
+                store: store
+            }),
+            //20170817
+            picker = new Picker.ListPicker({
+                trigger: '#selCondition',
+                valueField: '#orgcode', //如果需要列表返回的value，放在隐藏域，那么指定隐藏域
+                width: 420,  //指定宽度
+                children: [grid] //配置picker内的列表
+            });
+        picker.render();
+
+        $("#selCondition").on("keyup", function () {
+            params.rolename = $(this).val();
+            store.load(params)
+        });
+
+        grid.on('itemclick', function (e) {
+            var node = e.item;
+            var tempOver = 0;
+            var tempArray = list.getItems();
+            for (var k = 0; k < tempArray.length; k++) {
+                if (node.roleid == tempArray[k].__attrVals.id) {
+                    BUI.Message.Alert('已存在于选项列表中，请勿重复选择');
+                    tempOver = 1;
+                    break;
+                }
+            }
+            if (tempOver == 0) {
+                list.addItem({id: node.roleid, text: node.rolename, value: node.orgname});
+                JSID = {principlId: node.roleid, principlType: "3"};
+                $.ajax({
+                    url: '${rc.contextPath}/funcresp/emp/getEmpResPermission',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    type: 'get',
+                    traditional: true,
+                    data: JSID,
+                    success: function (data) {
+                        //ajax返回list的qxid，然后进行tree的勾选操作
+                        var dataObj = eval("(" + data + ")");
+                        functree.clearAllChecked();
+                        for (var i = 0; i < dataObj.length; i++) {
+                            var node = functree.findNode(dataObj[i]);
+                            functree.setNodeChecked(node, true);
+                        }
+                    }
+                })
+            }
+        })
+
+        //list双击去掉选项
+        list.on('dblclick', function (e) {
+            list.removeItem(e.target.__attrVals);
+        });
+
+        //不能向list中添加重复数据//把点击事件合在一起了
+        tree.on('itemclick', function (ev) {
+            var node = ev.item;
+            if (list.getChild(node.id)) {
+                BUI.Message.Alert('已存在于选项列表中，请勿重复选择');
+            } else {
+                list.addItem({id: node.id, text: node.text, value: node.orgname});
+                JSID = {principlId: node.id, principlType: "3"};
+                $.ajax({
+                    url: '${rc.contextPath}/funcresp/emp/getEmpResPermission',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    type: 'get',
+                    traditional: true,
+                    data: JSID,
+                    success: function (data) {
+                        //ajax返回list的qxid，然后进行tree的勾选操作
+                        var dataObj = eval("(" + data + ")");
+                        functree.clearAllChecked();
+                        for (var i = 0; i < dataObj.length; i++) {
+                            var node = functree.findNode(dataObj[i]);
+                            functree.setNodeChecked(node, true);
+                        }
+                    }
+                })
+            }
+        });
+
+        //list点击事件，用于分别单独赋值
+        list.on('itemclick', function (ev) {
+            var listid = ev.item.__attrVals.id;
+            JSID = {principlId: listid, principlType: "3"};
+            $.ajax({
+                url: '${rc.contextPath}/funcresp/emp/getEmpResPermission',
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'get',
+                traditional: true,
+                data: JSID,
+                success: function (data) {
+                    //ajax返回list的qxid，然后进行tree的勾选操作
+                    var dataObj = eval("(" + data + ")");
+                    functree.clearAllChecked();
+                    for (var i = 0; i < dataObj.length; i++) {
+                        var node = functree.findNode(dataObj[i]);
+                        functree.setNodeChecked(node, true);
+                    }
+                }
+            })
+        });
+
+        //获取权限提交操作方法
+        function funcJS() {
+            var selectArr = [];
+            var listVal = list.getItems();
+            var selectVal = functree.getCheckedNodes();
+            var jsIdVal = null;
+            var funcJS = [];
+            if (listVal.length === 0) {
+                BUI.Message.Alert('请选择角色');
+                return;
+            }
+            if (selectVal.length === 0) {
+                BUI.Message.Confirm('确定要取消已授权的资源菜单项么？',function(){
+                    for (var i = 0; i < listVal.length; i++) {
+                        jsIdVal = listVal[i].__attrVals.id;
+                        funcJS = {principlId: jsIdVal, principlType: "3"};
+                        $.ajax({
+                            url: '${rc.contextPath}/funcresp/emp/cancelFuncResPermission',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            type: 'post',
+                            traditional: true,
+                            data: JSON.stringify(funcJS),
+                            success: function (data) {
+                                BUI.Message.Alert('取消授权成功', 'success');
+                            },
+                            error: function (data) {
+                                BUI.Message.Alert('取消授权失败', 'error');
+                            }
+                        })
+                    }
+                },'question');
+
+            }else{
+                for (var i = 0; i < listVal.length; i++) {
+                    jsIdVal = listVal[i].__attrVals.id;
+                    for (var j = 0; j < selectVal.length; j++) {
+                        var selectIdVal = selectVal[j].id;
+                        selectArr.push(selectIdVal);
+                    }
+                    funcJS = {principlId: jsIdVal, principlType: "3", resourceIdList: selectArr};
+                    var selectArr = [];
+
+                    $.ajax({
+                        url: '${rc.contextPath}/funcresp/emp/saveFuncResPermission',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        type: 'post',
+                        traditional: true,
+                        data: JSON.stringify(funcJS),
+                        success: function (data) {
+                            BUI.Message.Alert('授权成功', 'success');
+                        },
+                        error: function (data) {
+                            BUI.Message.Alert('授权失败', 'error');
+                        }
+                    })
+                }
+            }
+
+        }
+
+        //取消授权功能方法
+        function qxFuncJS() {
+            var selectArr = [];
+            var listVal = list.getItems();
+            var selectVal = functree.getCheckedNodes();
+            var jsIdVal = null;
+            var funcJS = [];
+            if (listVal.length === 0) {
+                BUI.Message.Alert('请选择角色');
+                return;
+            }
+            if (selectVal.length === 0) {
+                BUI.Message.Alert('选择的角色没有权限或被清除已选项，不能取消');
+                return;
+            }
+            for (var i = 0; i < listVal.length; i++) {
+                jsIdVal = listVal[i].__attrVals.id;
+                for (var j = 0; j < selectVal.length; j++) {
+                    var selectIdVal = selectVal[j].id;
+                    selectArr.push(selectIdVal);
+                }
+                funcJS = {principlId: jsIdVal, principlType: "3", resourceIdList: selectArr};
+                var selectArr = [];
+                $.ajax({
+                    url: '${rc.contextPath}/funcresp/emp/deleteEmpResPermission',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    type: 'post',
+                    traditional: true,
+                    data: JSON.stringify(funcJS),
+                    success: function (data) {
+                        BUI.Message.Alert('取消授权成功', function () {
+                            var dataObj = eval("(" + data + ")");
+                            functree.clearAllChecked();
+                            for (var i = 0; i < dataObj.length; i++) {
+                                var node = functree.findNode(dataObj[i]);
+                                functree.setNodeChecked(node, true);
+                            }
+                        }, 'success');
+                    },
+                    error: function (data) {
+                        BUI.Message.Alert('取消授权失败', 'error');
+                    }
+                })
+            }
+        }
+
+        //移除空白菜单
+        $(".x-accordion-title").remove();
+        //自适应树高度
+        var timerMe = setInterval(function(){
+            if($("body").is(":visible")){
+                laodMe();
+                clearInterval(timerMe);
+            }
+        },200);
+    });
+
+    function laodMe(){
+        $(".x-border-middle").height("99.9%");
+        $(".x-border-west .x-border-middle > div:last").height($(".x-border-west .x-border-middle").height()-$(".x-border-west .x-border-middle > div:first").height());
+        $(".x-border-west .x-border-middle > div:first").css("border-bottom","1px solid #c3c3d6");
+        $(".x-border-center").css({"margin-left":"504px","margin-right":"504px"});
+        $(".x-border-west").height("100%");
+        $(".x-border-east .x-border-south").css({"border-left":"none"});
+        $(".x-border-east .x-border-south button").css("margin-right","20px");
+        $(".x-border-east .x-border-top > div,.x-border-east .x-border-top").height($(".x-border-east .x-border-body").height());
+        $(".x-border-east .x-border-body").height($(".x-border-east").height()-50);
+        $(".x-border-east .x-border-middle").remove();
+        var myWidth = $(".x-border-east .x-border-bottom .x-border-south > div").width();
+        var myD = $(".x-border-east .x-border-bottom .x-border-south > div");
+        myD.width(myWidth-2).css("border-right","1px solid #c3c3d6");
+    }
+</script>
+</body>
+</html>  

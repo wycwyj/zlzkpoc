@@ -1,0 +1,182 @@
+<!-- ${rc.contextPath}/process/def-list.html -->
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>搜索表单</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+	.container {
+		padding:0px;
+	}
+   </style>
+ </head>
+ <body>
+  未签收列表页面于2016年10月27日下午13:31分开始停止维护
+  <div class="container">
+    <div class="row">
+      <form id="searchForm" class="form-horizontal span24">
+      
+          <div class="row">
+	         	          <div class="control-group span8">
+		            <label class="control-label">任务名称</label>
+		            <div class="controls">
+		              <input type="text" class="control-text" name="name">
+		            </div>
+	          </div>
+	          <div class="control-group span8">
+	            <label class="control-label">流程定义名称</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="pdname">
+	            </div>
+	          </div>
+	           <!--div class="control-group span8">
+	            <label class="control-label">流程定义ID</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="processDefinitionId">
+	            </div>
+	          </div>
+	          	<div class="control-group span8">
+	            <label class="control-label">流程实例ID</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="assignee">
+	            </div>
+	          </div-->
+	          	<div class="control-group span8">
+	            <label class="control-label">任务描述</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="preview">
+	            </div>
+	          </div>
+	           <div class="control-group span8">
+	            <label class="control-label">处理人员</label>
+	            <div class="controls">
+	              <input type="text" class="control-text" name="assignee">
+	            </div>
+	          </div>
+	       <div class="control-group span8">
+            <label class="control-label">状态</label>
+            <div class="controls">
+              	<select name=isactive id="isactive">
+              	<option/>
+              	<option value="active">激活</option>
+              	<option value="suspend">挂起</option>
+			    </select>
+            </div>
+          </div>
+	          <div class="control-group span8">
+              <label class="control-label">发起时间</label>
+		        <div class="controls">
+		           <input type="text" class="calendar" name="startTimeF" id="startTimeF">--<input type="text" class="calendar" name="startTimeT" id="startTimeT">
+		       </div>
+             </div>
+        </div>
+        <div class="row">
+	          <div class="span3 offset10">
+	            <button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	          </div>
+        </div>
+      </form>
+    </div>
+    <div class="search-grid-container">
+      <div id="grid"></div>
+    </div>
+  </div>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+  
+<script type="text/javascript">
+  BUI.use(['common/search'],function (Search) {
+    
+    var columns = [
+          {title:'任务ID',dataIndex:'id',width:'0',visible:false},
+          {title:'任务名称',dataIndex:'name',width:'20%'},
+          {title:'任务创建时间',dataIndex:'createTime',width:'20%'},
+          {title:'流程定义名称',dataIndex:'pdname',width:'20%',renderer:function(v,obj){
+              return Search.createLink({
+                  id : 'imgShow_' + v,
+                  title :  v+'流程图',
+                  text : v,
+                  href : '${rc.contextPath}/process/resource/read?processDefinitionId='+obj.processDefinitionId+'&resourceType=image'
+                });
+              }},
+          {title:'流程任务描述',dataIndex:'preview',width:'30%'},
+          {title:'流程定义版本号',dataIndex:'pdversion',width:'20%'},
+          {title:'流程定义ID',dataIndex:'processDefinitionId',width:'0',visible:false},
+          {title:'流程实例ID',dataIndex:'processInstanceId',width:'20%'},
+          {title:'处理人员',dataIndex:'assignee',width:'20%'},
+          {title:'是否挂起',dataIndex:'_suspendedState',width:'10%'},
+          {title:'state',dataIndex:'_suspended',width:'0%',visible:false},
+          {title:'操作',dataIndex:'',width:155,renderer:function(v,obj){
+              var delStr = '<span class="grid-command btn-qianshou" title="签收">签收</span>';//
+              return  delStr;
+          }}
+        ],
+      store = Search.createStore('${rc.contextPath}/workflow/business/task/todo/nosignList/${userId}',{
+        proxy:{
+          autoLoad:true,
+          dataType:'json',
+          contentType:"application/json"
+        },
+        pageSize : 10,	// 配置分页数目
+        autoSync:true //保存数据后，自动更新
+      }),
+      gridCfg = Search.createGridCfg(columns,{
+           plugins : [BUI.Grid.Plugins.RowNumber,BUI.Grid.Plugins.AutoFit]// 插件形式引入多选表格
+      });
+
+    var  search = new Search({
+        store : store,
+        gridCfg : gridCfg,
+       bbar:{
+            // pagingBar:表明包含分页栏
+            pagingBar:true
+        }
+      }),
+      grid = search.get('grid');
+
+
+  
+    function qianshou(item){
+        $.ajax({
+          url : '${rc.contextPath}/workflow/business/task/claim/'+item.id+'/${userId}',
+          
+          dataType : 'json',
+          data : {processInstanceid:item.processInstanceid,activityId:item.taskid},
+          success : function(data){//
+              if(data=="success"){ //
+            	  BUI.Message.Alert('任务签收成功！');
+                  search.load();
+              }else{ 
+                  BUI.Message.Alert('任务签收失败！');
+             }
+          }
+      });
+  }
+    
+    //监听事件，删除一条记录
+    grid.on('cellclick',function(ev){
+      var sender = $(ev.domTarget); //点击的Dom
+      if(sender.hasClass('btn-qianshou')){
+          var record = ev.record;
+          qianshou([record][0]);
+      }
+    });
+  });
+</script>
+</body>
+</html>  
+

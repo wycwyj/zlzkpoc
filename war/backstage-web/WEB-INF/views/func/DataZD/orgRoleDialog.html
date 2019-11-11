@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>角色机构构建关系</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+</head>
+<style>
+	code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+     /*  border: 1px solid #e1e1e8; */
+    }
+    .x-accordion-title{
+      background: #dfeaf2;
+      border-top: 2px solid white;
+      padding: 8px 10px;
+    }
+    .x-collapsed .x-accordion-body{
+      overflow: hidden;
+    }
+    
+    .ext-border-layout {
+	    padding:0 2px 0 0;	  
+	    margin:1px 1px;	    
+	    background:white;
+	}
+	.ext-border-layout .x-border-north,
+	.ext-border-layout .x-border-east,
+	.ext-border-layout .x-border-west,
+	.ext-border-layout .x-border-south,
+	.ext-border-layout .x-border-center {
+	   /*  border : 1px solid #3892d3; */
+	}
+	.x-border-south{
+		position: fixed !important;
+		width: 100%;
+    	left: 0;
+    	bottom: 0;
+	}
+	.x-border-north{
+		border:none !important ;
+	}
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+		/* border-bottom:1px solid #3892d3; */
+		height:99.5%;
+		padding-bottom:1px;
+	}
+	/* .ext-border-layout .x-border-center {
+	    height:99.5%;
+	    padding-bottom:1px;
+	} */
+	.bui-nav-tab{
+		height:97%;
+	}
+	.tab-content-container{
+		height:97%;
+	}
+	.bui-form-field-text{
+		padding:20px 0 0 20px !important ;
+	}
+	.span13 {
+	    width:auto;
+	    text-align: center;
+	}
+	
+	.bui-list{
+		height:100% !important;
+		overflow-y:auto !important;
+		border:none !important;
+	}
+	.x-layout-item-border{
+		overflow-y:initial !important;
+	}
+	.bui-view-port{
+		width:100% !important;
+	}
+	.x-border-body{
+		/* height:78% !important; */
+	}
+	/* .x-layout-item-border{
+		float:left;
+	} */
+	.bui-tree-list .bui-simple-list .x-tree-show-line{
+		height:240px !important;
+		overflow: auto !important;
+	}
+	.bui-select-list{
+		width:99% !important;
+		height:343px;
+	}
+</style>
+<body>
+<script type="text/javascript">
+var thisTxt = '';
+//定义一个全局变量
+var allArray = [];
+
+BUI.use(['layout','bui/picker','grid','data','tree','tab','toolbar','overlay','form'],function (Layout,Picker,Grid,Data,Tree,Tab,Toolbar,overlay,Form) {
+	//数据缓冲类
+	var Store = Data.Store,
+    orgTreeStore = new Data.TreeStore({
+            root : {
+                id : '-1',
+                text : '组织机构'
+            },
+            pidField : 'pid',
+            url : '${rc.contextPath}/org/op/getSonsFunc',
+            autoLoad : true,
+            dataType:'json',
+            contentType:"application/json"
+        });
+	
+	var control = new Layout.Viewport({
+		elCls : 'ext-border-layout',
+		children : [{
+         xclass : 'controller',
+         layout : {
+           	region : 'south',
+           	height : 0
+         },
+         width : 0,
+     	}
+		 ,{
+     		xclass : 'controller',
+            layout : {
+              region : 'east',
+              title : '已选列表',
+              width :'50%',
+              fit:'none'
+            },
+            defaultChildClass : 'controller',
+            children : [{
+            	xclass : 'listbox', //List
+                elCls:'bui-select-list',
+                layout : {
+                  region : 'north',
+                  fit:'both',
+                },
+                id : 'listbox2'
+            }],
+            plugins : [Layout.Border]
+          } 
+     	,{
+			xclass : 'controller',
+			layout : {
+				region : 'west',
+           		title : '部门机构树',
+           		width : '40%',
+           		fit:'height'
+         },
+         defaultChildClass : 'controller',
+         children : [
+            //在这里预留位置     
+            //20170817
+            { 
+              xclass : 'controller',
+              content : '<br/><form id="searchResultForm" class="form-horizontal" ><div class="control-group"><div class="control-group span8"><div class="controls" id="tiaojian">快速定位：<input type="hidden" id="orgcode"><input type="text" class="control-text" id="selCondition" autocomplete="off" placeholder="请输入查询的机构部门"></div></div></div><div class="span13" id="span13"><button type="button" id="btnSearchResult" class="button button-primary">定位</button>&nbsp;&nbsp;&nbsp;<button id="reset" type="reset" class="button">重置</button></div></form><br/>'
+            },
+            {
+        	 xclass : 'tree-list',//生成tree
+         	 id : 'mytree',
+        	 store : orgTreeStore,
+        	 showLine : true,
+        	 showRoot : true,
+        	 checkType: 'all',
+        	 height:235
+        	 }],
+         plugins : [Layout.Border]
+     },{
+         xclass : 'bar', //List
+         elCls : 'toolbar pull-right',
+         layout : {
+           region : 'center',
+           title : '选项',
+           width : '10%',
+           fit:'height'
+         },
+         children : [
+			{
+			    xtype:'spacer',
+			    heithgt : '50%',
+			    width : '50%'
+			},
+			{
+                xtype:'button',
+                btnCls : 'button button-small',
+                text:'全选',
+                listeners : {
+                  'click':function(event){
+                	  listAllSelect();
+                  }
+                }
+              },{
+                  xtype:'button',
+                  btnCls : 'button button-small',
+                  text:'全不选',
+                  listeners : {
+                    'click':function(event){
+                    	listNoAllSelect();
+                    }
+                  }
+                },{
+             xtype:'button',
+             btnCls : 'button button-small',
+             text:'>>',
+             listeners : {
+               'click':function(event){
+            	   treeMoveRight();
+               }
+             }
+           },{
+               xtype:'button',
+               btnCls : 'button button-small',
+               text:'<<',
+               listeners : {
+                 'click':function(event){
+                	 listAllDelete();
+                 }
+               }
+             }],
+         plugins : [Layout.Border]
+       }],
+     plugins : [Layout.Border]
+ });
+    
+    control.render();
+    
+    var tree = control.getChild('mytree',true);//级联查找树节点
+    var listbox2 = control.getChild('listbox2',true);
+    
+  //重置
+    $("#reset").click(function(){
+    	$('#orgcode').val("");
+    	$('#selCondition').val('');
+    });
+    
+    //搜索
+    $("#btnSearchResult").on('click',function(){
+    	var val = $('#orgcode').val();
+    	if(val==""){
+    		initTreeLoadNode();
+    	}else{
+    		MHZ={mhz:val};
+        	$.ajax({
+ 				url: '${rc.contextPath}/funcg/funcr/selectidByorgname',
+ 				dataType : 'json',
+ 				contentType : 'application/json',
+ 	          	type : 'get',
+ 	          	traditional: true,
+ 	          	data :MHZ,
+ 	            success : function(data){
+ 	            	//20170810 重新构造搜索树
+ 	            	var dataObj1 = eval("("+data+")");
+ 	            	if(dataObj1==""){
+ 	            		BUI.Message.Alert('请输入并选择需要搜索的项');
+ 	            	}else{
+ 	            		$("ul li").each(function() {    
+ 	                       $(this).removeClass('bui-tree-item-selected');  
+ 	                    });
+     	            	for(var i =0;i<dataObj1.length;i++){
+     	            		var tempArray = dataObj1[i].split(',');
+     	            		loadTreeNode(tree, dataObj1[i], tempArray[tempArray.length-1]);
+     	            	}
+ 	            	}
+ 	            }
+ 			})
+    	}
+    });
+    
+    function loadTreeNode(tree,orgIdStr,empId){
+    	tree.collapseAll();
+    	tree.expandPath(orgIdStr,true,0);
+    	var item = tree.getItem(empId);
+    	var timer = setInterval(function(){
+    		item = tree.getItem(empId);
+    		if(item!=null){
+    			var emp = tree.findElement(item);
+    			$(emp).addClass('bui-tree-item-selected');
+    			clearInterval(timer);
+    		}
+    	},50);
+    }
+    
+    function initTreeLoadNode(){
+    	orgTreeStore.load({id:"-1"});
+    }
+    
+    $(function(){
+    	$("#selCondition").bind('input porpertychange',function(e){
+    		thisTxt=$("#selCondition").val();
+    	});
+    });
+    
+    var columns = [
+      		{title : '编号',dataIndex :'orgcode', width:'20%'},
+   			{title : '名称',dataIndex :'orgname', width:'20%'},
+   			{title : '所在路径',dataIndex :'allOrgName', width:'60%'},
+   			{title : '机构id',dataIndex : 'orgid',width:'0'}
+    ],
+    params = {remark:thisTxt},
+    store = new Store({
+		url:'${rc.contextPath}/org/op/queryOrgsFunc',
+        autoLoad:true,
+        pageSize : 3,
+        proxy : {
+          	ajaxOptions : { //ajax的配置项，不要覆盖success,和error方法
+            	traditional : true,
+            	type : 'get'
+          	}
+        },
+        params : params
+    }),
+    grid = new Grid.Grid({
+        idField : 'orgcode', //设置作为key 的字段，放到valueField中
+        columns : columns,
+        textGetter: function(item){ //返回选中的文本
+          	return item.orgname;
+        },
+        bbar:{
+          	// pagingBar:表明包含分页栏
+          	pagingBar:false
+        },
+        store : store
+    }),
+    //20170817
+	  picker = new Picker.ListPicker({
+	    trigger : '#selCondition',  
+	    valueField : '#orgcode', //如果需要列表返回的value，放在隐藏域，那么指定隐藏域
+	    width:420,  //指定宽度
+	    children : [grid] //配置picker内的列表
+	  });
+	picker.render();
+    
+	$("#selCondition").on("keyup",function(){
+		params.remark = $(this).val();
+		store.load(params)
+	});
+	
+	
+	grid.on('itemclick',function(e){
+		var node = e.item;
+		var tempOver = 0;
+		getItems2();
+		var tempArray = allArray;
+		for(var k=0;k<tempArray.length;k++){
+			if(node.orgcode==tempArray[k].id){
+				BUI.Message.Alert('已存在于选项列表中，请勿重复选择');
+				tempOver = 1;
+				break;
+			}
+		}
+		if(tempOver==0){
+			listbox2.addItem({id :node.orgcode,text :node.orgname,value:node.orgcode}); 
+			getItems2();
+		}
+	})
+	
+	
+	
+	//单独单击树节点也可以移动到右侧的list中
+	 tree.on('itemclick',function(ev){
+		var node = ev.item;
+		var tempOver = 0;
+		getItems2();
+		var tempArray = allArray;
+		for(var k=0;k<tempArray.length;k++){
+			if(node.orgcode==tempArray[k].id){
+				BUI.Message.Alert('已存在于选项列表中，请勿重复选择');
+				tempOver = 1;
+				break;
+			}
+		}
+		if(tempOver==0){
+			listbox2.addItem({id :node.orgcode,text :node.orgname,value:node.orgcode}); 
+     	}
+		
+		getItems2();
+	 });
+	
+	
+	//20170830 
+	//将树节点勾选项全部移动到右侧
+	function treeMoveRight(){
+		var selectVals = tree.getCheckedNodes();
+		//标记在多选中，只提醒一次
+		var tempY = 0;
+		for(var i=0;i<selectVals.length;i++){
+			
+			if(listbox2.getChild(selectVals[i].orgcode)&&tempY==0){
+	    		BUI.Message.Alert('已有存在于选项列表中，请勿重复选择,已跳过添加此选项');
+	    		tempY = 1;
+	    	}else if(!listbox2.getChild(selectVals[i].orgcode)){
+				listbox2.addItem({id:selectVals[i].orgcode,text:selectVals[i].text,value:selectVals[i].id});
+			}
+		}
+		getItems2();
+	}
+		
+	//20170830
+	//将右侧list列表的值 勾选的全部移除
+	function listAllDelete(){
+		var listCheckArray = listbox2.getSelection();
+		listbox2.removeItems(listCheckArray);
+		getItems2();
+	}
+	
+	//勾选右侧所有的list列表
+	function listAllSelect(){
+		listbox2.setAllSelection();
+		
+		//获取所有选项值
+		/* var items = listbox2.getItems();
+		listbox2.setSelection(items); */
+	}
+	
+	//取消勾选右侧所有的list列表
+	function listNoAllSelect(){
+		listbox2.clearSelection();
+	}
+	
+	//供父亲调用的获取所有对象的方法
+	function getItems2(){
+		allArray = listbox2.getItems();
+	}
+})
+
+	function getArrayItems(){
+		return allArray;
+	}
+	
+</script>
+</body>
+</html>

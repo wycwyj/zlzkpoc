@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>数据库引擎表</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet" type="text/css" />
+ 
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+
+<style type="text/css">
+     code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .x-accordion-title{
+      background: #dfeaf2;
+      border-top: 2px solid white;
+      padding: 8px 10px;
+    }
+    .x-collapsed .x-accordion-body{
+      height: 0;
+      overflow: hidden;
+    }
+    .ext-border-layout {
+	    padding-left:0px;
+	    padding-top:0px;
+	    padding-bottom:0px;
+	    padding-right:2px;
+	    margin-top:1px;
+	    margin-left:1px;
+	    margin-right:1px;
+	    margin-bottom:1px;
+	    background:white;
+	}
+	.ext-border-layout .x-border-north,
+	.ext-border-layout .x-border-east,
+	.ext-border-layout .x-border-west,
+	.ext-border-layout .x-border-south,
+	.ext-border-layout .x-border-center {
+	    border : 1px solid #3892d3;
+	}
+	
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+		border-bottom:1px solid #3892d3;
+		height:99.5%;
+		padding-bottom:1px;
+	}
+	.ext-border-layout .x-border-center {
+	    height:99.5%;
+	    padding-bottom:1px;
+	}
+	.bui-nav-tab{
+		height:98.5%;
+	}
+	.tab-content-container{
+		height:98.5%;
+	}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+   BUI.use(['bui/layout','bui/tab','bui/data','bui/tree'],function (Layout,Tab,Data,Tree) {
+    
+    var nodes = [
+           #set($indexN = 0 )
+           #foreach($table in $tableCount.entrySet())      
+              #if($indexN>0)
+            	  ,
+              #end
+              {text : '${table.key}（${table.value}）',tableN : '${table.key}',num:'${table.value}'}
+              #set($indexN = $indexN+1)
+           #end
+   
+        ];
+ 
+      
+      var control = new Layout.Viewport({
+          width:600,
+          height:"100%",
+          elCls : 'ext-border-layout',
+          children : [{
+            xclass : 'controller', 
+            layout : {
+              region : 'west',
+              fit : 'both', //height,width,both,none
+              title : '引擎数据库',
+              collapsable : true,
+              width : 250
+            },
+            defaultChildClass : 'controller',
+            children : [{
+              xclass : 'tree-list',//生成tree
+              id : 'mytree',
+              nodes : nodes
+            }],
+            plugins : [Layout.Accordion]
+            
+          },{
+            xclass : 'nav-tab', //Grid
+            layout : {
+              region : 'center',
+              title : '表内容',
+              fit : 'both'
+            },
+            id : 'tab'
+          }],
+          plugins : [Layout.Border]
+      });
+ 
+      control.render();
+      var tab = control.getChild('tab'),//通过id获取
+      tree = control.getChild('mytree',true);  //级联查找树节点
+      
+      tree.on('itemclick',function(ev){
+          var node = ev.item,
+          text = node.text,
+          href = '${rc.contextPath}/management/database/tableinfo_col?tableName='+node.tableN+'&total='+node.num;
+          tab.addTab({
+              title : node.tableN,
+              id : node.tableN,
+              href : href
+            });
+        });
+      
+      //移除空白菜单
+      $(".x-accordion-title").remove();
+      //自适应树高度
+      $(".bui-tree-list").parent().parent().height("99.8%");
+      $(".bui-tree-list").parent().height("100%");
+      $(".bui-tree-list").height("100%").css("border-bottom","1px solid #3892d3");
+      $(".tab-content-container").parent().css("border-bottom","1px solid #3892d3");
+      
+    });
+  </script>
+<!-- script end -->
+</body>
+</html>

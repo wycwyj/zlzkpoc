@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>安全审计管理员操作日志审计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+	<link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+	<link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+	<style type="text/css">
+		html,body{
+			overflow:hidden;
+		}
+		.form-horizontal .control-label {
+			width:80px;
+		}
+		.span8 {
+			width:360px;
+		}
+		#J_Form .span8{
+			width:400px;
+		}
+		.span9{
+			width:200px;
+			height:35px;
+		}
+		.span10{
+			width:400px;
+			height:35px;
+		}
+		.span111{
+			width:400px;
+			height: auto;
+		}
+		.span11{
+			width:500px;
+			height:35px;
+		}
+		[class*="span"] {
+			float:left;
+			margin-left:3px;
+		}
+		.row {
+			margin-left: 2px;
+
+		}
+		.span13 {
+			width:auto;
+			padding-left:42%;
+		}
+		.span9 span{
+			color: blue;
+		}
+	</style>
+</head>
+<body>
+<br>
+<div class="row">
+	<form id="searchForm" class="form-horizontal" method="post">
+		<div class="row">
+			<div class="control-group span8">
+				<div class="controls">
+					<label class="control-label">操作人员姓名:</label>
+					<input type="text" id="username" name="username">
+				</div>
+			</div>
+			<div class="control-group span8">
+				<div class="controls">
+					<label class="control-label">操作人员账户:</label>
+					<input type="text" id="userid" name="userid">
+				</div>
+			</div>
+			<div class="control-group span8">
+				<div class="controls">
+					<label class="control-label">操作时间:</label>
+					<label></label><input type="date" id="timestart" name="timestart"><label>-</label><input type="date" id="timeend" name="timeend">
+				</div>
+			</div>
+			<div class="control-group span8">
+				<div class="controls">
+					<label class="control-label">日志类型:</label>
+					<select name="type" id="type">
+						<option value="">--请选择--</option>
+						<option value="系统安全事件">系统安全事件</option>
+						<option value="系统维护事件">系统维护事件</option>
+						<option value="业务办理事件">业务办理事件</option>
+					</select>
+				</div>
+			</div>
+			<div class="control-group span8">
+				<div class="controls">
+					<label class="control-label">事件级别:</label>
+					<select name="oplevel" id="oplevel">
+						<option value="">--请选择--</option>
+						<option value="高危">高危</option>
+						<option value="危险">危险</option>
+						<option value="一般">一般</option>
+						<option value="轻微">轻微</option>
+					</select></div>
+			</div>
+			<div class="control-group span8">
+				<div class="controls">
+					<label class="control-label">是否成功:</label>
+					<select name="issucess" id="issucess">
+						<option value="">--请选择--</option>
+						<option value="操作成功">操作成功</option>
+						<option value="操作失败">操作失败</option>
+					</select></div>
+			</div>
+			<div class="span13 offset2">
+				<input type="button" value="查询" id="btnSearch" class="button button-primary">
+				<input type="reset" class="button" value="重置"/>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div class="search-grid-container">
+	<div id="grid"></div>
+</div>
+
+<div id="content" class="hide">
+	<div class="detail-section">
+		<div class="row detail-row">
+			<div class="span9">
+				<label>事件名称：</label><span class="detail-text" id="opname"></span>
+			</div>
+			<div class="span9">
+				<label>操作人员账户：</label><span class="detail-text" id="userid_show"></span>
+			</div>
+			<div class="span9">
+				<label>操作人员姓名：</label><span class="detail-text" id="username_show"></span>
+			</div>
+		</div>
+
+		<div class="row detail-row">
+			<div class="span9">
+				<label>操作时间：</label><span class="detail-text" id="time_show"></span>
+			</div>
+			<div class="span9">
+				<label>操作IP地址：</label><span class="detail-text" id="ip"></span>
+			</div>
+		</div>
+
+		<div class="row detail-row">
+			<div class="span10">
+				<label>操作前日志：</label><span class="detail-text" id="before_info"></span>
+			</div>
+		</div>
+
+		<div class="row detail-row">
+			<div class="span111">
+				<label>操作后日志：</label><span class="detail-text" id="after_info"></span>
+			</div>
+		</div>
+
+		<div class="row detail-row">
+			<div class="span9">
+				<label>日志类型：</label><span class="detail-text" id="type_show"></span>
+			</div>
+			<div class="span9">
+				<label>事件级别：</label><span class="detail-text" id="oplevel_show"></span>
+			</div>
+			<div class="span9">
+				<label>是否成功：</label><span class="detail-text" id="issucess_show"></span>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+<script type="text/javascript">
+    BUI.use('common/search',function (Search) {
+        var columns = [
+                {title:'ID',dataIndex:'id',visible:false,width:0},
+                {title:'事件名称',dataIndex:'opname',width:80,renderer:function(value){
+                    if(value&&value.length>5){
+                        return '<span class="grid-command btn-edit">'+value.substr(0,5)+"...</span>";
+                    }
+                    return '<span class="grid-command btn-edit">'+value+"</span>";
+                }},
+                {title:'操作人员账户',dataIndex:'userid',width:90},
+                {title:'操作人员姓名',dataIndex:'username',width:90},
+                {title:'操作时间',dataIndex:'time',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+                {title:'操作IP地址',dataIndex:'ip',width:100},
+                {title:'操作前日志',dataIndex:'before_info',width:160,renderer:function(value){
+                    if(value&&value.length>10){
+                        return value.substr(0,10)+"...";
+                    }
+                    return value;
+                }},
+                {title:'操作后日志',dataIndex:'after_info',width:160,renderer:function(value){
+                    if(value&&value.length>10){
+                        return value.substr(0,10)+"...";
+                    }
+                    return value;
+                }},
+                {title:'日志类型',dataIndex:'type',width:100},
+                {title:'事件级别',dataIndex:'oplevel',width:60},
+                {title:'是否成功',dataIndex:'issucess',width:60}
+            ],showing = new BUI.Overlay.Dialog({
+                title:'日志详细信息',
+                width:700,
+                height:510,
+                contentId : 'content',
+                autoSave : true,
+                buttons:[
+                    {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                            this.close();
+                        }
+                    }
+                ]
+            }),
+            searchURL = '${rc.contextPath}/log/auditadmin/getAllAuditLogsBy',
+            store = Search.createStore(searchURL,{
+                proxy:{
+                    save:{
+                    },
+                    autoLoad:true,
+                    method:'POST',
+                    dataType:'json',
+                    contentType:"application/json"
+                },
+                pageSize:10,
+                autoSync:true
+            }),
+            gridCfg = Search.createGridCfg(columns,{
+                forceFit : true,
+                tbar : {
+                    items : [
+                        {
+                            btnCls : 'button button-small',
+                            text : '<i class="icon-plus"></i>导出日志',
+                            listeners : {
+                                'click' : exportExcel
+                            }
+                        }
+                    ]
+                },
+                plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit]
+            });
+
+        var  search = new Search({
+                store : store,
+                gridCfg : gridCfg
+            }),
+            grid = search.get('grid');
+
+        grid.on('cellclick',function(ev){
+            var record = ev.record,
+                field = ev.field,
+                target = $(ev.domTarget);
+
+            if(target.hasClass('btn-edit')){
+                if(record.opname == null){
+                    $("#opname").text("");
+                }else{
+                    $("#opname").text(record.opname);
+                }
+                if(record.userid == null){
+                    $("#userid_show").text("");
+                }else{
+                    $("#userid_show").text(record.userid);
+                }
+                if(record.username == null){
+                    $("#username_show").text("");
+                }else{
+                    $("#username_show").text(record.username);
+                }
+                if(record.time == null){
+                    $("#time_show").text("");
+                }else{
+                    $("#time_show").text(BUI.Grid.Format.datetimeRenderer(record.time));
+                }
+                if(record.ip == null){
+                    $("#ip").text("");
+                }else{
+                    $("#ip").text(record.ip);
+                }
+                if(record.before_info == null){
+                    $("#before_info").html("");
+                }else{
+                    $("#before_info").html("<br/>"+record.before_info);
+                }
+                if(record.after_info == null){
+                    $("#after_info").html("");
+                }else{
+                    $("#after_info").html("<br/>"+record.after_info);
+                }
+                if(record.type == null){
+                    $("#type_show").text("");
+                }else{
+                    $("#type_show").text(record.type);
+                }
+                if(record.oplevel == null){
+                    $("#oplevel_show").text("");
+                }else{
+                    $("#oplevel_show").text(record.oplevel);
+                }
+                if(record.issucess == null){
+                    $("#issucess_show").text("");
+                }else{
+                    $("#issucess_show").text(record.issucess);
+                }
+                showing.show();
+            }
+        });
+
+        function exportExcel(){
+            $.ajax({
+                url: '${rc.contextPath}/log/auditadmin/exportExcel',
+                dataType : 'json',
+                type : 'post',
+                contentType : 'application/json',
+                success : function(data){
+                    var dataObj = eval("("+data+")");
+                    window.open("${rc.contextPath}/wood/file/not/crypto/download?fileUrl="+dataObj.filepath+"&fileName=backstage_auditadmin_log.xls");
+                }
+            })
+        }
+
+        /*监听输入框的回车操作*/
+        $('#username,#userid,#timestart,#timeend,#type,#oplevel,#issucess').bind('keypress',function(event){
+            if(event.keyCode == "13")
+                $('#btnSearch').click();
+        });
+
+        resizeMe(15);
+    })
+</script>
+</html>

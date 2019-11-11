@@ -1,0 +1,16 @@
+@charset"utf-8";
+.layout-panel{border:0 solid #fff;overflow:hidden;}
+.header-panel{height:45px;background:#fff url(img/headerBg.png) repeat-x;border-bottom-width:5px;}
+.logo{float:left;width:45px;height:40px;background:url(img/logo.png) no-repeat;margin-left:25px;}
+.title{float:left;height:40px;font-size:18px;line-height:40px;color:#0666fc;white-space:nowrap;padding:0 10px;}
+.sign{float:right;width:600px;height:40px;text-align:right;background:url(img/sign.png) no-repeat right top;padding:0 10px;}
+.sign-word{float:right;width:425px;height:22px;line-height:22px;background:url(img/signWord.png) repeat-x 50px 0;overflow:hidden;text-indent:1000px;}
+.fun{font-size:12px;color:#000;clear:both;}
+.fun span{padding-left:6px;}
+.side-panel{width:160px;border-width:0 5px;}
+.accordion .accordion-header{border-top:1px solid #fff;}
+.accordion .accordion-header-selected{background:#f6f6f6;border-bottom:1px solid #287fe7;}
+.content-panel{border-width:0 5px 0 0;}
+.status-panel{height:22px;font:11px/24px Arial;color:#598ed0;text-indent:8px;background:#bad3f8 url(img/footBg.png) repeat-x;border-top-width:5px;}
+.panel-body iframe{float:left;}
+.tree-node-selected .tree-title,.tree-node-selected .tree-title a,.tree-node-hover .tree-title,.tree-node-hover .tree-title a{font-weight:normal;color:#000;}

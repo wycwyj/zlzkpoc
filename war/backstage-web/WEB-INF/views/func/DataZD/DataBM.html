@@ -1,0 +1,899 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>部门数据授权页面</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .x-accordion-title{
+      background: #dfeaf2;
+      border-top: 2px solid white;
+      padding: 8px 10px;
+    }
+    .x-collapsed .x-accordion-body{
+      height: 0;
+      overflow: hidden;
+    }
+    
+    .ext-border-layout {
+	    padding-left:0px;
+	    padding-top:0px;
+	    padding-bottom:0px;
+	    padding-right:2px;
+	    margin-top:1px;
+	    margin-left:1px;
+	    margin-right:1px;
+	    margin-bottom:1px;
+	    background:white;
+	}
+	
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+	}
+	
+	.ext-border-layout .x-border-center {
+	    border-top：0px;
+	}
+	
+	.bui-nav-tab{
+		height:97%;
+	}
+	
+	.tab-content-container{
+		height:97%;
+	}
+	.x-border-body{
+		height:77% !important;
+	}
+	.span13 {
+	    width:auto;
+	    text-align: center;
+	}
+	.bui-tree-list  ul{
+		padding-bottom:10px !important;
+	}
+   </style>
+ </head>
+ <body>
+ 	<div id="c1" style="display:none">
+      <form id="J_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">值：</label>
+            <div class="controls">
+            	<input type="hidden" name="c">
+                <input name="b" type="text" class="input-normal control-text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div id="s1" style="display:none">
+      <form id="Q_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">值：</label>
+            <div class="controls">
+            	<input type="hidden" name="c">
+                <input name="b" type="text" class="input-normal control-text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div id="c2" style="display:none">
+      <form id="K_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">值：</label>
+            <div class="controls">
+            	<input type="hidden" name="c">
+                <input name="b" class="calendar" type="text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div id="s2" style="display:none">
+      <form id="R_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span8">
+            <label class="control-label">值：</label>
+            <div class="controls">
+            	<input type="hidden" name="c">
+                <input name="b" class="calendar" type="text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div id="s3" style="display:none">
+         <iframe src="${rc.contextPath}/dataFuncZD/empRoleDial" id="orgAttribution1" name="orgAttribution1" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+    <div id="s4" style="display:none">
+        <iframe src="${rc.contextPath}/dataFuncZD/orgRoleDial" id="orgAttribution2" name="orgAttribution2" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+    
+ </body>
+ <script type="text/javascript">
+ 
+	$(document).keydown(function(event){
+	  switch(event.keyCode){
+	     case 13:return false; 
+	     }
+	});
+ 
+	var tempVal="";
+	var tempZDVal =[];
+	/* 用来存储部门值 */
+	var tempRyVal = "";
+	/* 当前选中节点 */
+	var nowSelect="";
+	/* 临时存放该路径下所有字段值，用来循环 */
+	var tempZDArray="";
+	/* 临时存放字段对应的值 */
+	
+	var thisTxt = '';
+	
+	var requestpath = "";
+	var ZDCode = "";
+	var title ="";
+	
+    BUI.use(['layout','bui/picker','grid','data','tree','tab','bui/form','bui/overlay'],function (Layout,Picker,Grid,Data,Tree,Tab,Form,Overlay){
+    	
+    	var orgform = new BUI.Form.Form({
+    		srcNode : '#ZD_Form'
+    	}).render();
+    	
+    	var formQ = new BUI.Form.Form({
+    		srcNode : '#Q_Form'
+    	}).render();
+    	
+    	var formR = new BUI.Form.Form({
+    		srcNode : '#R_Form'
+    	}).render();
+    	
+    	var formS = new BUI.Form.Form({
+    		srcNode : '#S_Form'
+    	}).render();
+    	
+    	var formT = new BUI.Form.Form({
+    		srcNode : '#T_Form'
+    	}).render();
+    	
+        var Store = Data.Store,
+            orgTreeStore = new Data.TreeStore({
+                root : {
+                    id : '-1',
+                    text : '组织机构'
+                },
+                pidField : 'pid',
+                url : '${rc.contextPath}/org/op/getSonsFunc',
+                autoLoad : true,
+                dataType:'json',
+                contentType:"application/json"
+            });
+        
+        var gridStore = new Data.Store({
+        });
+        
+        var columns = [
+        	  {
+        		  title:'字段',
+        		  dataIndex:'q',
+        		  width:'20%',
+        		  elCls:'center'
+        	  },
+        	  {
+                title : '方式',
+                dataIndex :'a',
+                width:'8%',
+                elCls : 'center'
+              },{
+                title : '值',
+                dataIndex :'b',
+                width:'30%',
+                elCls : 'center'
+              	},{
+            	dataIndex :'c',
+            	visible : false
+            	},
+           	  {
+           		  title:'路径',
+           		  dataIndex:'d',
+           		  visible:false
+           	  },
+           	  {
+           		  title:'字段编码',
+           		  dataIndex:'e',
+           		  visible:false
+           	  },
+           	  {
+           		  title:'输入类型',
+           		  dataIndex:'f',
+           		  visible:false
+           	  },
+           	  {
+    	       	 title : '操作',
+    	       	 elCls : 'center',
+    	       	 renderer : function(value,obj){
+    	       		 if(obj.f=="s"){
+    	       			return '<span class="grid-command btn-edit-time">编辑</span>'
+    	       		 }else if(obj.f=="w"){
+    	       			return '<span class="grid-command btn-edit">编辑</span>' 
+    	       		 }
+    	         }
+           	  }
+            ];
+        
+        var editing1 = new Grid.Plugins.DialogEditing({
+            contentId : 'c1' ,
+            triggerCls : 'btn-edit' 
+          });
+      	
+      	var editing2 = new Grid.Plugins.DialogEditing({
+              contentId : 'c2' ,
+              triggerCls : 'btn-edit-time'
+          });
+      	
+      	var editing3 = new Grid.Plugins.DialogEditing({
+            contentId : 'c3' ,
+            triggerCls : 'btn-edit-ry'
+        });
+      	
+      	var editing4 = new Grid.Plugins.DialogEditing({
+            contentId : 'c4' ,
+            triggerCls : 'btn-edit-bm'
+        });
+      	
+        var control = new Layout.Viewport({
+			width:600,
+			height:"99%",
+			elCls : 'ext-border-layout',
+			children : [{
+                xclass : 'controller',
+                layout : {
+                  	region : 'south',
+                  	height : 0
+                },
+                width : 0,
+            },
+            {
+	             xclass : 'controller',
+	             layout : {
+	               region : 'east',
+	               title : '设置字段条件',
+	               width : "48%",
+	               fit:'height'
+	             },
+	             defaultChildClass : 'controller',
+	             children : [
+	               {
+	               	 xclass:'grid',
+	            	 id:'grid_cdd',
+	            	 columns : columns,
+	            	 store : gridStore,
+	            	 plugins : [editing1,editing2,editing3,editing4,Grid.Plugins.CheckSelection]
+	             },{
+	             	 xclass : 'bar', 
+	     			 elCls : 'toolbar',
+	     			 layout:{
+	     	              region : 'south',
+	     	              height:40
+	     			 },
+	     			 children : [
+						{
+						xtype:'spacer',
+						width : 2
+						},
+						{
+						    xtype:'button',
+						    btnCls : 'button button-small',
+						    text:'删除条件',
+						    handler:function(event){
+						    	deleteZD();
+						    }
+						 },
+						 {
+				            xtype:'separator'
+				         },
+						 {
+				        	 	xtype:'button',
+							    btnCls : 'button button-small',
+							    text:'授予最高权限',
+							    handler:function(event){
+							    	hightest();
+							    }
+						 },
+				         {
+				                content:'<label class="checkbox"><input id="highest" type="checkbox" disabled="disabled"></label>'
+				         },
+						 {
+				        	 	xtype:'button',
+							    btnCls : 'button button-small',
+							    text:'取消最高权限',
+							    handler:function(event){
+							    	unhightest();
+							    }
+						 }
+	                 ]
+	             }],
+	             plugins : [Layout.Border]
+	           },
+            {
+                xclass : 'controller',
+                layout : {
+                    region : 'center',
+                    width : "52%",
+                    fit:'both'
+                },
+                defaultChildClass : 'controller',
+                children : [
+                   {
+                    xclass : 'list',
+                    elCls:'bui-select-list',
+                    layout : {
+                        region : 'west',
+                        title : '请选择部门',
+                        width : "75%",
+                        fit:'height'
+                    },
+                    id : 'rylist',
+                    defaultChildClass : 'controller',
+                    children : [
+							{ 
+							  xclass : 'controller',
+							  content : '<br/><form id="searchResultForm" class="form-horizontal" ><div class="control-group"><div class="control-group span8"><div class="controls" id="tiaojian">快速定位：<input type="hidden" id="orgcode"><input type="text" class="control-text" id="selCondition" autocomplete="off" placeholder="请输入查询的机构部门"></div></div></div><div class="span13" id="span13"><button type="button" id="btnSearchResult" class="button button-primary">定位</button>&nbsp;&nbsp;&nbsp;<button id="reset" type="reset" class="button">重置</button></div></form><br/>'
+							},   
+							{
+								xclass : 'tree-list',
+					        	id : 'mytree',
+					        	store : orgTreeStore,
+					        	showLine : true,
+					        	checkType: 'all',
+					        	cascadeCheckd : false
+				            }],
+                    plugins : [Layout.Border]
+                },
+                {
+                    xclass : 'list',
+                    elCls:'bui-select-list',
+                    layout : {
+                        region : 'east',
+                        title : '请选择字段',
+                        width : "25%",
+                        fit:'height'
+                    },
+                    id : 'zdlist'
+                }],
+                plugins : [Layout.Border]
+            }],
+            plugins : [Layout.Border]
+        });
+        
+        control.render();
+        var tree = control.getChild('mytree',true);
+        var zdlist = control.getChild('zdlist',true);
+        var gridcdd = control.getChild('grid_cdd',true);
+        
+        editing1.on('accept',function(ev){
+        	var tempTreeVals = tree.getCheckedNodes();
+        	var tempSelected = tree.getSelection();
+        	var tempTreeValObj = tempTreeVals.attributes;
+        	
+        	var record = ev.record;
+        	var configArr = {id:record.c,value:record.b};
+	      	$.ajax({
+	 				url: '${rc.contextPath}/dataFuncZD/df/saveInputValueBM',
+	 				dataType : 'json',
+	 				contentType : 'application/json',
+	 	          	type : 'get',
+	 	          	traditional: true,
+	 	          	data :configArr,
+	 	            success : function(){
+	 	            }
+	 		})
+        })
+        
+        editing2.on('accept',function(ev){
+        	var tempTreeVals = tree.getCheckedNodes();
+        	var tempSelected = tree.getSelection();
+        	var tempTreeValObj = tempTreeVals.attributes;
+        	
+        	var record = ev.record;
+        	var configArr = {id:record.c,value:record.b};
+	      	$.ajax({
+	 				url: '${rc.contextPath}/dataFuncZD/df/saveInputValueBM',
+	 				dataType : 'json',
+	 				contentType : 'application/json',
+	 	          	type : 'get',
+	 	          	traditional: true,
+	 	          	data :configArr,
+	 	            success : function(){
+	 	            }
+	 		})
+        })
+        
+        $("#reset").click(function(){
+        	$('#orgcode').val("");
+        	$('#selCondition').val('');
+        });
+        
+        $("#btnSearchResult").on('click',function(){
+        	var val = $('#orgcode').val();
+        	if(val==""){
+        		initTreeLoadNode();
+        	}else{
+        		MHZ={mhz:val};
+            	$.ajax({
+     				url: '${rc.contextPath}/funcg/funcr/selectidByorgname',
+     				dataType : 'json',
+     				contentType : 'application/json',
+     	          	type : 'get',
+     	          	traditional: true,
+     	          	data :MHZ,
+     	            success : function(data){
+     	            	var dataObj1 = eval("("+data+")");
+     	            	if(dataObj1==""){
+     	            		BUI.Message.Alert('请输入并选择需要搜索的项');
+     	            	}else{
+     	            		$("ul li").each(function() {    
+      	                       $(this).removeClass('bui-tree-item-selected');  
+      	                    });
+         	            	for(var i =0;i<dataObj1.length;i++){
+         	            		var tempArray = dataObj1[i].split(',');
+         	            		loadTreeNode(tree, dataObj1[i], tempArray[tempArray.length-1]);
+         	            	}
+     	            	}
+     	            }
+     			})
+        	}
+        });
+        
+        function loadTreeNode(tree,orgIdStr,empId){
+        	tree.collapseAll();
+        	tree.expandPath(orgIdStr,true,0);
+        	var item = tree.getItem(empId);
+        	var timer = setInterval(function(){
+        		item = tree.getItem(empId);
+        		if(item!=null){
+        			var emp = tree.findElement(item);
+                    $(emp).click();
+        			// $(emp).addClass('bui-tree-item-selected');
+        			clearInterval(timer);
+        		}
+        	},50);
+        }
+        
+        function initTreeLoadNode(){
+        	orgTreeStore.load({id:"-1"});
+        }
+        
+        $(function(){
+        	$("#selCondition").bind('input porpertychange',function(e){
+        		thisTxt=$("#selCondition").val();
+        	});
+        });
+        
+        var columns = [
+          		{title : '编号',dataIndex :'orgcode', width:'20%'},
+       			{title : '名称',dataIndex :'orgname', width:'20%'},
+       			{title : '所在路径',dataIndex :'allOrgName', width:'60%'},
+       			{title : '机构id',dataIndex : 'orgid',width:'0'}
+        ],
+        params = {remark:thisTxt},
+        store = new Store({
+    		url:'${rc.contextPath}/org/op/queryOrgsFunc',
+            autoLoad:true,
+            pageSize : 3,
+            proxy : {
+              	ajaxOptions : { 
+                	traditional : true,
+                	type : 'get'
+              	}
+            },
+            params : params
+        }),
+        grid = new Grid.Grid({
+            idField : 'orgcode', 
+            columns : columns,
+            textGetter: function(item){
+              	return item.orgname;
+            },
+            bbar:{
+              	pagingBar:false
+            },
+            store : store
+        }),
+		  picker = new Picker.ListPicker({
+		    trigger : '#selCondition',  
+		    valueField : '#orgcode', 
+		    width:400,  
+		    children : [grid] 
+		  });
+		picker.render();
+        
+		$("#selCondition").on("keyup",function(){
+    		params.remark = $(this).val();
+    		store.load(params)
+    	});
+		
+		var dialogText = new Overlay.Dialog({
+            title:'添加操作',
+            width:380,
+            height:122,
+            mask:false,
+            buttons:[
+              {
+                text:'确定',
+                elCls : 'button button-primary',
+                handler : function(){
+                	var tVal = formQ.getFieldValue("b");
+                	var tempTreeVals = tree.getCheckedNodes();
+                	for(var u=0;u<tempTreeVals.length;u++){
+                		addVal(tempTreeVals[u].orgcode,tempTreeVals[u].id,requestpath,ZDCode,title,tVal);
+                	}
+                	formQ.setFieldValue("b","");
+                	this.close();
+                }
+              },{
+                text:'关闭',
+                elCls : 'button',
+                handler : function(){
+                  this.close();
+                }
+              }
+            ],
+            	contentId:'s1'
+          });
+        
+        var dialogTime = new Overlay.Dialog({
+            title:'添加操作',
+            width:362,
+            height:122,
+            mask:false,
+            buttons:[
+              {
+                text:'确定',
+                elCls : 'button button-primary',
+                handler : function(){
+                	var tVal = formR.getFieldValue("b");
+                	var d = new Date(tVal); 
+                	var youWant = "";
+                	if(d.getMonth()+1<10&&d.getDate()>10){
+                		youWant=d.getFullYear() + '-0' + (d.getMonth() + 1) + '-' + d.getDate();  
+                	}else if(d.getMonth()+1<10&&d.getDate()<10){
+                		youWant=d.getFullYear() + '-0' + (d.getMonth() + 1) + '-0' + d.getDate();
+                	}else{
+                		youWant=d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                	}
+                	
+                	var tempTreeVals = tree.getCheckedNodes();
+                	for(var u=0;u<tempTreeVals.length;u++){
+                		addVal(tempTreeVals[u].orgcode,tempTreeVals[u].id,requestpath,ZDCode,title,youWant); 
+                	}
+                	formR.setFieldValue("b","");
+                	this.close();
+                }
+              },{
+                text:'关闭',
+                elCls : 'button',
+                handler : function(){
+                  this.close();
+                }
+              }
+            ],
+            	contentId:'s2'
+          });
+        
+        var dialogRY = new Overlay.Dialog({
+            title:'添加操作',
+            width:828,
+            height:442,
+            mask:false,
+            buttons:[
+              {
+                text:'确定',
+                elCls : 'button button-primary',
+                handler : function(){
+                	var arrayItems = window.orgAttribution1.getArrayItems();
+                	var tempTreeVals = tree.getCheckedNodes();
+                	for(var u=0;u<tempTreeVals.length;u++){
+                		for(var y=0;y<arrayItems.length;y++){
+                			addVal(tempTreeVals[u].orgcode,tempTreeVals[u].id,requestpath,ZDCode,title,arrayItems[y].text);
+                		}
+                	}
+                	this.close();
+                }
+              },{
+                text:'关闭',
+                elCls : 'button',
+                handler : function(){
+                  this.close();
+                }
+              }
+            ],
+            	contentId:'s3'
+          });
+        
+        var dialogBM = new Overlay.Dialog({
+            title:'添加操作',
+            width:828,
+            height:442,
+            mask:false,
+            buttons:[
+              {
+                text:'确定',
+                elCls : 'button button-primary',
+                handler : function(){
+                	var arrayItems = window.orgAttribution2.getArrayItems();
+                	var tempTreeVals = tree.getCheckedNodes();
+                	for(var u=0;u<tempTreeVals.length;u++){
+                		for(var y=0;y<arrayItems.length;y++){
+                			addVal(tempTreeVals[u].orgcode,tempTreeVals[u].id,requestpath,ZDCode,title,arrayItems[y].text);
+                		}
+                	}
+                	this.close();
+                }
+              },{
+                text:'关闭',
+                elCls : 'button',
+                handler : function(){
+                  this.close();
+                }
+              }
+            ],
+            	contentId:'s4'
+          });
+		
+		
+        $(function(){
+        	tempVal = "${tempPath}";
+        	$.ajax({
+  				url: '${rc.contextPath}/dataFuncZD/df/getZDNew?requestpath='+tempVal,
+  				dataType : 'json',
+  				contentType : 'application/json',
+  	          	type : 'get',
+  	          	traditional: true,
+  	            success : function(data){
+  					var dataObj = eval("("+data+")");
+  					if(dataObj.length==0){
+  						BUI.Message.Alert('请检查是否已在配置中进行配置');
+ 	            	}else{
+	  					zdlist.addItems(dataObj);
+	  					tempZDArray=dataObj;
+ 	            	}
+  	            }
+  			})
+        })
+        
+        tree.setSelectedByField('id','-1');
+        
+        function zdClick(ev){
+        	var node = ev.item;
+        	var tempPath = "${tempPath}";
+        	var selectVal = tree.getSelected();
+        	if(selectVal==null){
+        		BUI.Message.Alert('请选择查看的部门');
+        	}else{	
+            	var selectVals = tree.getCheckedNodes();
+            	if(selectVals.length==0){
+            		BUI.Message.Alert('请进行部门勾选');
+            	}else{
+    	            	var tempZDObj = node.__attrVals;
+    	            	
+    	            	requestpath = tempZDObj.requestpath;
+    	            	ZDCode = tempZDObj.id;
+    	            	title = tempZDObj.text;
+    	            	
+    	            	if(tempZDObj.type=="s"){
+                    		dialogTime.show();
+                    	}else if(tempZDObj.type=="r"){
+                    		dialogRY.show();
+                    	}else if(tempZDObj.type=="b"){
+                    		dialogBM.show();
+                    	}else{
+                    		dialogText.show();
+                    	}
+            		}
+        	}
+        }
+      	
+        function hightest(){
+        	  if(requestpath==""){
+        		  BUI.Message.Alert("请先选择需要设置的模块！");   	
+        	  }else{
+        		  var allNodes = tree.getCheckedNodes();
+        		  if(allNodes.length==0){
+        			  BUI.Message.Alert("请勾选需要设置的部门！");
+        		  }else{
+        			  for(var all=0;all<allNodes.length;all++){
+                		  var configArr = {bmcode:allNodes[all].orgcode,bmid:allNodes[all].id,requestpath:requestpath,attr1:"hight",value:"hight"};
+            	        	$.ajax({
+            		   				url: '${rc.contextPath}/dataFuncZD/df/saveZDBMHight',
+            		   				dataType : 'json',
+            		   				contentType : 'application/json',
+            		   	          	type : 'get',
+            		   	          	traditional: true,
+            		   	          	data :configArr,
+            		   	            success : function(data){
+            		   	            	if(data=="success"){
+            		   	            		var sele=document.getElementById('highest');
+            			   	            	sele.checked = true;
+            		   	            		BUI.Message.Alert("已授予最高权限！");   	
+            		   	            	}else if(data=="exist"){
+            		   	            		BUI.Message.Alert("已是最高权限！");   	
+            		   	            	}else{
+            		   	            		BUI.Message.Alert("授予最高权限失败！");   	
+            		   	            	}
+            		   	            }
+            		   		})
+                	  }
+        		  }
+        	  }
+          }
+          
+          function unhightest(){
+        	  if(requestpath==""){
+        		  BUI.Message.Alert("请先选择需要设置的模块！");   	
+        	  }else{
+        		  var allNodes = tree.getCheckedNodes();
+        		  if(allNodes.length==0){
+        			  BUI.Message.Alert("请勾选需要设置的部门！");
+        		  }else{
+        			  for(var all=0;all<allNodes.length;all++){
+                		  var configArr = {bmcode:allNodes[all].orgcode,bmid:allNodes[all].id,requestpath:requestpath};
+            	        	$.ajax({
+            		   				url: '${rc.contextPath}/dataFuncZD/df/deleteZDBMHight',
+            		   				dataType : 'json',
+            		   				contentType : 'application/json',
+            		   	          	type : 'get',
+            		   	          	traditional: true,
+            		   	          	data :configArr,
+            		   	            success : function(data){
+            		   	            	if(data=="success"){
+            		   	            		var sele=document.getElementById('highest');
+            			   	            	sele.checked = false;
+            		   	            		BUI.Message.Alert("已取消最高权限！");   	 
+            		   	            	}else if(data=="unexist"){
+            		   	            		BUI.Message.Alert("目前不是最高权限！");   	
+            		   	            	}else{
+            		   	            		BUI.Message.Alert("取消最高权限失败！");   	 
+            		   	            	}
+            		   	            }
+            		   		})
+                	  } 
+        		  }
+        	  }
+          }
+      	
+        function addVal(bmCode,bmid,requestpath,ZDCode,title,Val){
+        	var configArr = {bmcode:bmCode,bmid:bmid,requestpath:requestpath,name:ZDCode,title:title,type:"=",value:Val};
+	      	  $.ajax({
+		   				url: '${rc.contextPath}/dataFuncZD/df/saveZDBMConfig',
+		   				dataType : 'json',
+		   				contentType : 'application/json', 
+		   	          	type : 'get',
+		   	          	traditional: true,
+		   	          	data :configArr,
+		   	            success : function(data){
+		   	            	var dataObj1 = eval("("+data+")");
+		   	            	var inputData = [];
+		   	            	for(var n=0;n<dataObj1.length;n++){
+		   	            		inputData.push({q:dataObj1[n].text,a:dataObj1[n].type,b:dataObj1[n].value,c:dataObj1[n].uId,e:dataObj1[n].id,f:dataObj1[n].inputType});
+		   	            	}
+		   	          		gridStore.setResult([]);
+		   	          		gridStore.setResult(inputData);
+		   	            }
+		   			})
+        }
+      	
+        zdlist.on('itemclick', function(ev){
+        	zdClick(ev);
+        });
+        
+        tree.on('selectedchange',function(ev){
+        	gridcdd.clearData();
+        	zdlist.clearSelection();
+          	var node = ev.item;
+          	var tempPath = "${tempPath}";
+          	tempRyVal = node.orgcode;
+          	requestpath = "${tempPath}";
+          	var node = ev.item;
+          	if(tempPath==""){}
+          	else{
+        		var configArr = {bmcode:node.orgcode,requestpath:tempPath};
+		        	  $.ajax({
+		   				url: '${rc.contextPath}/dataFuncZD/df/getBmZDValNew',
+		   				dataType : 'json',
+		   				contentType : 'application/json',
+		   	          	type : 'get',
+		   	          	traditional: true,
+		   	          	data :configArr,
+		   	            success : function(data){
+		   	            	var dataObj1 = eval("("+data+")");
+		   	            	inputData = [];
+		   	            	for(var n=0;n<dataObj1.length;n++){
+		   	            		inputData.push({a:dataObj1[n].type,b:dataObj1[n].value,q:dataObj1[n].text,c:dataObj1[n].uId,e:dataObj1[n].id,f:dataObj1[n].inputType});
+		   	            	}
+		   	          		gridStore.setResult([]);
+		   	          		gridStore.setResult(inputData);
+		   	          		
+		   	            }
+		   		})
+		   		
+	   				var configArr = {bmcode:node.orgcode,bmid:node.id,requestpath:requestpath,attr1:"hight"};
+       	        	$.ajax({
+       		   				url: '${rc.contextPath}/dataFuncZD/df/selectZDBMHight',
+       		   				dataType : 'json',
+       		   				contentType : 'application/json',
+       		   	          	type : 'get',
+       		   	          	traditional: true,
+       		   	          	data :configArr,
+       		   	            success : function(data){
+       		   	            	if(data=="exist"){
+       		   	            		var sele=document.getElementById('highest');
+       			   	            	sele.checked = true;
+       		   	            	}else{
+       		   	            		var sele=document.getElementById('highest');
+       			   	            	sele.checked = false;
+       		   	            	}
+       		   	            }
+       		   		})
+         	}
+        });
+        
+        function deleteZD(){
+        	var selections = gridcdd.getSelection();
+            gridStore.remove(selections);
+            var tempArrayId = [];
+            for(var u=0;u<selections.length;u++){
+            	tempArrayId.push(selections[u].c);
+            }
+            var configArr = {arrayId:tempArrayId};
+	      	$.ajax({
+	 				url: '${rc.contextPath}/dataFuncZD/df/deleteZDBMConfig',
+	 				dataType : 'json',
+	 				contentType : 'application/json',
+	 	          	type : 'get',
+	 	          	traditional: true,
+	 	          	data :configArr,
+	 	            success : function(){
+	 	            }
+	 		})
+        }
+        
+        $(".x-accordion-title").remove();
+        $(".bui-tree-list").parent().parent().height("99.8%");
+        $(".bui-tree-list").parent().height("100%");
+        $(".bui-tree-list").height("100%").css("border-bottom","1px solid #3892d3");
+        $(".bui-grid").parent().css("border-bottom","1px solid #3892d3");
+        
+        $(".bui-list").css("overflow","hidden");
+        $(".bui-list").css("overflow-y","auto");
+
+        $(".x-layout-item-border").css("overflow","hidden");
+        $(".x-layout-item-border").css("overflow-y","auto");
+        $(".x-layout-item-border").css("border-bottom","none");
+        $(".x-layout-item-border").css("border-right","none");
+        $(".x-layout-item-border").css("border-left","none");
+        $(".ext-border-layout").css("width","1060px");
+    });
+  </script>
+</html>  

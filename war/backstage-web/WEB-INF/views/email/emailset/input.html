@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新建模块</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.web.frame.css">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/extends/layui/css/layui.css">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.common.css">
+    <style>
+        .layui-select-title{
+            width:98.9%;
+        }
+        .layui-layedit{
+            width:98.9%;
+            margin-bottom:2px;
+        }
+        .layui-form-select .layui-edge {
+            right: 20px;
+        }
+        .layui-form-select dl {
+            left: 0px;
+            top: 39px;
+            width:98.9%;
+            min-width:98.9%;
+        }
+        .layui-layer-btn0{
+            border:0px;
+            background-color:white;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-container">
+    <form class="layui-form layui-form-pane" lay-filter="formDemo" id="formDemo">
+        <div class="layui-field-box">
+            <input type="hidden" name="id" id="id">
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;"><span style="color:red;">*</span>称谓：</label>
+                <div class="layui-input-block" style="margin-left:100px;height:40px;left:11px;top:1px;">
+                    <input type="text" id="appellation" name="appellation" value="" lay-verify="required" class="layui-input" style="width:98.9%;color:red;">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;"><span style="color:red;">*</span>主题名称：</label>
+                <div class="layui-input-block" style="margin-left:100px;height:40px;left:11px;top:1px;">
+                    <input type="text" id="subject" name="subject" value="" lay-verify="required" class="layui-input" style="width:98.9%;color:red;">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;"><span style="color:red;">*</span>自称：</label>
+                <div class="layui-input-block" style="margin-left:100px;height:40px;left:11px;top:1px;">
+                    <input type="text" id="declaration" name="declaration" value="" lay-verify="required" class="layui-input" style="width:98.9%;color:red;">
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;">是否启用：</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="attr1" id="attr1" lay-skin="switch" lay-filter="isUsedFilter" lay-text="是|否"/>
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;"><span style="color:red;">*</span>邮件内容：</label>
+                <div class="layui-input-block" style="margin-left:100px;left:11px;top:1px;">
+                    <textarea name="content" id="content" lay-verify="content" placeholder="输入邮件内容..." class="layui-textarea" style="width:98.9%;"></textarea>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script src="${rc.contextPath}/wood/resource/webframe/extends/jquery/jquery.min.js"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/extends/layui/layui.js" charset="utf-8"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/js/wood.form.js"></script>
+<script>
+    var indexfu;
+
+    $(function(){
+
+
+        $("#formDemo").initFormNew({getDataUrl:"${rc.contextPath}/emailset/wood/be/operate/getObj?id=${emailSetId}",
+            saveDataUrl:"${rc.contextPath}/emailset/wood/be/operate/save",method:"POST",loadingCallback:function(form,formData){
+                layui.use('layedit', function(){
+                    var layedit = layui.layedit;
+                    indexfu = layedit.build('content'); //建立编辑器
+                    //自定义验证规则
+                    form.verify({
+                        content: function (value){
+                            layedit.sync(indexfu);
+                        }
+                    });
+                });
+
+            var isUsed = formData.attr1;
+            var isUsedM = $("#attr1");
+            if(isUsed=="on"){
+                isUsedM.attr("checked","").val("on");
+            }else{
+                isUsedM.removeAttr("checked").val("off");
+            };
+
+            form.render("checkbox");
+
+            form.on("switch(isUsedFilter)",function(obj){
+                if(obj.value=="on") {
+                    if(isUsedM.attr("checked"))
+                        isUsedM.removeAttr("checked")
+                    isUsedM.val("off");
+                    isUsedM.next().prop("class","layui-unselect layui-form-switch");
+                    isUsedM.next().find("em").text("否");
+                }else{
+                    layer.confirm("只有一条邮件内容可启用，启用此条将导致其他邮件内容不启用，" +
+                        "确定启用吗", { btn: ['确定','取消'],btn1: function(index){
+                        $.ajax({
+                            url: "${rc.contextPath}/emailset/changeIsUsed"
+                            ,type:"get"
+                            ,async:false
+                            , success: function(result){
+                                if(result.indexOf("成功")!=-1){
+                                    isUsedM.attr("checked","");
+                                    isUsedM.val("on");
+                                    isUsedM.next().prop("class","layui-unselect layui-form-switch layui-form-onswitch");
+                                    isUsedM.next().find("em").text("是");
+                                }else{
+                                    if(isUsedM.attr("checked"))
+                                        isUsedM.removeAttr("checked")
+                                    isUsedM.val("off");
+                                    isUsedM.next().prop("class","layui-unselect layui-form-switch");
+                                    isUsedM.next().find("em").text("否");
+                                }
+                            }
+                        });
+                        layer.close(index);
+                    },
+                        btn2: function(index){
+                            if(isUsedM.attr("checked"))
+                                isUsedM.removeAttr("checked")
+                            isUsedM.val("off");
+                            isUsedM.next().prop("class","layui-unselect layui-form-switch");
+                            isUsedM.next().find("em").text("否");
+                            layer.close(index);
+                        }
+                    })
+                }
+            });
+
+        }});
+    });
+
+    function save(layerIndex){
+        saveOrSubmit(true,layerIndex);
+    }
+
+    function submit(layerIndex){
+        saveOrSubmit(false,layerIndex);
+    }
+
+    function saveOrSubmit(isSave,layerIndex){
+        var isUsedM = $("#attr1");
+        if(isUsedM.val()=='off'){
+            $.ajax({
+                url: "${rc.contextPath}/emailset/isUsedNum"
+                ,type:"get"
+                ,async:false
+                , success: function(result){
+                    if(result.indexOf("没有")!=-1){
+                        layer.msg("必须有一条邮件内容设置是启用状态");
+                        isUsedM.attr("checked","");
+                        isUsedM.val("on");
+                        isUsedM.next().prop("class","layui-unselect layui-form-switch layui-form-onswitch");
+                        isUsedM.next().find("em").text("是");
+                    }
+                }
+            });
+        }
+        formObject.submitForm(isSave,function(msg){
+            if(!isSave){
+                parent.layer.close(layerIndex);
+            }else{
+                var currID = $("#id").val();
+                if(currID==""||currID==null){
+                    $("#id").val(msg.entity.id);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 涓嬮潰鐨勬牱寮忥紝浠呮槸涓轰簡鏄剧ず浠ｇ爜锛岃�屼笉搴旇鍦ㄩ」鐩腑浣跨敤-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class='page-title ui-corner-all'>引擎配置</div>
+<table class="table table-bordered table-hover table-condensed">
+    <tr>
+        <th class="text-info" width="30%">属性名称</th>
+        <th class="text-info">属性值</th>
+    </tr>
+    #foreach($prop in $engineProperties.entrySet())
+        <tr>
+            <th>${prop.key}</th>
+            <td>${prop.value}</td>
+        </tr>
+    #end
+</table>
+
+<div class='page-title ui-corner-all'>系统参数</div>
+<table class="table table-bordered table-hover table-condensed">
+    <tr>
+        <th class="text-info">属性名称</th>
+        <th class="text-info">属性值</th>
+    </tr>
+    #foreach($prop in $systemProperties.entrySet())
+        <tr>
+            <th>${prop.key}</th>
+            <td>${prop.value}</td>
+        </tr>
+    #end
+</table>
+</body>
+</html>

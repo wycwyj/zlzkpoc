@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<link rel="shortcut icon" href="${rc.contextPath}/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<!-- 谷歌做了外挂，用的是IE	浏览器，其实是谷歌的内核 -->
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<!--视口宽度   viewport 视口  视口宽=设备的宽 默认比例为1 最大最小比例为1，用户手指滑动是否可以缩放 -->
+	<meta name="format-detection" content="telephone=no,email=no"/>
+	<!-- 自动识别格式 版式检查 防止出来一个数字，以手机号或邮箱自动识别 -->
+	<meta charset="UTF-8"><!-- 字符集设置为世界通用的语言编码-->
+	<title>后台管理系统:::登录</title>	
+	<link rel="stylesheet" href="${rc.contextPath}/login/css/style.css">
+	<link rel="stylesheet" href="${rc.contextPath}/js/jquery-toastmessage/css/jquery.toastmessage.css" type="text/css"/>
+	<script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/jquery-toastmessage/jquery.toastmessage.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/login/js/base64.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="logo">
+			<div class="logo_">
+				<dl>
+					<dt>
+						<img style="height:90%;width:auto" src="${rc.contextPath}/login/img/backstage_logo.png" alt="">
+					</dt>
+					<dd>后台管理系统</dd>
+				</dl>
+			</div>
+		</div>
+		<div class="main">
+			<img src="${rc.contextPath}/login/img/bag.jpg" alt="" class="img_">
+			<form action="/user/logon" id="loginForm" onsubmit="valid();">
+			<div class="m_right">
+				<h3>系统登录</h3>
+				<ul>
+					<li class="li_1"><input type="text" id="username" placeholder='请输入用户名' name="username" onkeydown="if(event.keyCode==13)return false;" class="inpt1" autocomplete="off"></li>
+					<input id="pwd" type="hidden" autocomplete="off" name="password"/>
+					<li class="li_2"><input type="password" id="password" placeholder='请输入密码' class="inpt2" onkeydown="if(event.keyCode==13)return false;" autocomplete="off"></li>
+					<li>
+						<span class="spn_l"><input type="checkbox" id="remember-me">记住用户名</span><span class="spn_r"><a href="javascript:#" onclick="forgetPassWord();">忘记密码</a></span>
+					</li>
+					<li><span id="dlu" onclick="submitMe();">登录</span></li>
+					<li><span id="init" onclick="resetMe();">重置</span></li>
+					<input type="submit" style="display:none" id="submit" onkeydown="if(event.keyCode==13)return false;">
+				</ul>
+			</div>
+			</form>
+		</div>
+		<div class="clear"></div>
+		<div class="botm">
+			<p>
+				<!-- <span><a href="http://www.zhongtianji.com">关于我们</a></span> -->
+				<span><a href="http://www.zhongtianji.com/index.php?act=aboutus.aboutus&cid=17">成功案例</a></span>
+				<!-- <span><a href="">法律声明</a></span> -->
+				<span><a href="http://www.zhongtianji.com/index.php?act=news.news&cid=6">优秀产品</a></span>
+				<!-- <span class="p_span"><a href="">招纳贤士</a></span> -->
+			</p>
+			<p>Copyright © zhongtianji All Rights Reserved.</p>
+		</div>
+	</div>
+	<script>
+		var ctx = "${rc.contextPath}";
+		var error = '$request.getParameter("error")';
+		var error1 = "${error}";
+		error = (error==null||error=="null"||error=="")?error:error1;
+		var num = "${num}";
+        var tipsTime = "${tipsTime}";
+        var errorCount = "${errorCount}";
+		function resetMe(){
+			$(":input").val("");
+		}
+		
+		function valid(){
+			var username = $("#username").val();
+			var password = $("#password").val();
+			if(username=="" || username==null || username==undefined || password=="" || password==null || password==undefined){
+				if(username=="" || username==null || username==undefined){
+					$().toastmessage('showWarningToast','用户名不能为空!');
+				}else{
+					$().toastmessage('showWarningToast','密码不能为空!');
+				}
+				return
+			}
+		}
+		
+		function getYourIP(){
+            var RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+            if (RTCPeerConnection) (function () {
+                var rtc = new RTCPeerConnection({iceServers:[]});
+                if (1 || window.mozRTCPeerConnection) {    
+                    rtc.createDataChannel('', {reliable:false});
+                };
+                 
+                rtc.onicecandidate = function (evt) {
+                    if (evt.candidate) grepSDP("a="+evt.candidate.candidate);
+                };
+                rtc.createOffer(function (offerDesc) {
+                    grepSDP(offerDesc.sdp);
+                    rtc.setLocalDescription(offerDesc);
+                }, function (e) { console.warn("offer failed", e); });
+                 
+                 
+                var addrs = Object.create(null);
+                addrs["0.0.0.0"] = false;
+                function updateDisplay(newAddr) {
+                    if (newAddr in addrs) return;
+                    else addrs[newAddr] = true;
+                    var displayAddrs = Object.keys(addrs).filter(function (k) { return addrs[k]; });
+                    for(var i = 0; i < displayAddrs.length; i++){
+                        if(displayAddrs[i].length > 16){
+                            displayAddrs.splice(i, 1);
+                            i--;
+                        }
+                    }
+                    document.getElementById('list').textContent = displayAddrs[0];
+                }
+                 
+                function grepSDP(sdp) {
+                    var hosts = [];
+                    sdp.split('\r\n').forEach(function (line, index, arr) {
+                       if (~line.indexOf("a=candidate")) {   
+                            var parts = line.split(' '),      
+                                addr = parts[4],
+                                type = parts[7];
+                            if (type === 'host') updateDisplay(addr);
+                        } else if (~line.indexOf("c=")) {      
+                            var parts = line.split(' '),
+                                addr = parts[2];
+                            updateDisplay(addr);
+                        }
+                    });
+                }
+            })();
+            else{
+                document.getElementById('list').textContent = "请使用主流浏览器：chrome,firefox,opera,safari";
+            }
+        }
+		
+		function submitMe(){
+			var form = document.getElementById("loginForm");
+			var rememberMe = $("#remember-me").attr("checked");
+			var action = form.action;
+			action = ctx+"/user/logon";
+			var username = $("#username").val();
+			var password = $("#password").val();
+			if(username=="" || username==null || username==undefined || password=="" || password==null || password==undefined){
+				if(username=="" || username==null || username==undefined){
+					$().toastmessage('showWarningToast','用户名不能为空!');
+				}else{
+					$().toastmessage('showWarningToast','密码不能为空!');
+				}
+				return ;
+			}else{
+				document.getElementById("username").setAttribute("disabled","disabled");
+				document.getElementById("dlu").setAttribute("disabled","disabled");
+			}
+			var remember = localStorage.getItem("remember");
+			if(rememberMe && window.localStorage){
+				if(remember=="yes"){
+					localStorage.setItem("username",username);
+					localStorage.setItem("password",password);
+					localStorage.setItem("remember","yes");
+				}else if(remember=="u"){
+					localStorage.setItem("username",username);
+					localStorage.setItem("remember","u");
+				}else if(remember=="p"){
+					localStorage.setItem("password",password);
+					localStorage.setItem("remember","p");
+				}else{
+					localStorage.setItem("username",username);
+					localStorage.setItem("password",password);
+					localStorage.setItem("remember","yes");
+				}
+				/* localStorage.setItem("subSys",subSys);
+				localStorage.setItem("subSysT",subSysT); */
+			}else{
+				localStorage.removeItem("username");
+				localStorage.removeItem("password");
+				localStorage.removeItem("remember");
+				/* localStorage.removeItem("subSys");
+				localStorage.removeItem("subSysT"); */
+			}
+			username = username.split(".").join("1_8w8y8c_1");
+			form.action = action+"/"+username;
+			$("#pwd").val(base64encode(utf16to8(password)));
+			//alert(getYourIP());
+			$("#submit").click();
+		}
+		
+		$(function(){
+			if(window.localStorage){
+				var rememberMe = localStorage.getItem("remember");
+				if("yes"==rememberMe){
+					$("#remember-me").attr("checked","checked");
+					$("#username").val(localStorage.getItem("username"));
+					$("#password").val(localStorage.getItem("password"));
+					/* $("#subSysName").find("p").attr("val",localStorage.getItem("subSys"));
+					$("#subSysName").find("p").text(localStorage.getItem("subSysT")); */
+				}else if("u"==rememberMe){
+					$("#remember-me").attr("checked","checked");
+					$("#username").val(localStorage.getItem("username"));
+					localStorage.removeItem("password");
+					$("#password").val("");
+					$("#subSysName").find("p").attr("val",localStorage.getItem("subSys"));
+					$("#subSysName").find("p").text(localStorage.getItem("subSysT"));
+				}else if("p"==rememberMe){
+					$("#remember-me").attr("checked","checked");
+					localStorage.removeItem("username");
+					$("#username").val("");
+					$("#password").val(localStorage.getItem("password"));
+					$("#subSysName").find("p").attr("val",localStorage.getItem("subSys"));
+					$("#subSysName").find("p").text(localStorage.getItem("subSysT"));
+				}else{
+					$("#username").val("");
+					$("#password").val("");
+					localStorage.removeItem("username");
+					localStorage.removeItem("password");
+					localStorage.removeItem("remember");
+					localStorage.removeItem("subSys");
+					localStorage.removeItem("subSysT");
+				}
+			}
+			if(error=="1"){
+				$().toastmessage('showWarningToast','用户名不存在，请检查账号!');
+			}else if(error=="2"){
+                $().toastmessage('showWarningToast','您连续第['+errorCount+']次输入密码错误，请重新输入密码!');
+            }else if(error=="3"){
+                $().toastmessage('showWarningToast','您连续第['+errorCount+']次输入密码错误，请重新输入密码!');
+			}else if(error=="4"){
+				$().toastmessage('showWarningToast','非系统管理员不能登入业务流程流管理系统!');
+			}else if(error=="5"){
+				$().toastmessage('showWarningToast','非业务人员不能登入业务系统!');
+			}else if(error=="6"){
+				$().toastmessage('showWarningToast','非三员不能登入后台管理系统!');
+			}else if(error=="locked1"){
+                $().toastmessage('showWarningToast','连续'+num+'次密码错误，被临时锁定，请['+tipsTime+']后再试!');
+            }else if(error=="locked2"){
+                $().toastmessage('showWarningToast','连续'+num+'次密码错误，账户被永久锁定，联系管理员解锁账户!');
+            }
+			$(document).bind("keydown",function(event){
+	            if(event && event.keyCode==13){
+	            	submitMe();
+	            }
+	        });
+		});
+		
+		function forgetPassWord(){
+			localStorage.setItem("remember","u");
+			localStorage.removeItem("password");
+			$("#password").val("");
+		}
+	</script>
+</body>
+</html>

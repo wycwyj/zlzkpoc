@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd  
+           http://www.springframework.org/schema/aop   
+           http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+           http://www.springframework.org/schema/context  
+           http://www.springframework.org/schema/context/spring-context-3.2.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-4.1.xsd
+			http://www.springframework.org/schema/task
+			http://www.springframework.org/schema/task/spring-task-3.2.xsd
+			"
+	default-autowire="byName" default-lazy-init="false">
+
+	<!-- 采用注释的方式配置bean -->
+	<context:annotation-config />
+
+	<!-- 配置要扫描的包 -->
+	<context:component-scan base-package="com.ztj" />
+	
+	<!-- start -->
+	<!-- <bean id="uniteConfig" class="com.ztj.wood.client.spring.XDiamondConfigFactoryBean">
+		<property name="serverHost" value="${xdiamond.server.host:192.168.1.180}" />
+		<property name="serverPort" value="5678" />
+		<property name="groupId" value="com.ztj.wood.backstage" />
+		<property name="artifactId" value="backstage-web" />
+		<property name="version" value="0.0.1" />
+		<property name="profile" value="${xdiamond.project.profile:base}" />
+		<property name="secretKey" value="${xdiamond.project.secretkey:GWkCXdnOVjciq2wB}"></property>
+	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="properties">
+			<bean class="java.util.Properties"
+				factory-bean="uniteConfig" factory-method="getProperties">
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="filterModel" class="com.ztj.wood.web.filter.FilterModel">
+		<property name="excludeFilterPathStr" value="${qms.exclude.filter.paths:}" />
+	</bean> -->
+	<!-- end -->
+	
+	<!-- 读入配置属性文件 -->
+	<context:property-placeholder location="classpath:service.properties" />
+
+	<!--自动任务-->
+	<task:annotation-driven />
+	<!-- 扫描任务 -->
+	<context:component-scan base-package="com.ztj.wood.backstage.task" />
+
+	<util:properties id="ALL_PROPERTIES" location="classpath*:/*.properties" local-override="true"/>
+
+	<!-- proxy-target-class默认"false",更改为"ture"使用CGLib动态代理 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />	
+	
+	<import resource="dubbo-consumer.xml" />
+	
+	
+	<!-- 线程执行器配置，用于任务注册 -->
+	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+	    <property name="corePoolSize" value="10" />
+	    <property name="maxPoolSize" value="100" />
+	    <property name="queueCapacity" value="500" />
+	</bean>
+	
+	<!-- 导入ORG业务对象 -->
+	<bean id="importOrg" class="com.ztj.wood.backstage.sysadmin.controller.ImportOrgController" >
+	</bean>
+	
+	<!-- 导入人员对象 -->
+	<bean id="importEmp" class="com.ztj.wood.backstage.sysadmin.controller.ImportEmpController" >
+	</bean>
+	
+	<!--导入ORG 调度业务 -->
+	<bean id="importOrgDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	   	 <property name="targetObject" ref="importOrg" />
+   		 <property name="targetMethod" value="doBiz" />
+	</bean>
+	
+		<!--导入EMP 调度业务 -->
+	<bean id="importEmpDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	   	 <property name="targetObject" ref="importEmp" />
+   		 <property name="targetMethod" value="doBiz" />
+	</bean>
+	
+	<!-- 增加调度触发器 -->
+	<bean id="cronOrgTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+   		 <property name="jobDetail" ref="importOrgDetail" />
+    	 <property name="cronExpression" value="0 0 22 * * ?" />
+	</bean>
+	
+	<!-- 增加调度触发器 -->
+	<bean id="cronEmpTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+   		 <property name="jobDetail" ref="importEmpDetail" />
+    	 <property name="cronExpression" value="0 0 23 * * ?" />
+	</bean>
+	
+	<!-- 设置调度 -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	    <property name="triggers">
+	        <list>
+	            <ref bean="cronOrgTrigger" />
+	            <ref bean="cronEmpTrigger" />
+	        </list>
+	    </property>
+	</bean>
+	
+</beans>

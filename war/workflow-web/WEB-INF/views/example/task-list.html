@@ -1,0 +1,784 @@
+<!-- ${rc.contextPath}/process/def-list.html -->
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>搜索表单</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+   </style>
+ </head>
+ <body>
+  
+  <div class="container">
+
+    <div class="search-grid-container">
+      <div id="grid"></div>
+    </div>
+    
+    	<!-- 使用DIV包裹，每个DIV的ID以节点名称命名，如果不同的流程版本需要使用同一个可以自己扩展（例如：在DIV添加属性，标记支持的版本） -->
+
+	<!-- 部门领导审批 -->
+	<div id="deptLeaderAudit" class="hide">
+		<!-- table用来显示信息，方便办理任务 -->
+	  <iframe  id="deptLeaderAuditIframe"  frameborder=0   border=0   width=100%   height=200  src="view-form.html"></iframe>
+    </div>
+	
+
+	<!-- HR审批 -->
+	<div id="hrAudit" class="hide">
+
+		<!-- table用来显示信息，方便办理任务 -->
+		<iframe  id="hrAuditIframe"  frameborder=0   border=0   width=100%   height=200   src="view-form.html"></iframe>
+	</div>
+		<!-- 会签 -->
+	 <div id="shezhihuiqian" class="hide">
+	    <!-- table用来显示信息，方便办理任务 -->
+		<iframe  id="shezhihuiqianAuditIframe"  frameborder=0   border=0   width=100%   height=200   src="view-form.html"></iframe>
+	 <label>
+	  <input type="checkbox" name="assigneeList" value="admin"/>admin
+	</label>
+	<label>
+	  <input type="checkbox" name="assigneeList" value="hruser"/>hruser
+	</label>
+	<label>
+	  <input type="checkbox" name="assigneeList" value="kafeitu"/>kafeitu
+	</label>
+	</div>
+	
+	<!-- 会签 -->
+	 <div id="huiqian" class="hide">
+	 		<!-- table用来显示信息，方便办理任务 -->
+		<iframe  id="huiqianAuditIframe"  frameborder=0   border=0   width=100%   height=200   src="view-form.html"></iframe>
+	</div>
+
+	<div id="modifyApply" class="hide">
+		<div class="info" style="display:none"></div>
+		<div id="radio">
+			<input type="radio" id="radio1" name="reApply" value="true" /><label for="radio1">调整申请</label>
+			<input type="radio" id="radio2" name="reApply" checked="checked" value="false" /><label for="radio2">取消申请</label>
+		</div>
+		<hr />
+		<table id="modifyApplyContent">
+			<caption>调整请假内容</caption>
+			<tr>
+				<td>请假类型：</td>
+				<td>
+					<select id="leaveType" name="leaveType">
+						<option>公休</option>
+						<option>病假</option>
+						<option>调休</option>
+						<option>事假</option>
+						<option>婚假</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>开始时间：</td>
+				<td><input type="text" id="startTime" name="startTime" value="2016-08-01"/></td>
+			</tr>
+			<tr>
+				<td>结束时间：</td>
+				<td><input type="text" id="endTime" name="endTime" value="2016-08-27"/></td>
+			</tr>
+			<tr>
+				<td>请假原因：</td>
+				<td>
+					<textarea id="reason" name="reason" style="width: 250px;height: 50px">测试</textarea>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<!-- 销假 -->
+	<div id="reportBack" class="hide">
+		<!-- table用来显示信息，方便办理任务 -->
+		 <iframe  id="reportBackIframe"  frameborder=0   border=0   width=100%   height=200   src="view-form.html"></iframe>
+		<hr/>
+		<table>
+			<tr>
+				<td>实际请假开始时间：</td>
+				<td>
+					<input id="realityStartTime" class="calendar calendar-time"/>
+				</td>
+			</tr>
+			<tr>
+				<td>实际请假开始时间：</td>
+				<td>
+					<input id="realityEndTime"  class="calendar calendar-time"/>
+				</td>
+			</tr>
+		</table>
+	</div>
+    
+    	<!-- 任务跳转选择-->
+	<div id="jumpNext" class="hide">
+	   <input type="hidden" value="" name="jtaskID" id="jtaskID">
+		<table>
+			<tr>
+				<td>选择跳转节点</td>
+				<td>
+					 <select id="jnext" name="jnext">
+					</select>
+				</td>
+			</tr>
+		</table>
+	</div>
+    
+    
+  </div>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+  
+<script type="text/javascript">
+
+  BUI.use(['common/search'],function (Search) {
+	var choseItem;
+    var columns = [
+          {title:'主键ID',dataIndex:'leaveid',width:0,visible:false},
+          {title:'定义ID',dataIndex:'processDefinitionid',width:0,visible:false},
+          {title:'过程实例ID',dataIndex:'processInstanceid',width:0,visible:false},
+          {title:'任务ID',dataIndex:'taskid',width:0,visible:false},
+          {title:'key值',dataIndex:'taskDefinitionKey',width:0,visible:false},
+          {title:'任务实例ID',dataIndex:'executionID',width:0,visible:false},
+          {title:'假种',dataIndex:'leaveType',width:80},
+          {title:'申请人',dataIndex:'userId',width:100},
+          {title:'申请时间',dataIndex:'applyTime',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'开始时间',dataIndex:'startTime',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'结束时间',dataIndex:'endTime',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'当前节点',dataIndex:'taskname',width:100,renderer:function(v,objj){
+        	  return Search.createLink({//
+                  id : v + objj.taskid,
+                  title : '查看流程图',
+                  text : v,
+                  href : '/qms-workflow/workflow/business/trace/'+objj.processDefinitionid+'/'+objj.processInstanceid
+                });
+          }},
+          {title:'任务创建时间',dataIndex:'taskcreateTime',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'流程状态',dataIndex:'suspended',width:80},
+          {title:'操作方式',dataIndex:'taskassignee',width:0,visible:false},
+          {title:'操作',dataIndex:'',width:80,renderer:function(v,obj){
+               var qianshouStr='<span class="grid-command btn-qianshou">签收</span>',
+          	   banliStr = '<span class="grid-command btn-0">跳转</span><span class="grid-command btn-chuli">处理</span><span class="grid-command btn-1">回退</span><span class="grid-command btn-2">挂起</span><span class="grid-command btn-3">激活</span><span class="grid-command btn-4">终止</span><span class="grid-command btn-5">转办</span>';
+        	   if(obj.taskassignee=='签收'){
+        		   return qianshouStr;
+        	   }else{
+        		   return banliStr;  
+        	   }
+          }}
+        ],
+        store = Search.createStore('${rc.contextPath}/oa/leave/list/task',{
+        proxy:{
+          autoLoad:true,
+          dataType:'json',
+          contentType:"application/json"
+        },
+        pageSize : 10,	// 配置分页数目
+        autoSync:true //保存数据后，自动更新
+      }),
+      gridCfg = Search.createGridCfg(columns,{
+           plugins : [BUI.Grid.Plugins.RowNumber,BUI.Grid.Plugins.AutoFit]// 插件形式引入多选表格
+      });
+
+    var  search = new Search({
+        store : store,
+        gridCfg : gridCfg,
+       bbar:{
+            // pagingBar:表明包含分页栏
+            pagingBar:true
+        }
+      }),
+      grid = search.get('grid');
+    
+    var form = new BUI.Form.Form({
+        srcNode : '#form1'
+      }).render();
+ 
+    
+      /**
+       * 完成任务
+       * @param {Object} taskId
+       */
+      function complete(taskId, variables) {
+          var dialog = this;
+          
+      	// 转换JSON为字符串
+       var keys = "", values = "", types = "";
+      	if (variables) {
+      		$.each(variables, function() {
+      			if (keys != "") {
+      				keys += ",";
+      				values += ",";
+      				types += ",";
+      			}
+      			keys += this.key;
+      			values += this.value;
+      			types += this.type;
+      		});
+      	}
+      	
+        $.ajax({
+            url : '/qms-workflow/workflow/business/complete/' + taskId,
+            dataType : 'json',
+            data :{
+                keys: keys,
+                values: values,
+                types: types
+            },
+            success : function(data){//
+                if(data=="success"){ //
+              	  BUI.Message.Alert('成功！');
+                  //dialog1.close();
+                }else{ 
+                    BUI.Message.Alert('失败！');
+                    //dialog1.close();
+               }
+            }
+        });
+      }
+       
+       
+       /**
+        * 完成任务
+        * @param {Object} taskId
+        */
+       function complete1(taskId, variables) {
+           var dialog = this;
+           
+       	// 转换JSON为字符串
+           var keys = "", values = "",types="";
+       	if (variables) {
+       		$.each(variables, function() {
+       			if (keys != "") {
+       				keys += ",";
+       				values += ",";
+       				types += ",";
+       			}
+       			keys += this.assigneeList;
+       			values += this.signCount;
+       		});
+       	}
+         $.ajax({
+             url : '${rc.contextPath}/oa/leave/complete1/' + taskId,
+             dataType : 'json',
+             data :{
+            	 assigneeList: 'sysadminA,sysadminB'
+             },
+             success : function(data){//
+                 if(data=="success"){ //
+               	  BUI.Message.Alert('成功！');
+                   //dialog1.close();
+                 }else{ 
+                     BUI.Message.Alert('失败！');
+                     //dialog1.close();
+                }
+             }
+         });
+       }
+
+    function qianshou(item){
+            $.ajax({
+              url : '/qms-workflow/workflow/business/task/claim/'+item.taskid+'/'+item.userId,
+              dataType : 'json',
+              data : {processInstanceid:item.processInstanceid,activityId:item.taskid},
+              success : function(data){//
+                  if(data=="success"){ //
+                	  BUI.Message.Alert('任务签收成功！');
+                      search.load();
+                  }else{ 
+                      BUI.Message.Alert('任务签收失败！');
+                 }
+              }
+          });
+      }
+    
+    function huitui(item){
+        $.ajax({
+          url : '/qms-workflow/workflow/business/activity/callback/'+item.taskid,
+          dataType : 'json',
+          //data : {},
+          success : function(data){//
+              if(data=="success"){ //
+            	  BUI.Message.Alert('成功！');
+                  search.load();
+              }else{ 
+                  BUI.Message.Alert(data);
+             }
+          }
+      });
+  }
+    
+    function endPress(item){
+        $.ajax({
+          url : '/qms-workflow/workflow/business/endProcess/'+item.taskid,
+          dataType : 'json',
+          success : function(data){//
+              if(data=="success"){ //
+            	  BUI.Message.Alert('成功！');
+                  search.load();
+              }else{ 
+                  BUI.Message.Alert('失败！');
+             }
+          }
+      });
+  }
+    
+    function transferTask(item){
+        $.ajax({
+          url : '/qms-workflow/workflow/business/transferTask/'+item.taskid+'/deptLeader/3',
+          dataType : 'json',
+          success : function(data){//
+              if(data=="success"){ //
+            	  BUI.Message.Alert('成功！');
+                  search.load();
+              }else{ 
+                  BUI.Message.Alert('失败！');
+             }
+          }
+      });
+  }
+    
+    function suspend(item){
+        $.ajax({
+          url : '/qms-workflow/workflow/business/suspend',
+          dataType : 'json',
+          data : {processInstanceid:item.processInstanceid},
+          success : function(data){//
+              if(data==true){ //
+            	  BUI.Message.Alert('成功！');
+                  search.load();
+              }else{ 
+                  BUI.Message.Alert('失败！');
+             }
+          }
+      });
+  }
+    
+    function activate(item){
+        $.ajax({
+          url : '/qms-workflow/workflow/business/activate',
+          dataType : 'json',
+          data : {processInstanceid:item.processInstanceid},
+          success : function(data){//
+              if(data==true){ //
+            	  BUI.Message.Alert('激活成功！');
+                  search.load();
+              }else{ 
+                  BUI.Message.Alert('失败！');
+             }
+          }
+      });
+  }
+    
+    var handleOpts = {
+    		deptLeaderAudit: {
+    			width: 300,
+    			height: 300,
+    			open: function() {
+    				$("#deptLeaderAuditIframe").attr("src",'${rc.contextPath}/oa/leave/detail-with-vars/'+choseItem.leaveid+'/'+choseItem.taskid);
+    			},
+    			btns:[
+	                     {
+	 	                       text:'同意',
+	 	                       elCls : 'button button-primary',
+	 	                       handler : function(){
+	 	                           complete(choseItem.taskid, [{
+	 									key: 'deptLeaderPass',
+	 									value: true,
+	 									type: 'B'
+	 								}]);
+	 	                       }
+	 	                     },
+	 	                     {
+	 	                       text:'驳回',
+	 	                       elCls : 'button',
+	 	                       handler : function(){
+	 	                           var dialog2 = new BUI.Overlay.Dialog({
+	 	                               title:'驳回',
+	 	                               width:500,
+	 	                               height:250,
+	 	                               //配置文本
+	 	                               bodyContent:'<div class="control-group"><label class="control-label"><s>*</s>驳回原因：</label><div class="controls"><textarea name="leaderBackReason" id="leaderBackReason" class="control-row4 input-large"  data-rules="{required : true}"></textarea></div></div>',
+	 	                               buttons: [{
+	 	           						text: '驳回',
+	 	           					    elCls : 'button button-primary',
+	 	           					    handler: function() {
+	 	        							var leaderBackReason = $('#leaderBackReason').val();
+	 	        							if (leaderBackReason == '') {
+	 	        								 BUI.Message.Alert('请输入驳回理由！');
+	 	        								return;
+	 	        							}
+	 	        							
+	 	        							// 设置流程变量
+	 	        							complete(choseItem.taskid, [{
+	 	        								key: 'deptLeaderPass',
+	 	        								value: false,
+	 	        								type: 'B'
+	 	        							}, {
+	 	        								key: 'leaderBackReason',
+	 	        								value: leaderBackReason,
+	 	        								type: 'S'
+	 	        							}]);
+	 	        							dialog2.close();
+	 	        					    }
+	 	                               }, {
+	 	        						text: '取消',
+	 	        						elCls : 'button',
+	 	        						handler: function() {
+	 	        							dialog1.close();
+	 	        							this.close();
+	 	        						}
+	 	        					}]
+	 	                             });
+	 	                    	   dialog2.show();
+	 	                       }
+	 	                     },
+	 	                     {
+	 	                         text:'取消',
+	 	                         elCls : 'button',
+	 	                         handler : function(){
+	 	                           this.close();
+	 	                         }
+	 	                       }
+	 	                   ]
+    		},hrAudit: {
+    			width: 300,
+    			height: 300,
+    			open: function() {
+    				$("#hrAuditIframe").attr("src",'${rc.contextPath}/oa/leave/detail-with-vars/'+choseItem.leaveid+'/'+choseItem.taskid);
+    			},
+    			btns:[
+	                     {
+	 	                       text:'同意',
+	 	                       elCls : 'button button-primary',
+	 	                       handler : function(){
+	 	                           complete(choseItem.taskid, [{
+	 									key: 'hrPass',
+	 									value: true,
+	 									type: 'B'
+	 								}]);
+	 	                       }
+	 	                     },
+	 	                     {
+	 	                       text:'驳回',
+	 	                       elCls : 'button',
+	 	                       handler : function(){
+	 	                           var dialog2 = new BUI.Overlay.Dialog({
+	 	                               title:'驳回',
+	 	                               width:500,
+	 	                               height:250,
+	 	                               //配置文本
+	 	                               bodyContent:'<div class="control-group"><label class="control-label"><s>*</s>驳回原因：</label><div class="controls"><textarea name="hrBackReason" id="hrBackReason" class="control-row4 input-large"  data-rules="{required : true}"></textarea></div></div>',
+	 	                               buttons: [{
+	 	           						text: '驳回',
+	 	           					    elCls : 'button button-primary',
+	 	           					    handler: function() {
+	 	        							var hrBackReason = $('#hrBackReason').val();
+	 	        							if (hrBackReason == '') {
+	 	        								 BUI.Message.Alert('请输入驳回理由！');
+	 	        								return;
+	 	        							}
+	 	        							
+	 	        							// 设置流程变量
+	 	        							complete(choseItem.taskid, [{
+	 	        								key: 'hrPass',
+	 	        								value: false,
+	 	        								type: 'B'
+	 	        							}, {
+	 	        								key: 'hrBackReason',
+	 	        								value: leaderBackReason,
+	 	        								type: 'S'
+	 	        							}]);
+	 	        							dialog2.close();
+	 	        					    }
+	 	                               }, {
+	 	        						text: '取消',
+	 	        						elCls : 'button',
+	 	        						handler: function() {
+	 	        							dialog1.close();
+	 	        							this.close();
+	 	        						}
+	 	        					}]
+	 	                             });
+	 	                    	   dialog2.show();
+	 	                       }
+	 	                     },
+	 	                     {
+	 	                         text:'取消',
+	 	                         elCls : 'button',
+	 	                         handler : function(){
+	 	                           this.close();
+	 	                         }
+	 	                       }
+	 	                   ]
+    			
+    		},	reportBack: {
+    			width: 400,
+    			height: 400,
+    			open: function() {
+    				$("#reportBackIframe").attr("src",'${rc.contextPath}/oa/leave/detail-with-vars/'+choseItem.leaveid+'/'+choseItem.taskid);
+    			},
+    			btns: [{
+    				text: '提交',
+    				elCls : 'button button-primary',
+    				handler: function() {
+    					var realityStartTime = $('#realityStartTime').val();
+    					var realityEndTime = $('#realityEndTime').val();
+    					
+    					if (realityStartTime == '') {
+    						BUI.Message.Alert('请选择实际开始时间！');
+    						return;
+    					}
+    					
+    					if (realityEndTime == '') {
+    						BUI.Message.Alert('请选择实际结束时间！');
+    						return;
+    					}
+    					
+    					complete(choseItem.taskid, [{
+    						key: 'realityStartTime',
+    						value: realityStartTime,
+    						type: 'D'
+    					}, {
+    						key: 'realityEndTime',
+    						value: realityEndTime,
+    						type: 'D'
+    					}]);
+    				}
+    			},{
+    				text: '取消',
+    				elCls : 'button',
+    				handler: function() {
+    					this.close();
+    				}
+    			}]
+    		},	modifyApply: {
+    			width: 500,
+    			height: 470,
+    			btns: [{
+    				text: '提交',
+    				 elCls : 'button button-primary',
+    				handler: function() {
+    					var taskId =choseItem.taskid;
+    					var reApply = $(':radio[name=reApply]:checked').val();
+    					
+    					// 提交的时候把变量
+    					complete(taskId, [{
+    						key: 'reApply',
+    						value: reApply,
+    						type: 'B'
+    					}, {
+    						key: 'leaveType',
+    						value: $('#modifyApplyContent #leaveType').val(),
+    						type: 'S'
+    					}, {
+    						key: 'startTime',
+    						value: $('#modifyApplyContent #startTime').val(),
+    						type: 'D'
+    					}, {
+    						key: 'endTime',
+    						value: $('#modifyApplyContent #endTime').val(),
+    						type: 'D'
+    					}, {
+    						key: 'reason',
+    						value: $('#modifyApplyContent #reason').val(),
+    						type: 'S'
+    					}]);
+    				}
+    			},{
+    				text: '取消',
+    				 elCls : 'button',
+    				 handler: function() {
+    					this.close();
+    				}
+    			}]
+    		},huiqian: {
+    			width: 300,
+    			height: 300,
+    			open: function() {
+    				$("#huiqianAuditIframe").attr("src",'${rc.contextPath}/oa/leave/detail-with-vars/'+choseItem.leaveid+'/'+choseItem.taskid);
+    			},
+    			btns:[
+	                     {
+	 	                       text:'同意',
+	 	                       elCls : 'button button-primary',
+	 	                       handler : function(){
+	 	                           complete(choseItem.taskid, [{
+	 	                        	    //assigneeList: 'hrPass',
+	 	                        	    //signCount: 0
+	 	      						key: 'signCount',
+	 	    						value: 1,
+	 	    						type: 'B'
+	 								}]);
+	 	                       }
+	 	                     },
+	 	                     {
+	 	                         text:'取消',
+	 	                         elCls : 'button',
+	 	                         handler : function(){
+	 	                           this.close();
+	 	                         }
+	 	                       }
+	 	                   ]
+    			
+    		},shezhihuiqian: {
+    			width: 300,
+    			height: 300,
+    			open: function() {
+    				$("#shezhihuiqianAuditIframe").attr("src",'${rc.contextPath}/oa/leave/detail-with-vars/'+choseItem.leaveid+'/'+choseItem.taskid);
+    			},
+    			btns:[
+	                     {
+	 	                       text:'同意',
+	 	                       elCls : 'button button-primary',
+	 	                       handler : function(){
+	 	                           complete1(choseItem.taskid, [{
+	 	                        	    assigneeList: $("input[name='assigneeList']").each(function(){  
+	 	                        	    	  
+	 	                        	    	//alert($(this).val());  
+	 	                        	    	  
+	 	                        	    	}  ),
+	 	                        	    signCount: 0
+	 								}]);
+	 	                       }
+	 	                     },
+	 	                     {
+	 	                         text:'取消',
+	 	                         elCls : 'button',
+	 	                         handler : function(){
+	 	                           this.close();
+	 	                         }
+	 	                       }
+	 	                   ]
+    			
+    		}
+    };
+
+    
+    function execute_(item){
+    		choseItem=item;
+    		
+    		//window.open("${rc.contextPath}/workflow/business/doTask/"+item.taskid);
+    		
+    		
+    		  var dialog1 = new BUI.Overlay.Dialog({
+    	            title: '流程办理[' + choseItem.taskname + ']',
+    	    		width: handleOpts[choseItem.taskDefinitionKey].width,
+    	    		height: handleOpts[choseItem.taskDefinitionKey].height,
+    	            //配置DOM容器的编号
+    	            contentId:choseItem.taskDefinitionKey,
+    	            buttons: handleOpts[choseItem.taskDefinitionKey].btns
+    	          }).show();
+    		  if(choseItem.taskDefinitionKey!='modifyApply')
+    		  handleOpts[choseItem.taskDefinitionKey].open.call();
+    		  
+       }
+    
+    //监听事件，删除一条记录
+    grid.on('cellclick',function(ev){
+      var sender = $(ev.domTarget); //点击的Dom
+      if(sender.hasClass('btn-qianshou')){
+        var record = ev.record;
+        qianshou([record][0]);
+      }else if(sender.hasClass('btn-chuli')){
+          var record = ev.record;
+          execute_([record][0]);
+       }else if(sender.hasClass('btn-1')){
+          var record = ev.record;
+          huitui([record][0]);
+      }else if(sender.hasClass('btn-2')){
+          var record = ev.record;
+          suspend([record][0]);
+      }else if(sender.hasClass('btn-3')){
+          var record = ev.record;
+          activate([record][0]);
+      }else if(sender.hasClass('btn-4')){
+          var record = ev.record;
+          endPress([record][0]);
+       }else if(sender.hasClass('btn-5')){
+           var record = ev.record;
+           transferTask([record][0]);
+       }else if(sender.hasClass('btn-0')){
+           var record = ev.record;
+           jumpNext([record][0]);
+       }
+        
+      
+      
+    });
+    var dialogi = new BUI.Overlay.Dialog({
+        title:'选择流程跳转节点',
+		width:300,
+		height:200,
+        //配置DOM容器的编号
+        contentId:'jumpNext',
+        buttons:[
+                 {
+                   text:'确定',
+                   elCls : 'button button-primary',
+                   handler : function(){
+                     //do some thing
+                     var taskID=$("#jtaskID").val();
+                     var jnext=$("#jnext").val();
+					  $.ajax({  
+					      type:"post",  
+					      url:"/qms-workflow/workflow/business/activity/jump",  
+					      dataType:"json",  
+					      data:{taskId:taskID,toTaskKey:jnext},
+					      success:function(data){
+				              if(data==true){ //
+				            	  BUI.Message.Alert('任务跳转成功！');
+				                  search.load();
+				              }else{ 
+				                  BUI.Message.Alert('任务跳转失败！');
+				             }  
+					      },  
+					  });  
+                     this.close();
+                   }
+                 },
+                 {
+                   text:'关闭',
+                   elCls : 'button',
+                   handler : function(){
+                     this.close();
+                   }
+                 }
+               ]
+      });
+    
+    function jumpNext(item){
+    	
+    	$("#jtaskID").val(item.taskid);
+    	$("#jnext").empty();
+        $.ajax({
+          url : '/qms-workflow/workflow/business/activity/chooseJumpNext/'+item.taskid,
+          dataType : 'json',
+          success : function(rl){//
+              $.each(rl,function(i,v){  
+            	  $("<option value='"+v.id+"'>"+v.name+"</option>").appendTo("#jnext");   
+              }); 
+              dialogi.show();
+          }
+      });
+  }
+    
+    
+  });   
+</script>
+</body>
+</html>  
+

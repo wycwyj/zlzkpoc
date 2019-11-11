@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>数据权限字段</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/bui.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .x-accordion-title{
+      background: #dfeaf2;
+      border-top: 2px solid white;
+      padding: 8px 10px;
+    }
+    .x-collapsed .x-accordion-body{
+      height: 0;
+      overflow: hidden;
+    }
+    
+    .ext-border-layout {
+	    padding-left:0px;
+	    padding-top:0px;
+	    padding-bottom:0px;
+	    padding-right:2px;
+	    margin-top:1px;
+	    margin-left:1px;
+	    margin-right:1px;
+	    margin-bottom:1px;
+	    background:white;
+	}
+	
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+	}
+	
+	.ext-border-layout .x-border-center {
+	    border-top：0px;
+	}
+	
+	.bui-nav-tab{
+		height:97%;
+	}
+	
+	.tab-content-container{
+		height:97%;
+	}
+   </style>
+ </head>
+ <body>
+ <body>
+ <script type="text/javascript">
+ 
+ 	var tempPath = "";
+    BUI.use(['layout','grid','data','tree','tab'],function (Layout,Grid,Data,Tree,Tab){
+        var Store = Data.Store,
+	        orgTreeStore = new Data.TreeStore({
+	            root : {
+	                id : '-1',
+	                text : '组织机构'
+	            },
+	            pidField : 'pid',
+	            url : '${rc.contextPath}/dataFuncZD/get/DataConfs',
+	            autoLoad : true,
+	            dataType:'json',
+	            contentType:"application/json"
+	        });
+        
+            orgContentTab = new Tab.NavTab({
+                forceFit : true,
+                children : [
+                  {
+                	width : '110',
+                    title : '按人员授权',
+                    href : '${rc.contextPath}/dataFuncZD/df/DataRY?tempPath='+tempPath,
+                    actived:true,
+                    closeable:false
+                  },
+                  {
+                  	width : '110',
+                      title : '按角色授权',
+                      href : '${rc.contextPath}/dataFuncZD/df/DataJS?tempPath='+tempPath,
+                      closeable:false
+                    },
+                  {
+                  	width : '110',
+                      title : '按部门授权',
+                      href : '${rc.contextPath}/dataFuncZD/df/DataBM?tempPath='+tempPath,
+                      closeable:false
+                  }
+                ]
+            });
+          
+        var control = new Layout.Viewport({
+			width:600,
+			height:"100%",
+			elCls : 'ext-border-layout',
+			children : [{
+                xclass : 'controller',
+                layout : {
+                  	region : 'south',
+                  	height : 0
+                },
+                width : 0,
+            },
+            {
+				xclass : 'tree-list',
+				id:'mytree',
+				layout : {
+					region : 'west',
+					fit : 'both',
+                  	title : '客体记录列表树',
+                  	width : 200
+                },
+            	store : orgTreeStore,
+	        	showLine : true,
+	        	showRoot : true
+            },
+            {
+            	xclass : 'controller',
+            	layout : {
+            		region : 'center',
+            		title : '设置字段过滤权限',
+            		fit : 'both'
+                },
+                id : 'content',
+                children : [orgContentTab]
+            }],
+            plugins : [Layout.Border]
+        });
+        
+        control.render();
+        var mytree = control.getChild('mytree',true);//级联查找树节点
+       
+        mytree.on('itemclick', function(ev){
+            tempPath = ev.item.requestPath;
+            orgContentTab.removeChildren(true);
+            
+            orgContentTab.addChild({
+            	width : '110',
+                title : '按人员授权',
+                href : '${rc.contextPath}/dataFuncZD/df/DataRY?tempPath='+tempPath,
+                actived:true,
+                closeable:false
+              },0),
+            orgContentTab.addChild({
+              	width : '110',
+                  title : '按角色授权',
+                  href : '${rc.contextPath}/dataFuncZD/df/DataJS?tempPath='+tempPath,
+                  closeable:false
+               },1),
+            orgContentTab.addChild({
+            	width : '110',
+                title : '按部门授权',
+                href : '${rc.contextPath}/dataFuncZD/df/DataBM?tempPath='+tempPath,
+                closeable:false
+              },2);
+        });
+        
+        $(".x-accordion-title").remove();
+        $(".bui-tree-list").parent().parent().height("99.8%");
+        $(".bui-tree-list").parent().height("100%");
+        $(".bui-tree-list").height("100%").css("border-bottom","1px solid #3892d3");
+        $(".bui-grid").parent().css("border-bottom","1px solid #3892d3");
+        $(".x-layout-item-border").css("overflow","hidden");
+    });
+  </script>
+</html>  

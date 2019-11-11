@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>子机构信息</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width:290px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:250px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+	html,body{
+		overflow: hidden;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">机构编号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="orgcode1" name="orgcode">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">机构名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="orgname1" name="orgname">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    <div id="content" class="hide">
+	    <form id="J_Form" class="form">
+	    <div class="detail-section">  
+	    	<div class="row detail-row">
+			    <div class="span9">
+			      <label>机构编号：</label><span class="detail-text" id="orgcode"></span>
+			    </div>
+			    <div class="span9">
+			      <label>机构名称：</label><span class="detail-text" id="orgname"></span>
+			    </div>
+			     <div class="span9">
+			      <label>机构等级：</label><span class="detail-text" id="orglevel"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>地址：</label><span class="detail-text" id="orgaddr"></span>
+			    </div>
+			    <div class="span9">
+			      <label>邮编：</label><span class="detail-text" id="zipcode"></span>
+			    </div>
+			     <div class="span9">
+			      <label>主管岗位：</label><span class="detail-text" id="manaposition"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>主管领导：</label><span class="detail-text" id="managerid"></span>
+			    </div>
+			    <div class="span9">
+			      <label>机构管理员：</label><span class="detail-text" id="orgmanager"></span>
+			    </div>
+			     <div class="span9">
+			      <label>电子邮箱：</label><span class="detail-text" id="email"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>网址URL：</label><span class="detail-text" id="weburl"></span>
+			    </div>
+			    <div class="span9">
+			      <label>状态：</label><span class="detail-text" id="status"></span>
+			    </div>
+			     <div class="span9">
+			      <label>地区：</label><span class="detail-text" id="area"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>创建时间：</label><span class="detail-text" id="createtime"></span>
+			    </div>
+			    <div class="span10">
+			      <label>最后更新时间：</label><span class="detail-text" id="lastupdate"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+ 				<div class="span11">
+			      <label>备注：</label><span class="detail-text" id="remark"></span>
+			    </div>
+ 			</div>
+        </div>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript">
+
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+
+	//插件初始化
+	BUI.use('common/search',function (Search) {
+		var editing = new BUI.Overlay.Dialog({
+    		title:'机构详细信息',
+    		width:700,
+    		height:400,
+        	contentId : 'content', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                     {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+		
+    	columns = [
+			{title:'机构ID',dataIndex:'orgid',visible:false,width:0},
+          	{title:'机构编号',dataIndex:'orgcode',width:90},
+          	{title:'机构名称',dataIndex:'orgname',width:120,renderer:function(value,obj){
+          		return '<span class="grid-command btn-edit">'+obj.orgname+'</span>';
+          	}},
+          	{title:'机构等级',dataIndex:'orglevel',width:60},
+          	{title:'创建人',dataIndex:'creator',width:120},
+          	{title:'创建日期',dataIndex:'createtime',width:160,renderer:BUI.Grid.Format.datetimeRenderer},
+          	{title:'更新人',dataIndex:'updator',width:120},
+          	{title:'更新日期',dataIndex:'lastupdate',width:160,renderer:BUI.Grid.Format.datetimeRenderer},
+        ],
+        //搜索的项
+        searchURL = '${rc.contextPath}/org/op/queryOrgsByPage?parentorgid=$!{pid}',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'{parentorgid:$!{pid}}',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true //保存数据后，自动更新
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		plugins : [editing,BUI.Grid.Plugins.AutoFit]
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+		
+	 	grid.on('cellclick',function(ev){
+	          var record = ev.record, //点击行的记录
+	          field = ev.field, //点击对应列的dataIndex
+	          target = $(ev.domTarget); //点击的元素
+	          if(target.hasClass('btn-edit')){
+	          	if(record.orgcode == null){
+	          		$("#orgcode").text("");
+	          	}else{
+	          		$("#orgcode").text(record.orgcode);
+	          	}
+	          	if(record.orgname == null){
+	          		$("#orgname").text("");
+	          	}else{
+	          		$("#orgname").text(record.orgname);
+	          	}
+	          	if(record.orglevel == null){
+	          		$("#orglevel").text("");
+	          	}else{
+	          		$("#orglevel").text(record.orglevel);
+	          	}
+	          	if(record.orgaddr == null){
+	          		$("#orgaddr").text("");
+	          	}else{
+	          		$("#orgaddr").text(record.orgaddr);
+	          	}
+	          	if(record.zipcode == null){
+	          		$("#zipcode").text("");
+	          	}else{
+	          		$("#zipcode").text(record.zipcode);
+	          	}
+	          	if(record.manaposition == null){
+	          		$("#manaposition").text("");
+	          	}else{
+	          		$("#manaposition").text(record.manaposition);
+	          	}
+	          	if(record.managerid == null){
+	          		$("#managerid").text("");
+	          	}else{
+	          		$("#managerid").text(record.managerid);
+	          	}
+	          	if(record.orgmanager == null){
+	          		$("#orgmanager").text("");
+	          	}else{
+	          		$("#orgmanager").text(record.orgmanager);
+	          	}
+	          	if(record.email == null){
+	          		$("#email").text("");
+	          	}else{
+	          		$("#email").text(record.email);
+	          	}
+	          	if(record.weburl == null){
+	          		$("#weburl").text("");
+	          	}else{
+	          		$("#weburl").text(record.weburl);
+	          	}
+	          	if(record.status == null){
+	          		$("#status").text("");
+	          	}else{
+	          		$("#status").text(record.status);
+	          	}
+	          	if(record.area == null){
+	          		$("#area").text("");
+	          	}else{
+	          		$("#area").text(record.area);
+	          	}
+	          	$("#createtime").text(BUI.Grid.Format.datetimeRenderer(record.createtime));
+	          	$("#lastupdate").text(BUI.Grid.Format.datetimeRenderer(record.lastupdate));
+	          	if(record.remark == null){
+	          		$("#remark").text("");
+	          	}else{
+	          		$("#remark").text(record.remark);
+	          	}
+	          	editing.show();
+        	}
+	 	});
+	 	
+	 	/*监听输入框的回车操作*/  
+	 	$('#orgcode1,#orgname1').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+
+	 	resizeMe();
+	});
+</script>
+</html>

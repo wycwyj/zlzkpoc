@@ -1,0 +1,488 @@
+<!-- ${rc.contextPath}/process/def-list.html -->
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>搜索表单</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+	.container {
+		padding:0px;
+	}
+   </style>
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+      <form id="searchForm" class="form-horizontal span24">
+      
+        <div class="row">
+	          <div class="control-group span8">
+		            <label class="control-label">流程定义</label>
+		            <div class="controls">
+		              	<select name="procDefId" id="procDefId1" style="width: 180px;">
+			             </select>
+		            </div>
+	          </div>
+	          <div class="control-group span8">
+	            <label class="control-label">委托人</label>
+	            <div class="controls">
+	              <select name="consigner" id="consigner1">
+			      </select>
+	            </div>
+	          </div>
+	           <div class="control-group span8">
+	            <label class="control-label">受托人</label>
+	            <div class="controls">
+	              <select name="assignee" id="assignee1">
+			      </select>
+	            </div>
+	          </div>
+	          	<div class="control-group span8">
+	            <label class="control-label">委托开始时间</label>
+	            <div class="controls">
+	              <input type="text" class="calendar" name="startDate">
+	            </div>
+	          </div>
+	          
+	           <div class="control-group span8">
+	            <label class="control-label">委托结束时间</label>
+	            <div class="controls">
+	              <input type="text" class="calendar" name="endDate" >
+	            </div>
+	          </div>
+	          <div class="control-group span8">
+	            <label class="control-label">创建时间</label>
+		            <div class="controls">
+		              <input type="text" class="calendar" name="createTime">
+		            </div>
+	          </div>
+	          <div class="span3 offset10">
+	            <button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	          </div>
+        </div>
+      </form>
+    </div>
+    <div class="search-grid-container">
+      <div id="grid"></div>
+    </div>
+    
+   <!-- 此节点内部的内容会在弹出框内显示,默认隐藏此节点-->
+   <div id="content" class="hide">
+      <form id="form1" action="${rc.contextPath}/workflow/task/depute/addDepute"  class="form-horizontal" method="post">
+          <input type="hidden" name="id" id="id"> 
+          
+        	<div class="row">
+	        	 <div class="control-group span8">
+			            <label class="control-label">流程定义</label>
+			            <div class="controls">
+			                <input type="hidden" name="procDefId" id="procDefId" >
+ 							<input type="text" id="procDefName" value="" name="procDefName">
+			            </div>
+		          </div>
+		          <div class="control-group span8">
+		            <label class="control-label">委托人</label>
+		            <div class="controls">
+		               	<input type="hidden" name="consigner" id="consigner" >
+ 						<input type="text" id="consignercn" value="" name="consignercn">
+		            </div>
+		          </div>
+	          </div>
+	          <div class="row">
+		           <div class="control-group span8">
+		            <label class="control-label">受托人</label>
+		            <div class="controls">
+  			            <input type="hidden" name="assignee" id="assignee" >
+ 						<input type="text" id="assigneecn" value="" name="assigneecn">
+		            </div>
+		          </div>
+		          	<div class="control-group span8">
+		            <label class="control-label">委托开始时间</label>
+		            <div class="controls">
+		              <input type="text" class="calendar" name="startDate" id="startDate">
+		            </div>
+		          </div>
+	          </div>
+	          <div class="row">
+		           <div class="control-group span8">
+		            <label class="control-label">委托结束时间</label>
+		            <div class="controls">
+		              <input type="text" class="calendar" name="endDate" id="endDate">
+		            </div>
+		          </div>
+		          <div class="control-group span8">
+		            <label class="control-label">创建时间</label>
+			            <div class="controls">
+			              <input type="text" class="calendar calendar-time" name="createTime" id="createTime">
+			            </div>
+		          </div>
+        	   </div>
+        	
+	  </form>   
+    </div>
+    
+  </div>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/js/tools.js"></script>
+  
+<script type="text/javascript">
+  BUI.use(['common/search'],function (Search) {
+    var columns = [
+          {title:'流程定义ID',dataIndex:'procDefId',width:'20%'},
+          {title:'委托人',dataIndex:'consigner',width:'20%'},
+          {title:'受托人',dataIndex:'assignee',width:'20%'},          
+          {title:'委托开始时间',dataIndex:'startDate',width:'20%',renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'委托结束时间',dataIndex:'endDate',width:'20%',renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'创建时间',dataIndex:'createTime',width:'20%',renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'委托ID',dataIndex:'id',width:50}
+        ],
+      store = Search.createStore('${rc.contextPath}/workflow/task/depute/list',{
+        proxy:{
+          autoLoad:true,
+          dataType:'json',
+          contentType:"application/json"
+        },
+        pageSize : 5,	// 配置分页数目
+        autoSync:true //保存数据后，自动更新
+      }),
+      gridCfg = Search.createGridCfg(columns,{
+    	  tbar : {
+              items : [
+                {text : '<i class="icon-plus"></i>新建',btnCls : 'button button-small',handler:addFunction},
+                {text : '<i class="icon-edit"></i>修改',btnCls : 'button button-small',handler:updateFunction},
+                {text : '<i class="icon-remove"></i>删除',btnCls : 'button button-small',handler:delFunction}
+              ]
+            },
+           plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.RowNumber,BUI.Grid.Plugins.AutoFit]// 插件形式引入多选表格
+      });
+
+    var  search = new Search({
+        store : store,
+        gridCfg : gridCfg,
+        bbar:{
+            // pagingBar:表明包含分页栏
+            pagingBar:true
+        }
+      }),
+      grid = search.get('grid');
+    
+    var form = new BUI.Form.Form({
+        srcNode : '#form1'
+      }).render();
+ 
+      var dialog1 = new BUI.Overlay.Dialog({
+            title:'新建委托任务',
+    		width:680,
+    		height:450,
+            //配置DOM容器的编号
+            contentId:'content',
+            buttons:[
+                     {
+                       text:'确定',
+                       elCls : 'button button-primary',
+                       handler : function(){
+                         //do some thing
+                         if($("#procDefId").val()==''){
+                        	 BUI.Message.Alert("请选择对应的流程定义");
+                        	 return false;
+                         }
+                         if($("#consigner").val()==$("#assignee").val()){
+                        	 BUI.Message.Alert("委托人与受托人不能为同一个人，请重新设置");
+                        	 return false;
+                         }
+                         
+                         if($("#startDate").val()!=""&&$("#endDate").val()!=""&&$("#startDate").val()>$("#endDate").val()){
+                        	 BUI.Message.Alert("委托开始时间要早于结束委托时间");
+                        	 return false;
+                         }
+                         
+                         var data1={id:$("#id").val(),procDefId:$("#procDefId").val(),consigner:$("#consigner").val(),assignee:$("#assignee").val(),startDate:$("#startDate").val(),endDate:$("#endDate").val()}
+                         
+              			 $.ajax({  
+             			      type:"post",  
+             			      url:"${rc.contextPath}/workflow/task/depute/checkActRuDepute",  
+             			      dataType:"json", 
+             			      data:data1,
+             			      success:function(data){
+             			          if(data != 'success'){
+             			        	 BUI.Message.Alert(data);
+             			        	 return false;
+             			          }else{
+             			        	 form.submit();
+             			          }  
+             			      } 
+             			  }); 
+                       }
+                     },
+                     {
+                       text:'关闭',
+                       elCls : 'button',
+                       handler : function(){
+                         this.close();
+                       }
+                     }
+                   ]
+          });
+
+    function addFunction(){
+    	  $("#id").val("");
+      	  $("#procDefId").val("");
+      	  $("#procDefName").val("");
+      	  $("#consigner").val("");
+      	  $("#assignee").val("");
+      	 $("#consignercn").val("");
+     	  $("#assigneecn").val("");
+      	  $("input[name='startDate']").val(getNowFormatDate());
+      	  $("input[name='endDate']").val("");
+      	  $("input[name='createTime']").val(getNowFormatDateTime());
+    	  dialog1.show();
+    }
+    
+    function updateFunction(){
+    	var selections = grid.getSelection();
+  		if(selections==""){
+  			BUI.Message.Alert("请选择要修改的数据");
+  		}else{
+  			 $.ajax({  
+  			      type:"Get",  
+  			      url:"${rc.contextPath}/workflow/task/depute/getActRuDepute/"+selections[0].id,  
+  			      dataType:"json",  
+  			      success:function(actRuDepute){
+  			          if(actRuDepute != null){
+  			        	  $("#id").val(actRuDepute.id);
+  			        	  $("#procDefId").val(actRuDepute.procDefId);
+  			        	  $("#procDefName").val(actRuDepute.procDefName);
+  			        	  $("#consigner").val(actRuDepute.consigner);
+  			        	  $("#assignee").val(actRuDepute.assignee);
+  			        	  $("#consignercn").val(actRuDepute.consignercn);
+  			        	  $("#assigneecn").val(actRuDepute.assigneecn);
+  			        	  $("#startDate").val(actRuDepute.startDate);
+  			        	  $("#endDate").val(actRuDepute.endDate);
+  			        	  $("#createTime").val(getNowFormatDateTime());
+  			        	  dialog1.show();
+  			          }  
+  			      } 
+  			  });  
+  		}
+  		
+    }
+    function delFunction(){
+    	var selections = grid.getSelection();
+  		if(selections==""){
+  			BUI.Message.Alert("请选择要删除的数据");
+  		}else{
+  			delItems(selections);
+  		}
+	}
+
+    function delItems(items){
+        var ids = [];
+        BUI.each(items,function(item){
+          ids.push(item.id);
+        });
+        if(ids.length){
+            BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+            $.ajax({
+              url : '${rc.contextPath}/workflow/task/depute/deleteDeputeChecked',
+              dataType : 'json',
+              data : {ids :''+ids+''},
+              success : function(data){//
+               if(data=="success"){ //删除成功
+            	   BUI.Message.Alert('删除成功！');
+                   search.load();
+                  }else{ //删除失败
+                      BUI.Message.Alert('删除失败！');
+                 }
+              }
+          });
+          },'question');
+        }else{
+  			BUI.Message.Alert('请选择记录！！');
+  			return false;
+  		} 
+      }
+    
+    var datepicker1 = new BUI.Calendar.DatePicker({
+        trigger:'.calendar',
+        autoRender : true
+      });
+    
+    var datepicker2 = new BUI.Calendar.DatePicker({
+        trigger:'.calendar-time',
+        showTime:true,
+        autoRender : true
+      });  
+
+
+  });
+  
+  $.ajax({  
+      type:"get",  
+      url:"${rc.contextPath}/workflow/task/depute/deputeProcDeflist",  
+      dataType:"json",  
+      success:function(fieldList){
+          if(fieldList != null && fieldList.length > 0){
+        	  $("<option value=''></option>").appendTo("#procDefId1");  
+              for(var i = 0; i< fieldList.length; i++){  
+                  $("<option value='"+fieldList[i].id+"'>"+fieldList[i].name+"</option>").appendTo("#procDefId1");  
+              }  
+          }  
+      },  
+  });  
+  
+  $.ajax({  
+      type:"get",  
+      url:"${rc.contextPath}/workflow/task/depute/deputeUserList",  
+      dataType:"json",  
+      success:function(fieldList){
+          if(fieldList != null && fieldList.length > 0){
+              $("<option value=''></option>").appendTo("#assignee1"); 
+              $("<option value=''></option>").appendTo("#consigner1");
+              for(var i = 0; i< fieldList.length; i++){  
+                  //$("<option value='"+fieldList[i].id+"'>"+fieldList[i].firstName+"</option>").appendTo("#assignee");  
+                  $("<option value='"+fieldList[i].id+"'>"+fieldList[i].firstName+"</option>").appendTo("#assignee1"); 
+                  //$("<option value='"+fieldList[i].id+"'>"+fieldList[i].firstName+"</option>").appendTo("#consigner");  
+                  $("<option value='"+fieldList[i].id+"'>"+fieldList[i].firstName+"</option>").appendTo("#consigner1");  
+              }  
+          }  
+      },  
+  });  
+</script>
+<script type="text/javascript">
+   BUI.use(['bui/select','bui/picker','bui/grid','bui/data'],function(Select,Picker,Grid,Data){
+	    var columns = [
+	                   {title:'流程定义ID',dataIndex:'def_id',width:110},
+	                   {title:'部署ID',dataIndex:'def_deployid',width:111},
+	                   {title:'名称',dataIndex:'def_name',width:130}
+	                   /*,
+	                   {title:'key',dataIndex:'def_key',width:80},
+	                   {title:'版本号',dataIndex:'def_version',width:60},
+	                   {title:'部署时间',dataIndex:'dep_deploymentTime',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+	                   {title:'是否挂起',dataIndex:'def_suspendedState',width:70,renderer:function(v,obj){
+	                 	   var defState = '<span>'+obj.def_suspendedState+'</span>';
+	                        return defState;
+	                    }} */
+	                 ],
+       store = new Data.Store({
+       pageSize : 10, 
+       url : '${rc.contextPath}/process/def-list-datas',
+       autoLoad : true
+      }),
+      grid = new Grid.Grid({
+        idField : 'def_id',
+        columns : columns,
+        width: '100%',
+        plugins : [Grid.Plugins.CheckSelection],
+        textGetter: function(item){ //返回选中的文本
+          return item.def_name;
+        },
+        bbar:{
+            // pagingBar:表明包含分页栏
+            pagingBar:true
+          }, 
+        store : store
+      }),
+      picker = new Picker.ListPicker({
+        trigger : '#procDefName',  
+        valueField : '#procDefId', //如果需要列表返回的value，放在隐藏域，那么指定隐藏域
+        width:400,  //指定宽度
+        hideEvent:'', //取消点击关闭picker
+        children : [grid] //配置picker内的列表
+      });
+    picker.render();
+    $("#procDefName").on('keyup',function(){
+    	store.load({def_name:$("#procDefName").val()});
+    });
+    
+    
+	 var columns1 = [
+		     {title:'人员姓名',dataIndex:'firstName',width:100},
+		     {title:'人员code',dataIndex:'id',width:70}
+	 ],
+	   store1 = new Data.Store({
+	     pageSize : 10,
+	     url : '${rc.contextPath}/workflow/task/depute/deputeUserPageList',
+	     autoLoad : true
+	   }),
+	   grid1 = new Grid.Grid({
+	     idField : 'id',
+	     columns : columns1,
+	     width: '100%',
+	     textGetter: function(item){ //返回选中的文本
+	       return item.firstName;
+	     },
+	     bbar:{
+	         // pagingBar:表明包含分页栏
+	         pagingBar:true
+	       },
+	     store : store1
+	   }),
+	   picker1 = new Picker.ListPicker({
+	     trigger : '#assigneecn',  
+	     valueField : '#assignee', //如果需要列表返回的value，放在隐藏域，那么指定隐藏域
+	     width:300,  //指定宽度
+	     hideEvent:'', //取消点击关闭picker
+	     children : [grid1] //配置picker内的列表
+	   });
+	 picker1.render();
+	 $("#assigneecn").on('keyup',function(){
+	 	store1.load({firstNameLike:$("#assigneecn").val()});
+	 });
+	 
+	 
+	 var columns2 = [
+	          {title:'人员姓名',dataIndex:'firstName',width:100},
+	          {title:'人员code',dataIndex:'id',width:70}
+	 ],
+    store2 = new Data.Store({
+     pageSize : 10,
+     url : '${rc.contextPath}/workflow/task/depute/deputeUserPageList',
+     autoLoad : true
+   }),
+   grid2 = new Grid.Grid({
+     idField : 'id',
+     columns : columns2,
+     width: '100%',
+     textGetter: function(item){ //返回选中的文本
+       return item.firstName;
+     },
+     bbar:{
+         // pagingBar:表明包含分页栏
+         pagingBar:true
+       },
+     store : store2
+   }),
+   picker2 = new Picker.ListPicker({
+     trigger : '#consignercn',  
+     valueField : '#consigner', //如果需要列表返回的value，放在隐藏域，那么指定隐藏域
+     width:300,  //指定宽度
+     hideEvent:'', //取消点击关闭picker
+     children : [grid2] //配置picker内的列表
+   });
+ picker2.render();
+ $("#consignercn").on('keyup',function(){
+ 	store2.load({firstNameLike:$("#consignercn").val()});
+ });
+    
+  });
+   
+  </script>
+  
+</body>
+</html>  
+

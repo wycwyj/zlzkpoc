@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>组织机构归属嵌入式页面</title>
+<link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/easyui/css/easyui.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/easyui/easyui.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/easyui/easyui.tree.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/easyui/easyui.combotree.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/easyui/easyui.combotree.extend.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:300px;
+	    height:50px;
+	}
+	.form-horizontal .MJob-label{
+		width:300px;
+	    height:100px;
+	}
+	#MJob_Form .span9 {
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+  </style>
+</head>
+<body>
+    		<div class="search-grid-container">
+      			<div id="grid"></div>
+    		</div>
+    		
+    		<div id="content" class="hide">
+      		<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/orgemp/op/saveOrgEmp">
+        		<div class="row">
+        			<div >
+        				<input type='hidden' name="empid" value="$empid">
+        				<input type='hidden' name="orgname" value="$orgname">
+            			<div id="s2" class="control-label">
+            			<label >选择兼职机构：</label>
+            			<input id="cbt" class="easyui-combotree" name="orgid" style="z-index:99;" />
+  						</select>
+            			</div>
+          			</div>
+        		</div>
+        	</form>
+        	</div>
+        	
+        	<div id="MJobContent" class="hide">
+      		<form id="MJob_Form" class="form-horizontal" method="post" action="${rc.contextPath}/orgemp/op/updateMJobOrgid">
+        		<div class="row">
+        			<div class="control-group span8">
+          				<div id="s1">
+	 		  				<label class="control-label" style="width:120px;">当前的主职机构：</label>
+	 		  				<div class="controls">
+	 		  					<span id="oldOrgid"></span>
+	 		  				</div>
+        				</div>
+          			</div>
+        			<div >
+        				<div id="s2">
+	            			<label class="control-label" style="width:120px;">选择变更的主职机构：</label>
+	            			<div class="controls">
+	            				<input type='hidden' name="empid" value="${empid}">
+        						<input type='hidden' name="orgname" id="oldOrgNameId" value="$orgname">
+        						<input id="cbt1" class="easyui-combotree" name="orgid" style="z-index:50;" />
+	  						</div>
+  						</div>
+          			</div>
+        		</div>
+        	</form>
+        	</div>
+        	
+<script type="text/javascript">
+	var mainOrgid = null;
+	var mainOrgName = null;
+	var flag = "0";
+
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+	
+	var MJobForm = new BUI.Form.Form({
+		srcNode : '#MJob_Form'
+	}).render();
+	
+	BUI.use('common/search',function (Search) {
+		var editing = new BUI.Overlay.Dialog({
+			title:'兼职操作',
+			width:400,
+			height:100,
+	    	contentId : 'content', 
+	    	autoSave : true, 
+	    	buttons:[
+	                  {
+	                    text:'提交',
+	                    elCls : 'button button-primary',
+	                    handler : function(){
+	                    	form.submit();
+	                  	}
+	                  },{
+	                    text:'关闭',
+	                    elCls : 'button',
+	                    handler : function(){
+	                      this.close();
+	                    }
+	                  }
+	          ]
+	  	}),
+  	
+  	MJobEditing = new BUI.Overlay.Dialog({
+		title:'主职操作',
+		width:400,
+		height:150,
+    	contentId : 'MJobContent', 
+    	autoSave : true, 
+    	buttons:[
+                  {
+                    text:'提交',
+                    elCls : 'button button-primary',
+                    handler : function(){
+                    	MJobForm.submit();
+                    }
+                  },{
+                    text:'关闭',
+                    elCls : 'button',
+                    handler : function(){
+                      this.close();
+                    }
+                  }
+          ]
+  	}),
+  	columns = [
+		{title:'主键ID',dataIndex:'empid',visible:false,width:0},
+      	{title:'部门名称',dataIndex:'orgname',width:120},
+      	{title:'职位类型',dataIndex:'iskeepparttime',width:120,renderer:function(value,row){
+      		if( value == 'n'){
+      			mainOrgid = row.orgid;
+      			mainOrgName = row.orgname;
+          		return '主职';
+          	}else {
+          		return '兼职';
+          	}
+        }},
+    ],
+    
+    searchURL = '${rc.contextPath}/orgemp/op/selectPartTimeEmp?empid=$empid',
+  	store = Search.createStore(searchURL,{
+    	proxy:{
+      		save:{
+      		},
+      		autoLoad:true,
+      		method:'POST',
+      		dataType:'json',
+      		contentType:"application/json"
+    	},
+    	pageSize:10,
+    	autoSync:true 
+  	}),
+  	
+  	gridCfg = Search.createGridCfg(columns,{
+  		forceFit : true,
+    	tbar : {
+      		items : [
+				{
+			    btnCls : 'button button-small',
+			    text : '<i class="icon-plus"></i>添加兼职部门',
+			    listeners : {
+			      'click' : addFunction
+			    }
+			  },
+				{
+				  btnCls : 'button button-small',
+			      text : '<i class="icon-remove"></i>删除兼职部门',
+			      listeners : {
+			          'click' : delFunction
+			      }
+			  },
+			  {
+				  btnCls : 'button button-small',
+			      text : '<i class="icon-resize-small"></i>主职部门调整',
+			      listeners : {
+			          'click' : changeFunction
+			      }
+			  }
+      		]
+    	},
+    	plugins : [editing,BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] 
+  	});
+
+	var  search = new Search({
+    	store : store,
+    	gridCfg : gridCfg
+  	}),
+  	grid = search.get('grid');
+	
+	function addFunction(){
+		editing.show();
+	}
+	
+	function delFunction(){
+		var selections = grid.getSelection();
+		var newSelections = [];
+  		if(selections==""){
+  			BUI.Message.Alert("请选择要删除的数据");
+  		}else{
+  			BUI.each(selections,function(selection,index){
+  				if(selection.iskeepparttime == 'n'){
+  				}else{
+  					newSelections.push(selection);
+  				}
+  			});
+  			if(newSelections.length != selections.length){
+  				BUI.Message.Alert("主职部门不能删除，请进行主职部门转换操作");
+  			}else{
+  	  			delItems(newSelections);
+  			}
+  		}
+	}
+
+	function delItems(items){
+		var ids = [];
+  		BUI.each(items,function(item){
+  			ids.push({orgid:item.orgid,empid:item.empid});
+  		});
+  		if(ids.length){
+    		BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+      			$.ajax({
+    					url : '${rc.contextPath}/orgemp/op/delOrgEmp',
+    	              	dataType : 'json',
+    	              	contentType : 'application/json',
+    	              	type : 'post',
+    	              	data : JSON.stringify(ids),
+    	                success : function(data){
+    	                	if(data=="success"){ 
+   	                  	   		BUI.Message.Alert('删除成功！');
+   	                         	search.load();
+   	                        }else{
+   	                            BUI.Message.Alert('删除失败！');
+   	                       	}
+    	                 }
+    	        });
+      		},'question');
+  		}
+	}
+	
+	function changeFunction(){
+		$("#oldOrgid").text(mainOrgName);
+		queryOrgs4();
+		MJobEditing.show();
+	}
+	
+	function queryOrgs1(){
+		$.ajax({  
+		    type:"GET",  
+		    url:"${rc.contextPath}/org/op/getAllOrgidAndName?empid=$empid",  
+		    dataType:"json",  
+		    success:function(fieldList){
+		        if(fieldList != null && fieldList.length > 0){
+		            for(var i = 0; i< fieldList.length; i++){  
+		                $("<option value='"+fieldList[i].orgid+"'>"+fieldList[i].orgname+"</option>").appendTo("#JorgId");  
+		            }  
+		        }
+		    },  
+		});
+	}
+	
+	function queryOrgs3(){
+ 		var $combotree = $("#cbt");
+ 		$("#cbt").combotree({  
+ 		    width: 200,
+ 		    url: '${rc.contextPath}/role/op/getBmSons?id=-1', 
+ 		    onBeforeExpand: function(node){
+ 		    	var $tree = $combotree.combotree("tree");
+ 	            $tree.tree('options').url = '${rc.contextPath}/role/op/getBmSons';
+ 	        }
+ 		});
+ 	}
+	
+	function queryOrgs4(){
+ 		var $combotree = $("#cbt1");
+ 		$("#cbt1").combotree({  
+ 		    width: 200,
+ 		    url: '${rc.contextPath}/role/op/getBmSons?id=-1', 
+ 		    onBeforeExpand: function(node){
+ 		    	var $tree = $combotree.combotree("tree");
+ 	            $tree.tree('options').url = '${rc.contextPath}/role/op/getBmSons';
+ 	        }
+ 		});
+ 	}
+
+	queryOrgs3();
+});
+</script>
+</body>
+</html>

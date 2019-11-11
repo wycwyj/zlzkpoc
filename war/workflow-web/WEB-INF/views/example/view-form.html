@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title> 详情页</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+ </head>
+ <body>     
+  <div class="container">
+   #if($taskDefinitionKey!='modifyApply')
+    <h3>基本信息</h3>
+      <div class="control-group">
+        <label class="control-label">请假类型：</label>
+        <div class="controls">
+          <div class="controls bui-form-group-select">
+			${leave.leaveType}
+        </div>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">请假日期：</label>
+        <div class="controls bui-form-group" data-rules="{dateRange : true}">
+          ${leave.startTime} 至 ${leave.endTime}
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label"><s>*</s>请假原因：</label>
+        <div class="controls">
+            <textarea name="reason" id="reason">${leave.reason}</textarea>
+        </div>
+      </div>
+      
+      #if($taskDefinitionKey=='modifyApply')
+    <!-- 销假 -->
+	<div id="reportBack">
+		<!-- table用来显示信息，方便办理任务 -->
+		 <iframe  id="reportBackIframe"  frameborder=0   border=0   width=100%   height=200   src="view-form.html"></iframe>
+		<hr/>
+		<table>
+			<tr>
+				<td>实际请假开始时间：</td>
+				<td>
+					<input id="realityStartTime" class="calendar calendar-time"/>
+				</td>
+			</tr>
+			<tr>
+				<td>实际请假开始时间：</td>
+				<td>
+					<input id="realityEndTime"  class="calendar calendar-time"/>
+				</td>
+			</tr>
+		</table>
+	</div>
+      #end
+      
+      #elseif($taskDefinitionKey=='modifyApply')
+      <div id="modifyApply">
+		<div class="info"></div>
+		<div id="radio">
+			<input type="radio" id="radio1" name="reApply" value="true" /><label for="radio1">调整申请</label>
+			<input type="radio" id="radio2" name="reApply" checked="checked" value="false" /><label for="radio2">取消申请</label>
+		</div>
+		<hr />
+		<table id="modifyApplyContent">
+			<caption>调整请假内容</caption>
+			<tr>
+				<td>请假类型：</td>
+				<td>
+					<select id="leaveType" name="leaveType">
+						<option>公休</option>
+						<option>病假</option>
+						<option>调休</option>
+						<option>事假</option>
+						<option>婚假</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>开始时间：</td>
+				<td><input type="text" id="startTime" name="startTime" /></td>
+			</tr>
+			<tr>
+				<td>结束时间：</td>
+				<td><input type="text" id="endTime" name="endTime" /></td>
+			</tr>
+			<tr>
+				<td>请假原因：</td>
+				<td>
+					<textarea id="reason" name="reason" style="width: 250px;height: 50px"></textarea>
+				</td>
+			</tr>
+		</table>
+	</div>
+      
+      #end
+      
+      
+  </div>
+<body>
+</html>  
+ 

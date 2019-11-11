@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" /> 
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   <title>节点设置</title>
+</head>
+
+<body>
+<form id="setNodeForm" action="${rc.contextPath}/process/definition/setNode"  class="form-horizontal" method="post" target="a">
+<table class="table table-bordered table-hover table-condensed">
+    <tr>
+		<th class='text-info' style="display:none">流程定义ID</th>
+		<th class='text-info'>节点名称</th>
+		<th class='text-info'>节点Key</th>
+		<th class='text-info'>显示顺序</th>
+		<th class='text-info'>节点类型</th>
+		<th class='text-info'>各个节点URL</th>
+		<th class='text-info'>设置节点优先级</th>
+		<th class='text-info'>webkey</th>
+		<th class='text-info'>设置按钮</th>
+		
+		<th class='text-info'  style="display:none">处理人类型</th>
+		<th class='text-info'  style="display:none">处理人</th>
+    </tr>
+    <input type="hidden" name="ids" >
+    <input type="hidden" name="nodeIndexs" >
+    <input type="hidden" name="nodesets" >
+    <input type="hidden" name="nodetypes" >
+    <input type="hidden" name="usualTasktitles" >
+    <input type="hidden" name="userTypes" >
+    <input type="hidden" name="users" >
+    <input type="hidden" name="burls" >
+    <input type="hidden" name="prioritys" >
+    
+    
+    
+    #set($index=1)
+    #foreach($node in $nodes)
+                   #if( ${node.nodeset}!="null")
+                     #set($nodeset=${node.nodeset})
+                   #end
+                   
+                    #set($sualTasktitleySub=" checked='checked'")
+                    #set($sualTasktitleyRead="")
+                    #set($sualTasktitleyEnd="")
+                    #set($sualTasktitleyAssign="")
+                    #set($sualTasktitleyAddsign="")
+                    #set($sualTasktitleyBack="")
+                    #set($sualTasktitleyResume="")
+                    #set($sualTasktitleySave="")
+                    #set($sualTasktitleyDel="")
+                   
+                    #if( $node.usualTasktitle=="")
+                        #set($sualTasktitleySub=" checked='checked'")
+                        #set($node.usualTasktitle="sub")
+                    #elseif( $node.usualTasktitle.indexOf("sub")==-1)
+                      #set($sualTasktitleySub="")
+                    #end
+                    #if( $node.usualTasktitle.indexOf("read")!=-1)
+                      #set($sualTasktitleyRead=" checked='checked'")
+                    #end
+                    #if( $node.usualTasktitle.indexOf("end")!=-1)
+                      #set($sualTasktitleyEnd=" checked='checked'")
+                    #end
+                    #if( $node.usualTasktitle.indexOf("assign")!=-1)
+                      #set($sualTasktitleyAssign=" checked='checked'")
+                    #end 
+                    #if( $node.usualTasktitle.indexOf("addsign")!=-1)
+                      #set($sualTasktitleyAddsign=" checked='checked'")
+                    #end 
+                     #if( $node.usualTasktitle.indexOf("back")!=-1)
+                      #set($sualTasktitleyBack=" checked='checked'")
+                    #end 
+                    #if( $node.usualTasktitle.indexOf("resume")!=-1)
+                      #set($sualTasktitleyResume=" checked='checked'")
+                    #end 
+                    #if( $node.usualTasktitle.indexOf("save")!=-1)
+                      #set($sualTasktitleySave=" checked='checked'")
+                    #end 
+                    #if( $node.usualTasktitle.indexOf("del")!=-1)
+                      #set($sualTasktitleyDel=" checked='checked'")
+                    #end 
+                    
+                    #if(${node.nodeType} =='usual')
+						#set($usualselectedv=" selected='selected'")
+						#set($personalselectedv="")
+						#set($currentTaskselectedv="")
+                    #elseif(${node.nodeType}=='personal')
+                    	#set($personalselectedv=" selected='selected'")
+                    	#set($usualselectedv="")
+                    	#set($currentTaskselectedv="")
+                    #elseif(${node.nodeType}=='currentTask')
+                    	#set($currentTaskselectedv=" selected='selected'")
+                    	#set($usualselectedv="")
+                    	#set($personalselectedv="")
+                    #end
+                    
+                    #if(${node.userType} =='assignee')
+						#set($assignee1=" selected='selected'")
+						#set($candidateUsers1="")
+						#set($candidateGroups1="")
+                    #elseif(${node.userType}=='candidateUsers')
+						#set($assignee1="")
+						#set($candidateUsers1=" selected='selected'")
+						#set($candidateGroups1="")
+					#elseif(${node.userType}=='candidateGroups')
+						#set($assignee1="")
+						#set($candidateGroups1=" selected='selected'")
+						#set($candidateUsers="")
+                    #end
+                    
+                    #if(${node.priority} =='50')
+						#set($defaultPriority=" selected='selected'")
+						#set($highPriority="")
+						#set($lowPriority="")
+                    #elseif(${node.priority}=='0')
+						#set($highPriority=" selected='selected'")
+						#set($defaultPriority="")
+						#set($lowPriority="")
+                    #elseif(${node.priority}=='100')
+						#set($lowPriority=" selected='selected'")
+						#set($highPriority="")
+						#set($defaultPriority="")
+                    #end
+                   <tr>
+                   <th style="display:none"><input type="hidden" name="ids" value="${node.id}">${node.procDefId}</th>
+                   <th>${node.name}</th>
+                   <th>${node.taskDefKey}</th>
+                   <th><input type="text" name="nodeIndexs" style="width:20px;" value="${node.nodeIndex}"></th>
+                   <th>
+	                   <select name="nodetypes" id="nodetypeId${node.id}" style="width:100px;">
+		                   <option value="personal" ${personalselectedv}>自定义节点</option>
+		                   <option value="usual" ${usualselectedv}>通用审批</option>
+		                   <option value="currentTask" ${currentTaskselectedv}>只显示当前节点</option>
+	                   </select>
+                   </th>
+
+                  <th><input type="text" name="burls" value="${node.bussnessUrl}" style="width:250px" title="流程中各个节点的显示信息URL" /></th>
+                   <th>
+	                   <select name="prioritys" id="priorityId${node.id}" style="width:100px;">
+		                   <option value="50" ${defaultPriority}>默认优先级</option>
+		                   <option value="0" ${highPriority}>高优先级</option>
+		                   <option value="100" ${lowPriority}>低优先级</option>
+	                   </select>
+                   </th>
+                 <th><input type="text" name="nodesets" value="$nodeset" id="nodesets${node.id}" style="width:120px;" title="webkey"></th>
+                 <th>
+	                   <input type="checkbox" value="sub" onchange="checkedit('${node.id}')"  name="buttonty${node.id}" ${sualTasktitleySub}>提交&nbsp;&nbsp;
+	                   <input type="checkbox" value="read" onchange="checkedit('${node.id}')"  name="buttonty${node.id}" ${sualTasktitleyRead}>传阅&nbsp;&nbsp;
+	                   <input type="checkbox" value="assign" onchange="checkedit('${node.id}')" name="buttonty${node.id}" ${sualTasktitleyAssign}>转办&nbsp;&nbsp;
+	                   <input type="checkbox" value="addsign" onchange="checkedit('${node.id}')" name="buttonty${node.id}" ${sualTasktitleyAddsign}>加签&nbsp;&nbsp;
+	                   <input type="checkbox" value="back"   onchange="checkedit('${node.id}')" name="buttonty${node.id}" ${sualTasktitleyBack}>跳转&nbsp;&nbsp;
+	                   <input type="checkbox" value="resume" onchange="checkedit('${node.id}')" name="buttonty${node.id}" ${sualTasktitleyResume} >重置&nbsp;&nbsp;
+	                   <input type="checkbox" value="save"   onchange="checkedit('${node.id}')" name="buttonty${node.id}" ${sualTasktitleySave}>保存&nbsp;&nbsp;
+	                   <input type="checkbox" value="end"   onchange="checkedit('${node.id}')" name="buttonty${node.id}" ${sualTasktitleyEnd}>终止&nbsp;&nbsp;
+	                   <input type="checkbox" value="del"   onchange="checkedit('${node.id}')" name="buttonty${node.id}" ${sualTasktitleyDel}>删除
+	                   <input type="hidden" value="${node.usualTasktitle}" name="usualTasktitles" id="usualTasktitles${node.id}">
+	             </th>
+                   <th style="display:none">
+	                   <select name="userTypes" id="userType${node.id}" style="width:80px;
+	                   #if($index==1)
+	                   display:none;
+	                   #end
+	                   ">
+		                   <option value="">=选择=</option>
+		                   <option value="assignee" ${assignee1}>指定人</option>
+		                   <option value="candidateUsers" ${candidateUsers1}>参与人</option>
+		                   <option value="candidateGroups" ${candidateGroups1}>参与部门</option>
+	                   </select>
+                   </th>
+                   <th  style="display:none">
+                   	<input name="users" id="user${node.id}"  onclick="chooseUser(this,'${node.id}')" value="${node.user}" type="text" 
+                   	  #if($index==1)
+	                  style="display:none;"
+	                   #end
+                   	/>
+                   </th>
+                   #set( $index=$index+1 )
+        </tr>
+    #end
+
+</table>
+        <!-- <div align="center"><input type="button" value="确定" onclick="ok();"><input type="button" value="关闭" onclick="window.close();"></div> -->
+        <iframe name="a" id="a" width="0" height="0"></iframe>
+ </form>  
+<script type="text/javascript">
+
+ 
+ function ok(){
+	 document.getElementById("setNodeForm").submit();
+	 return "ok";
+ }
+ 
+	function chooseUser(obj,ind){
+		  var ut = document.getElementById("userType"+ind).value;
+  		if(ut==''){
+  			alert("请选择人员类型");
+  			return false;
+  		}
+  		var user=document.getElementById("user"+ind);
+  		if(ut=='assignee'){//指定人
+  	    	selectEmps(user,false,"选择人员",callbackMan);
+  		}else if(ut=='candidateUsers'){//参与人
+  	    	selectEmps(user,true,"选择人员",callbackMans);
+  		}else if(ut=='candidateGroups'){//参与组
+  	    	selectEmps(user,true,"选择人员",callbackGroups);
+  		}
+  		
+  		function callbackMans(obj,emps){
+  			var es="";
+  			for(var i=0;i<emps.length;i++){
+  			   if(es!=""){
+  				   es+=",";
+  			   }
+  			   es+=emps[i].empid;
+  			}
+  			user.value=es;
+  		}
+  		
+  		function callbackMan(obj,emps){
+  			user.value=emps.empid;
+  		}
+  		
+  		function callbackGroups(obj,emps){
+  			var es="";
+  			for(var i=0;i<emps.length;i++){
+  			   if(es!=""){
+  				   es+=",";
+  			   }
+  			   es+=emps[i].empid;
+  			}
+  			user.value=es;
+  		}
+		
+	}
+	
+	function checkedit(id){
+		var nas=document.getElementsByName("buttonty"+id);
+		var va="";
+		for(var i=0;i<nas.length;i++){
+			
+			if(nas[i].checked){
+				var val=nas[i].value;
+				if(va.indexOf(val)<0){
+					if(va!=""){
+						va+=",";
+					}
+					va+=val;
+				}
+			}
+		}
+		
+		document.getElementById("usualTasktitles"+id).value=va;
+	}
+	
+</script>
+</body>
+</html>

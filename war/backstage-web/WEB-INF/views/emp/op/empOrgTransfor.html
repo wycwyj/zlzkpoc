@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>人员机构部门转换</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+</head>
+<style>
+	html,body{
+		width:`100%;
+		height:100%;
+	}
+	*{
+		margin:0;
+		padding:0;
+	}
+    .bui-tree-list{
+      overflow: auto;
+    }
+    .span8{
+    	margin-left: 10px;
+    	float:left;
+    	width:48%;
+    }
+</style>
+<body>
+      <div class="span8">
+      	<label>请选择需要移动的组织机构人员:</label>
+        <div id="t1"></div>
+      </div>
+	<div class="span8">
+		<label>请选择需要移动到的组织机构:</label>
+      <div id="t2"></div>
+      </div> 
+<script type="text/javascript">
+	//定义两个全局变量
+	var item = [];
+	var item1 = "";
+	
+  BUI.use(['bui/tree','bui/data','bui/mask'],function (Tree,Data,Mask) {
+      //数据缓冲类
+      var orgTreeStore = new Data.TreeStore({
+              root : {
+                  id : '-1',
+                  text : '组织机构'
+              },
+              pidField : 'pid',
+              url : '${rc.contextPath}/external/get/leafsBak',
+              autoLoad : true,
+              dataType:'json',
+              contentType:"application/json"
+          }),
+          orgTreeStore2 = new Data.TreeStore({
+              root : {
+                  id : '-1',
+                  text : '组织机构'
+              },
+              pidField : 'pid',
+              url : '${rc.contextPath}/org/op/getSons',
+              autoLoad : true,
+              dataType:'json',
+              contentType:"application/json"
+          }),
+        
+      tree = new Tree.TreeList({
+        render : '#t1',
+        showLine : true,
+        showRoot : true,
+        checkType: 'onlyLeaf',
+        height:380,
+        store : orgTreeStore
+      });
+      
+      tree2 = new Tree.TreeList({
+          render : '#t2',
+          showLine : true,
+          showRoot : true,
+          height:380,
+          store : orgTreeStore2
+        });
+      
+      tree.render();
+      tree2.render();
+      
+      tree.on('checkedchange',function(ev){
+    	  var checked = ev.checked;
+    	  if(checked==true){
+    		  var nodeItem = ev.node;  
+    		  if(nodeItem.hasOwnProperty("attributes")){
+    			  item.push(ev);
+    		  }else{
+    			  BUI.Message.Alert('请选择需要设置的人员');
+    			  tree.setNodeChecked(nodeItem,false);
+    		  }
+    	  }else{
+    		  item.pop(ev);
+    	  }    	  
+      })
+      
+      tree2.on('itemclick',function(ev){
+    	  item1 = ev.item;
+      })
+    });
+  
+	  function test(){
+		  if(item==""||item1==""){
+			  BUI.Message.Alert("请选择移动的节点");
+		  }else{
+			  //组成需要的数据后传递
+			  var orgId = item1.id;
+			  var empids = [];
+			  for(var i=0;i<item.length;i++){
+				  var tempStr = item[i].node.id;
+				  empids.push(tempStr);
+			  }
+			  BUI.Message.Confirm('确认要移动选中的人员所在部门么？',function(){
+				  $.ajax({
+					  url : '${rc.contextPath}/emp/op/moveEmpOrg',
+		              	dataType : 'json',
+		              	contentType : 'application/json',
+		              	type : 'post',
+		              	data : JSON.stringify({orgid:orgId,empids:empids}),
+		                success : function(){
+		                	BUI.Message.Alert('移动成功！',function(){
+	                  	   			parent.parent.location.reload();
+	                  	    },'info');
+		                }
+				  }) 
+			  },'question');
+	  	}
+	}
+    </script>
+</body>
+</html>

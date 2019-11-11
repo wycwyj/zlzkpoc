@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>机构节点挂载</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+</head>
+<style>
+	html,body{
+		width:`100%;
+		height:100%;
+	}
+	*{
+		margin:0;
+		padding:0;
+	}
+    .bui-tree-list{
+      overflow: auto;
+    }
+    .span8{
+    	margin-left: 10px;
+    	float:left;
+    	width:48%;
+    }
+    .span9{
+    	margin-left: 10px;
+    	float:left;
+    }
+    #t1{
+    	height: 376px;
+    	overflow: auto;
+    	border: 1px solid #c3c3d6;
+    }
+    .bui-select-list{
+    	border:none !important;
+    }
+</style>
+<body>
+    <div class="span8">
+      	<label>请选择客体记录列表:</label>
+      	<input type="text" class="control-text" id="selCondition" autocomplete="off" placeholder="请输入查询名称">
+        <button onclick="getDate()">定位查询</button>
+        <div id="t1"></div>
+      </div>
+	<div class="span8">
+		<label>请选择需要挂载的组织机构:</label>
+      <div id="t2"></div>
+    </div>
+    
+    <!-- 内置文本输入框 -->
+    <div id="c2" style="display:none">
+      <form id="K_Form" class="form-horizontal">
+        <div class="row">
+          <div class="control-group span9">
+            <label class="control-label">规范化值：</label>
+            <div class="controls">
+                <input name="updateVal" id="updateVal" style="width:200px;" type="text" title="只能使用中文、字母、数字以及:和/,且不能使用数字开头" placeholder="只能使用中文、字母、数字以及:和/">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+     
+<script type="text/javascript">
+	var item = "";
+	var item1 = "";
+	var treeObject = "";
+	var exter = "";
+	var list = "";
+	
+	var tempUpdateItem = "";
+	
+	var array = [];
+	
+  BUI.use(['bui/tree','bui/data','bui/mask','bui/list','grid'],function (Tree,Data,Mask,List,Grid) {
+      var orgTreeStore2 = new Data.TreeStore({
+              root : {
+                  id : '-1',
+                  text : '组织机构'
+              },
+              pidField : 'pid',
+              url : '${rc.contextPath}/dataFuncZD/get/DataConfs',
+              autoLoad : true,
+              dataType:'json',
+              contentType:"application/json"
+       }),
+       
+       updateDialog = new BUI.Overlay.Dialog({
+           title:'规范化命名',
+           width:400,
+           height:100,
+           contentId:'c2',
+           closeable:false,
+           buttons:[
+                    {
+                      text:'确定',
+                      elCls : 'button button-primary',
+                      handler : function(){
+                    	  var reg = /^[a-zA-Z_\u4e00-\u9fa5][a-zA-Z_0-9\u4e00-\u9fa5\:\：\/]*$/;
+                    	  /* 首先拿到输入的值 进行匹配 */
+                    	  var modifyVal = $("#updateVal").val();
+                    	  if(!reg.test(modifyVal)){
+                    		  list.clearSelected(tempUpdateItem);
+                    		  BUI.Message.Alert("命名中不允许数字开头,且仅能包含:和/用来做分隔符，请重新修改！");
+                    	  }else{
+                    		  var configArr = {requestpath:tempUpdateItem.id,requestpathname:modifyVal};
+                    		  $.ajax({
+              	   				url: '${rc.contextPath}/dataFuncZD/df/updateNameByPath',
+              	   				dataType : 'json',
+              	   				contentType : 'application/json',
+              	   	          	type : 'get',
+              	   	          	traditional: true,
+              	   	          	data :configArr,
+              	   	            success : function(data){
+           	   	            		if(data=="success"){
+            	   	            		tempUpdateItem.text = modifyVal;
+            	   	            		list.updateItem(tempUpdateItem);
+             	   	           			array.push(tempUpdateItem);
+            	   	            	}
+              	   	          }})
+                    	  }
+                    	  this.close();
+                      }
+                    },
+                    {
+                      text:'关闭',
+                      elCls : 'button',
+                      handler : function(){
+                    	list.clearSelected(tempUpdateItem);
+                        this.close();
+                      }
+                    }
+                  ]
+      }),
+        
+      tree2 = new Tree.TreeList({
+          render : '#t2',
+          showLine : true,
+          showRoot : true,
+          height:380,
+          store : orgTreeStore2
+        });
+      
+      list = new List.Listbox({
+          elCls:'bui-select-list',
+          width: 300,
+          render : '#t1',
+        });
+      
+      tree2.render();
+      list.render();
+      
+      var store = tree2.get('store');
+      
+      $(function(){
+      	$.ajax({
+				url: '${rc.contextPath}/dataFuncTwo/df/getRequestPath',
+				dataType : 'json',
+				contentType : 'application/json',
+	          	type : 'get',
+	          	traditional: true,
+	            success : function(data){
+					var dataObj = eval("("+data+")");
+					list.addItems(dataObj);
+	            }
+			})
+      })
+      
+      list.on('itemselected',function(ev){
+    	  var node = ev.item;
+    	  var reg = /^[a-zA-Z_\u4e00-\u9fa5][a-zA-Z_0-9\u4e00-\u9fa5\:\：\/]*$/;
+    	  if(!reg.test(node.text)){
+    		  $("#updateVal").val(node.text);   
+    		  tempUpdateItem = node;
+        	  updateDialog.show();
+    	  }else{
+    		  array.push(node);
+    	  }
+      })
+      
+      list.on('itemunselected',function(ev){
+    	  removeByValue(array, ev.item);
+      })
+      
+      function removeByValue(arr, val) {
+		  for(var i=0; i<arr.length; i++) {
+		    if(arr[i] == val) {
+		      arr.splice(i, 1);
+		      break;
+		    }
+		  }
+	  }
+      
+      tree2.on('itemclick',function(ev){
+    	  item1 = ev.item;
+    	  treeObject=ev;
+      })
+    });
+  
+	  function getDate(){
+		  list.clearSelection();
+		  var tempVal = $("#selCondition").val();
+		  if(tempVal==""){
+			  list.clearSelection();
+		  }else{
+		  var configArr = {requestpathname:tempVal};
+             $.ajax({
+	   				url: '${rc.contextPath}/dataFuncZD/df/selectPath',
+	   				dataType : 'json',
+	   				contentType : 'application/json',
+	   	          	type : 'get',
+	   	          	traditional: true,
+	   	          	data :configArr,
+	   	            success : function(data){
+	   	            	var dataObj1 = eval("("+data+")");
+	   	            	for(var u=0;u<dataObj1.length;u++){
+	   	            		  var item = list.findItemByField('id',dataObj1[u].requestpath);
+	   	            		  var reg = /^[a-zA-Z_\u4e00-\u9fa5][a-zA-Z_0-9\u4e00-\u9fa5\:\：\/]*$/;
+	   	            		  if(!reg.test(item.text)){
+	   	            			  list.clearSelected(item);
+	                    		  BUI.Message.Alert("命名中不允许数字开头,且仅能包含:和/用来做分隔符，请找到后自行修改！");
+	                    	  }else{
+	                    		  list.setSelected(item);
+	                    	  }
+	   	            	}
+	   	            }
+	   			})
+		  }
+	  }
+  
+  	  function del(){
+  		 if(item1==""){
+			  BUI.Message.Alert("请选择移除的节点");
+		 }else{
+			 var selectedNode = treeObject;
+             var configArr = {id:selectedNode.item.id};
+             $.ajax({
+	   				url: '${rc.contextPath}/dataFuncZD/df/deleteConfig',
+	   				dataType : 'json',
+	   				contentType : 'application/json',
+	   	          	type : 'get',
+	   	          	traditional: true,
+	   	          	data :configArr,
+	   	            success : function(){
+	   	            	BUI.Message.Alert("移除成功！");
+	   	            	location.reload();
+	   	            }
+	   			})
+		 }
+  	  }
+  	  
+	  function mount(){
+		  if(array.length==0){
+			  BUI.Message.Alert("请选择需要挂载的节点");
+		 }else if(item1==""){
+			  BUI.Message.Alert("请选择挂载到的节点");
+		 }else{
+  		  	  for(var j=0;j<array.length;j++){
+  		  		 var tempname = array[j].text;
+  		  		 var temprequestpath = array[j].id;
+  		  		 var configArr = {name:tempname,requestpath:temprequestpath};
+	        	  $.ajax({
+	   				url: '${rc.contextPath}/dataFuncZD/df/selectExist',
+	   				dataType : 'json',
+	   				contentType : 'application/json',
+	   	          	type : 'get',
+	   	         	async: false,
+	   	          	traditional: true,
+	   	          	data :configArr,
+	   	            success : function(data){
+	   	            	if(data=="success"){
+	   	            		BUI.Message.Alert("该选项已挂载，请移除后再次操作！");
+	   	            	}else{
+	   	    		  	   var configArr = {name:tempname,parentorgid:item1.id,requestpath:temprequestpath};
+	   	  		        	  $.ajax({
+	   	  		   				url: '${rc.contextPath}/dataFuncZD/df/saveTreeConfig',
+	   	  		   				dataType : 'json',
+	   	  		   				contentType : 'application/json',
+	   	  		   	          	type : 'get',
+	   	  		   	          	traditional: true,
+	   	  		   	    		async: false,
+	   	  		   	          	data :configArr,
+	   	  		   	            success : function(data){
+	   	  		   	            	var dataObj1 = eval("("+data+")");
+	   	  		   	            	location.reload();
+	   	  		   	            }
+	   	  		   			})
+	   	            	}
+	   	            }
+	   			})
+  		  	  }
+		 }  
+	  }
+    </script>
+</body>
+</html>

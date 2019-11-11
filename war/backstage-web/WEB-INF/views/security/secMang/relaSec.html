@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>密级关系字典</title>
+<link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+<link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+<link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width:290px;
+	}
+	.span9{
+		width:350px;
+		height:35px;
+	}
+	.span10{
+		width:290px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+	.secClass{
+		color:red;
+	}
+  </style>
+</head>
+<body>
+	<div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+   		<form id="J_Form" class="form-horizontal">
+
+			<div class="row detail-row">
+			    <div class="span9">
+			      <label>前置数据密级：</label>
+			      <!-- <input name="secNameData" id="secNameData" type="text" data-rules="{required:true}" class="input-normal control-text"> -->			      
+			    	<select name="secNamedataFont" id="secNamedataFont" data-rules="{required:true}"></select>
+			    </div>
+			    
+			    <div class="span9">
+			      <label>前置关联关系：</label>
+			      <select name="secRelFont" id="secRelFont" data-rules="{required:true}">
+			      	  <option value="无">无</option>
+		              <option value="小于">小于</option>
+		              <option value="小于等于">小于等于</option>
+		              <option value="等于">等于</option>
+		              <option value="大于等于">大于等于</option>
+		              <option value="大于">大于</option>
+           		  </select>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <input type="hidden" name="id">
+			      <label>关联人员密级：</label>
+			      <!-- <input name="secNameUser" id="secNameUser" type="text" data-rules="{required:true}" class="input-normal control-text"> -->			      
+			    	<select name="secNameuser" id="secNameuser" data-rules="{required:true}"></select>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>后置关联关系：</label>
+			      <select name="secRelBack" id="secRelBack" data-rules="{required:true}">
+		              <option value="无">无</option>
+		              <option value="小于">小于</option>
+		              <option value="小于等于">小于等于</option>
+		              <option value="等于">等于</option>
+		              <option value="大于等于">大于等于</option>
+		              <option value="大于">大于</option>
+           		  </select>
+			    </div>
+			    
+			    <div class="span9">
+			      <label>后置数据密级：</label>
+			      <!-- <input name="secNameData" id="secNameData" type="text" data-rules="{required:true}" class="input-normal control-text"> -->			      
+			      <select name="secNamedataBack" id="secNamedataBack" data-rules="{required:true}"></select>
+			    </div>
+ 			</div>
+     	</form>
+    </div>
+
+<script type="text/javascript">
+
+var form = new BUI.Form.Form({
+	srcNode : '#J_Form'
+}).render();
+//暂时不做前置后置联合验证 人工手工验证
+//var selectFont = 
+
+function getInitSelectUserData(){
+	$.ajax({  
+	    type:"GET",  
+	    url:"${rc.contextPath}/userSec/secNameUser",  
+	    dataType:"json", 
+	    async:false,
+	    success:function(data){
+	        if(data != null && data.length > 0){
+	            for(var i = 0; i< data.length; i++){  
+	                $("<option value='"+data[i].secId+"'>"+data[i].secNameuser+"</option>").appendTo("#secNameuser");         
+	            }  
+	        }
+	    },  
+	});
+}
+
+function getInitSelectDataData(){
+	$.ajax({  
+	    type:"GET",  
+	    url:"${rc.contextPath}/dataSec/secNameData",  
+	    dataType:"json",  
+	    async:false,
+	    success:function(data){
+	        if(data != null && data.length > 0){
+	            for(var i = 0; i< data.length; i++){  
+	                $("<option value='"+data[i].secId+"'>"+data[i].secNamedata+"</option>").appendTo("#secNamedataFont");
+	                $("<option value='"+data[i].secId+"'>"+data[i].secNamedata+"</option>").appendTo("#secNamedataBack");
+	            }  
+	        }
+	    },  
+	});
+}
+
+BUI.use('common/search',function (Search) {
+	var editing = new BUI.Overlay.Dialog({
+		title:'操作',
+		width:800,
+		height:200,
+    	contentId : 'content', 
+    	autoSave : true, 
+    	buttons:[
+                  {
+                    text:'提交',
+                    elCls : 'button button-primary',
+                    handler : function(){
+                    	//form.submit();
+                    	//使用ajax提交方式替换原有方式  反馈方式还需再修改
+                    	var form = new FormData(document.getElementById("J_Form"));
+                    	$.ajax({
+                            url:"${rc.contextPath}/secc/insert/saveSec",
+                            type:"post",
+                            data:form,
+                            processData:false,
+                            contentType:false,
+                            success:function(data){
+                            	if(data=="error"){
+                            		BUI.Message.Alert("每个人员密级只允许设定一次，请确认后重试");
+                            	}else{
+                            		search.load();
+                            	}
+                            }
+            			});
+                    	this.close();
+                    }
+                  },{
+                    text:'关闭',
+                    elCls : 'button',
+                    handler : function(){
+                      this.close();
+                    }
+                  }
+          ]
+  	});
+	
+	//选择无后 前置数据密级和后置数据密级仍存在需要优化项
+	var columns = [
+				{title:'ID',dataIndex:'id',visible:false,width:0},
+				{title:'前置数据密级',dataIndex:'secNamedataFont',width:100},
+	          	{title:'前置关联关系',dataIndex:'secRelFont',width:60},    	
+	          	{title:'关联人员密级',dataIndex:'secNameuser',width:80},
+	          	{title:'后置关联关系',dataIndex:'secRelBack',width:60},
+	          	{title:'后置数据密级',dataIndex:'secNamedataBack',width:100},
+	],
+	searchURL = '${rc.contextPath}/secc/query/sec',
+	
+	store = Search.createStore(searchURL,{
+    	proxy:{
+      		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+        		
+      		},
+      		autoLoad:true,
+      		method:'POST',
+      		dataType:'json',
+      		data:'',
+      		contentType:"application/json"
+    	},
+    	pageSize:10,
+    	autoSync:true //保存数据后，自动更新
+  	}),
+  	gridCfg = Search.createGridCfg(columns,{
+  		forceFit:true,
+    	tbar:{
+      		items:[
+			{
+			    btnCls : 'button button-small',
+			    text : '<i class="icon-retweet"></i>添加关系',
+			    listeners : {
+			      'click' : secAdd
+			    }
+			},
+			{
+			    btnCls : 'button button-small',
+			    text : '<i class="icon-retweet"></i>修改关系',
+			    listeners : {
+			      'click' : secModif
+			    }
+			},{
+			    btnCls : 'button button-small',
+			    text : '<i class="icon-retweet"></i>删除关系',
+			    listeners : {
+			      'click' : secDel
+			    }
+			}]
+    	},
+    	plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] // 插件形式引入多选表格
+  	});
+	
+	var  search = new Search({
+    	store : store,
+    	gridCfg : gridCfg
+  	}),
+  	grid = search.get('grid');
+	
+	function deleteAllOptions(){
+		var fontObj=document.getElementById('secNamedataFont');
+		var BackObj=document.getElementById('secNamedataBack');
+		var userObj=document.getElementById('secNameuser');
+		fontObj.options.length=0;
+		BackObj.options.length=0;
+		userObj.options.length=0;
+	}
+	
+	function secAdd(){
+		form.clearFields();
+		deleteAllOptions();
+		getInitSelectUserData();
+		getInitSelectDataData();
+		editing.show();
+	}
+	
+	function secModif(){
+		var selection = grid.getSelected();
+  		if(selection==null){
+  			BUI.Message.Alert("请选需要修改密级的记录");
+  		}else{
+  			deleteAllOptions();
+  			$.ajax({  
+			    type:"GET",  
+			    url:"${rc.contextPath}/userSec/secNameUser",  
+			    dataType:"json",
+			    async:false,
+			    success:function(data){
+			        if(data != null && data.length > 0){
+			            for(var i = 0; i< data.length; i++){  
+			                $("<option value='"+data[i].secId+"'>"+data[i].secNameuser+"</option>").appendTo("#secNameuser");         
+			            }  
+			        }
+			        
+			        $.ajax({  
+			    	    type:"GET",  
+			    	    url:"${rc.contextPath}/dataSec/secNameData",  
+			    	    dataType:"json",  
+			    	    success:function(data){
+			    	        if(data != null && data.length > 0){
+			    	            for(var i = 0; i< data.length; i++){  
+			    	                $("<option value='"+data[i].secId+"'>"+data[i].secNamedata+"</option>").appendTo("#secNamedataFont");
+			    	                $("<option value='"+data[i].secId+"'>"+data[i].secNamedata+"</option>").appendTo("#secNamedataBack");
+			    	            }  
+			    	        }
+			    	        
+			    	    		form.setFieldValue('id',selection.id);
+				      			form.setFieldValue('secRelFont',selection.secRelFont);
+				      			form.setFieldValue('secRelBack',selection.secRelBack);
+				      			form.setFieldValue('secNameuser',selection.tempSecUserId);
+				      			form.setFieldValue('secNamedataFont',selection.tempSecDataIdFont);
+				      			form.setFieldValue('secNamedataBack',selection.tempSecDataIdBack);
+				      			editing.show();   	
+			    	      },  
+			    	});
+			    },  
+			});
+  		}
+	}
+	
+	function secDel(){
+		var selections = grid.getSelection();
+		if (selections == "") {
+			BUI.Message.Alert("请选择要删除的数据");
+		} else {
+		var ids = [];
+  		BUI.each(selections,function(item){
+  			ids.push({id:item.id});
+  		});
+  		if(ids.length){
+	    		BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+	      			$.ajax({
+	    					url : '${rc.contextPath}/secc/del/delete',
+	    	              	dataType : 'json',
+	    	              	contentType : 'application/json',
+	    	              	type : 'post',
+	    	              	data : JSON.stringify(ids),
+	    	                success : function(data){
+	    	                	if(data=="success"){ 
+	   	                  	   		BUI.Message.Alert('删除成功！');
+	   	                  	  	 	store.load();
+	   	                        }else{
+	   	                            BUI.Message.Alert('删除失败！');
+	   	                       	}
+	    	                 }
+	    	        });
+	      		},'question');
+  			}
+		}
+	}
+
+	resizeMe();
+})
+</script>
+</body>
+</html>

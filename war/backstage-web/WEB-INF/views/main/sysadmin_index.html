@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  	<link rel="shortcut icon" href="${rc.contextPath}/favicon.ico" type="image/x-icon"/>
+  	<title>后台管理系统</title>
+   	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   	<link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   	<link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   	<link href="${rc.contextPath}/bui/common/css/main-min.css" rel="stylesheet" type="text/css" />
+   	<style type="text/css">
+   		.bui-dialog .bui-stdmod-body {
+		    background-color: #fff;
+		    border: 1px solid #c3c3d6;
+		    margin: 0 0px;
+		    padding: 0px;
+		}
+   	</style>
+</head>
+<body>
+  <div class="header">
+    <div class="dl-title">
+        <span class="lp-title-port"></span><span class="dl-title-text">后台管理系统--之系统设置管理</span>
+    </div>
+    <div class="dl-log">
+    	<span id="systemTime" style="color:red;"></span>&nbsp;&nbsp;
+    	欢迎您，<span class="dl-log-user">$session.getAttribute("userName")</span>！
+    	<a href="javascript:void(0)" onclick="changeMePWD()" title="修改密码" class="dl-log-quit">[修改密码]</a>
+    	<a href="javascript:void(0)" onclick="logout()" title="退出系统" class="dl-log-quit">[退出]</a>
+    </div>
+  </div>
+   <div class="content">
+    <div class="dl-main-nav">
+      <ul id="J_Nav"  class="nav-list ks-clear">
+        <li class="nav-item dl-selected"><div class="nav-item-inner nav-sample">应用管理</div></li>
+        <li class="nav-item"><div class="nav-item-inner nav-home">组织管理</div></li>
+        <li class="nav-item"><div class="nav-item-inner nav-inventory">安全管理</div></li>
+        <li class="nav-item"><div class="nav-item-inner nav-supplier">其他管理</div></li>
+      </ul>
+    </div>
+    <ul id="J_NavContent" class="dl-tab-conten">
+
+    </ul>
+   </div>
+   <div id="changePWD" class="hide">
+    <iframe src="" id="userPWDChange" name="userPWDChange" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+   </div>
+</body>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/bui.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/config.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/main-min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/qms-common.js"></script>
+<script>
+	var timer;
+	$(function(){
+		$("#systemTime").html(getSystemTime());
+		timer = setInterval(function(){
+			$("#systemTime").html(getSystemTime());
+		},100);
+	});
+	
+	function logout(){
+		window.clearInterval(timer);
+		window.location.href = "${rc.contextPath}/user/logout";
+	}
+	
+	var changePWD;
+	BUI.use('common/main',function(){
+		var config = [{
+			id:'appMng',
+			homePage : 'appOp',
+			menu:[{
+				text:'应用管理',
+				items:[
+					{id:'appOp',text:'应用维护',href:'${rc.contextPath}/appm/appr/index'},
+					{id:'mobApp',text:'移动应用管理',href:'${rc.contextPath}/mobApp/appr/index'}
+					 ,{id:'onlineUser',text:'在线用户管理',href:'${rc.contextPath}/onlineUser/appr/index'}
+				]
+			}]
+		},{
+			id:'org_mng',
+			homePage : 'org_op',
+			menu:[{
+				text:'机构管理',
+				items:[
+					{id:'org_op',text:'机构维护',href:'${rc.contextPath}/org/op/index'},
+					{id:'org_search',text:'机构查询',href:'${rc.contextPath}/org/search/index'}
+				]
+           	},{
+           		text:'人员管理',
+           		items:[
+           			{id:'emp_op',text:'人员维护',href:'${rc.contextPath}/emp/op/index'},
+           			{id:'emp_search',text:'人员查询',href:'${rc.contextPath}/emp/search/index'},
+           			{id:'emp_delete',text:'人员回收站',href:'${rc.contextPath}/emp/delete/index'}
+           		]
+           	}]
+		},{	
+			id:'secMng_sysadmin',
+			homePage : 'pwdReset_sysadmin',
+			menu:[{
+			text:'用户安全管理',
+			items:[
+				{id:'pwdReset_sysadmin',text:'备岗密码重置/解锁',href:'${rc.contextPath}/pwdReset/sysadmin'}
+			]
+       		}]
+		},{	
+			id:'otherMng',
+			homePage : 'errorLog',
+			menu:[{
+			text:'其他管理',
+			items:[
+				{id:'errorLog',text:'系统错误日志',href:'${rc.contextPath}/appm/excp/excpIndex'},
+				{id:'email',text:'邮件服务功能管理',href:'${rc.contextPath}/email/email/index'},
+				{id:'queryCol',text:'功能字段设置',href:'${rc.contextPath}/condition/common/columnConfigMain'} ,
+				{id:'dict',text:'数据字典',href:'${rc.contextPath}/wood/dict/dictMain'},
+				{id:'emailset',text:'邮件内容设置',href:'${rc.contextPath}/emailset/wood/page/emailset/main'},
+                {id:'userloginlog',text:'用户登录日志',href:'${rc.contextPath}/userLoginLog/op/index'}
+			]
+       		}]
+		}];
+		changePWD = new BUI.Overlay.Dialog({
+    		title:'密码变更',
+    		width:880,
+    		height:500,
+        	contentId : 'changePWD', 
+        	buttons:[
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ],
+      	});
+		new PageUtil.MainPage({
+			modulesConfig : config
+		});
+	});
+	
+	function changeMePWD(){
+		$('#userPWDChange').attr('src','${rc.contextPath}/framework/changepwd');
+		changePWD.show();
+	}
+</script>
+</html>

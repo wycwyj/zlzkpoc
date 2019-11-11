@@ -1,0 +1,19 @@
+<html>  
+<body>  
+<h3> $!{appellation}</h3>  
+<div>  
+    <font color="red">$!{content}</font>
+</div> 
+<br>
+<div>  
+   $!{declaration}    $!{datetime}
+</div> 
+
+<div>  
+     客户端:<a href="$!{url}" target="_blank">$!{taskName}</a> 
+</div> 
+<div>  
+  Chrome ：<a href="$!{uri}" target="_blank">$!{taskName}</a> 
+</div>
+</body>  
+</html> 

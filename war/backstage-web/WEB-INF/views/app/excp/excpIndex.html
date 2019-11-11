@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>系统错误异常查看</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width:290px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:400px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">用户账号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="userid" name="userid">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">用户名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="username" name="username">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">所属子系统：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="webname" name="webname">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">用户部门：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="attr2" name="attr2">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div id="show" class="hide">
+    	<form id="show_form" class="form">
+			    <div class="span9" id="showDiv" style="height:400px;width:100%;overflow-y:auto;">
+			      	<span id="spanId"></span>
+			    </div>
+        </form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+</body>
+<script type="text/javascript">
+
+	/*插件初始化*/
+	BUI.use(['common/search','bui/grid','bui/data'],function (Search,Grid,Data) {
+    	var showing = new BUI.Overlay.Dialog({
+    		title:'异常详细信息',
+    		width:1000,
+    		height:450,
+        	contentId : 'show', /*设置隐藏的Dialog内容*/
+        	autoSave : true, /*添加数据或者修改数据时，自动保存 */
+        	buttons:[
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	})
+      	/* 表格的行 */
+      	columns = [
+			{title:'主键ID',dataIndex:'id',visible:false,width:0},
+          	{title:'用户账号',dataIndex:'userid',width:60},
+          	{title:'用户名称',dataIndex:'username',width:60},
+          	{title:'用户部门',dataIndex:'attr2',width:80},
+          	{title:'所属子系统',dataIndex:'webname',width:100},
+          	{title:'所属功能',dataIndex:'belongtofunc',width:80},
+          	{title:'请求路径',dataIndex:'excppath',width:80},
+            {title:'异常类型',dataIndex:'exceptiontype',width:180,renderer:function(value,obj){
+          		return '<span class="grid-command btn-edit">'+value+'</span>';
+          	}},
+          	{title:'异常发生时间',dataIndex:'excpdate',width:120,renderer : Grid.Format.datetimeRenderer},
+          	{title:'是否修复',dataIndex:'isrepair',width:60,renderer:function(value){
+            	if(value=='已修复'){
+            		return "已修复";
+            	}else{
+            		return "未修复";
+            	}
+            }}
+        ],
+        /*搜索的项*/
+        searchURL = '${rc.contextPath}/appm/excp/getAllExcpInfo',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{/*也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType*/
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true /* 保存数据后，自动更新 */
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit:true,
+			cache:false,
+      		tbar : {
+          		items : [
+         				{
+        				    btnCls : 'button button-small',
+        				    text : '<i class="icon-edit"></i>已修复',
+        				    listeners : {
+        				      'click' : alreadyFunction
+        				    }
+        				  },
+        				{
+        				  	btnCls : 'button button-small',
+        				    text : '<i class="icon-edit"></i>未修复',
+        				    listeners : {
+        				      'click' : noFunction
+        				    }
+        				}
+                  	]
+        	},
+        	plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit]  /* 插件形式引入多选表格 */
+      	});
+        
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+    	
+    	grid.on('cellclick',function(ev) {
+            var record = ev.record, /* 点击行的记录 */
+            field = ev.field, /* 点击对应列的dataIndex */
+            target = $(ev.domTarget); /* 点击的元素 */
+            if(target.hasClass('btn-edit')){
+            	var configArr = {id:record.id};
+            	$.ajax({
+	 				url: '${rc.contextPath}/appm/excp/getSingleData',
+	 				dataType : 'json',
+	 				contentType : 'application/json',
+	 	          	type : 'get',
+	 	          	traditional: true,
+	 	          	data :configArr,
+	 	            success : function(data){
+	 	            	var dataObj1 = eval("("+data+")");
+	 	            	document.getElementById('spanId').innerHTML = dataObj1;
+	 	            }
+	 			})
+             	 showing.show();
+            }
+    	})
+    	
+    	function alreadyFunction(){
+    		var selections = grid.getSelection();
+			if (selections == null) {
+				BUI.Message.Alert("请选择已完成修复的数据");
+			} else {
+				var repair = [];
+				BUI.each(selections,function(selection){
+					repair.push({
+						id : selection.id,
+						type : "y"
+					});
+				})
+				
+				$.ajax({
+					url : '${rc.contextPath}/appm/excp/isRepaire',
+					dataType : 'json',
+					contentType : 'application/json',
+					type : 'post',
+					data : JSON.stringify(repair),
+					success : function(data) {
+						if (data == "success") {
+							BUI.Message.Alert('标记已修复成功！');
+							search.load();
+						} else {
+							BUI.Message.Alert('标记已修复失败！');
+						}
+					}
+				});
+			}
+    	}
+    	
+		function noFunction(){
+			var selections = grid.getSelection();
+			if (selections == null) {
+				BUI.Message.Alert("请选择转换未修复的数据");
+			} else {
+				var repair = [];
+				BUI.each(selections,function(selection){
+					repair.push({
+						id : selection.id,
+						type : "w"
+					});
+				})
+				
+				$.ajax({
+					url : '${rc.contextPath}/appm/excp/isRepaire',
+					dataType : 'json',
+					contentType : 'application/json',
+					type : 'post',
+					data : JSON.stringify(repair),
+					success : function(data) {
+						if (data == "success") {
+							BUI.Message.Alert('标记未修复成功！');
+							search.load();
+						} else {
+							BUI.Message.Alert('标记未修复失败！');
+						}
+					}
+				});
+			}
+		}
+		
+    	/*监听输入框的回车操作*/  
+	 	$('#userid,#username,#webname,#attr2').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+	 	resizeMe();
+	});
+</script>
+</html>

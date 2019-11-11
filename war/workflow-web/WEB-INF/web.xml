@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+  <display-name>workflow-web</display-name>
+  
+  <context-param>  
+    <param-name>webAppRootKey</param-name>  
+    <param-value>workflow.root</param-value>  
+  </context-param>
+  
+  <context-param>
+	<param-name>contextConfigLocation</param-name>
+	<param-value>classpath*:/spring/spring-context.xml</param-value>
+  </context-param>
+  
+  <!-- Filter 定义 -->
+  <!-- Character Encoding filter -->
+  <filter>
+	<filter-name>encodingFilter</filter-name>
+	<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+	<init-param>
+		<param-name>encoding</param-name>
+		<param-value>UTF-8</param-value>
+	</init-param>
+	<init-param>
+		<param-name>forceEncoding</param-name>
+		<param-value>true</param-value>
+	</init-param>
+  </filter>
+  
+  <filter-mapping>
+	<filter-name>encodingFilter</filter-name>
+	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  <filter>
+	<filter-name>woodFrameworkFilter</filter-name>
+	<filter-class>com.ztj.wood.framework.filter.FrameworkFilter</filter-class>
+  </filter>
+  <filter-mapping>
+	<filter-name>woodFrameworkFilter</filter-name>
+	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  <!-- JSONP  zhengliang-->
+ <filter>
+	<filter-name>JSONPFilter</filter-name>
+	<filter-class>org.activiti.explorer.JsonpCallbackFilter</filter-class>
+  </filter>
+  <filter-mapping>
+	<filter-name>JSONPFilter</filter-name>
+	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!-- <filter>
+	<filter-name>springSecurityFilterChain</filter-name>
+	<filter-class>
+		org.springframework.web.filter.DelegatingFilterProxy
+	</filter-class>
+  </filter> -->
+
+<!--<filter-mapping>
+	<filter-name>springSecurityFilterChain</filter-name>
+	<url-pattern>/rest/*</url-pattern>
+	<dispatcher>ERROR</dispatcher>
+	<dispatcher>REQUEST</dispatcher>
+  </filter-mapping> -->
+
+  <!-- 注册WebService -->
+   <servlet>
+    <servlet-name>CXFService</servlet-name>
+    <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+    <init-param>
+    	<param-name>config-location</param-name>
+    	<param-value>classpath*:/spring/spring-cxf-ws.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>CXFService</servlet-name>
+    <url-pattern>/wfservices/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>AxisServlet</servlet-name>
+    <servlet-class>org.apache.axis2.transport.http.AxisServlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>AxisServlet</servlet-name>
+	    <url-pattern>/services/*</url-pattern>
+	</servlet-mapping>
+
+  <context-param> 
+  	<param-name>log4jConfigLocation</param-name> 
+  	<param-value>classpath:log4j.xml</param-value> 
+  </context-param>
+
+  <listener> 
+  	<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+  </listener>
+  
+  <listener>
+	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
+  <listener>
+	<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+  </listener>
+  
+  <!-- Spring 刷新Introspector防止内存泄露 -->
+  <listener>
+    <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+  </listener>
+  
+  <!-- Spring MVC Servlet -->
+  <servlet>
+    <servlet-name>SpringMVC</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:spring-mvc.xml</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+    <async-supported>true</async-supported>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>SpringMVC</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+  
+  <!-- Modeler的Rest服务  zhengliang-->
+  <servlet>
+	<servlet-name>ModelRestServlet</servlet-name>
+	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	<init-param>
+		<param-name>contextConfigLocation</param-name>
+		 <!-- <param-value>classpath*:/activiti/activiti-Modeler.xml</param-value>  -->
+		 <param-value>classpath*:/SpringMVC-workflow-modeler.xml</param-value>
+	</init-param>
+	<load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+	<servlet-name>ModelRestServlet</servlet-name>
+	<url-pattern>/service/*</url-pattern>
+  </servlet-mapping>
+  
+  <!-- Rest接口   zhengliang-->
+  <servlet>
+	<servlet-name>RestServlet</servlet-name>
+	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	<init-param>
+		<param-name>contextConfigLocation</param-name>
+		    <!-- <param-value>classpath*:/activiti/activiti-Rest.xml</param-value> -->
+			<param-value>classpath*:/SpringMVC-worklow-rest.xml</param-value>
+	</init-param>
+	<load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+	<servlet-name>RestServlet</servlet-name>
+	<url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+  
+  <error-page>
+    <error-code>404</error-code>
+    <location>/error_page/404/404.html</location>
+  </error-page>
+  
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+</web-app>

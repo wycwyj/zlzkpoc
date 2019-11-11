@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>人员信息</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/login/js/base64.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:80px;
+	}
+	.span8 {
+	    width:400px;
+	}
+	#J_Form .span8{
+		width:400px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">用户账号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="code1" name="code">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">中文名：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="name1" name="name">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="Orgcontent" class="hide">
+    	<iframe src="" id="orgAttribution" name="orgAttribution" frameBorder="0" width="800" scrolling="no" height="400"></iframe>
+    </div>
+    
+    <div id="show" class="hide">
+    	<form id="show_form" class="form">
+	    <div class="detail-section">
+	    	<div class="row detail-row">
+			    <div class="span9">
+			      <label>密级：</label><span class="detail-text" id="sec_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>顺序号：</label><span class="detail-text" id="empindex_show"></span>
+			    </div>
+ 			</div>
+	    	<div class="row detail-row">
+			    <div class="span9">
+			      <label>用户帐号：</label><span class="detail-text" id="code_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>中文名：</label><span class="detail-text" id="name_show"></span>
+			    </div>
+			     <div class="span9">
+			      <label>英文名：</label><span class="detail-text" id="englishname_show"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>性别：</label><span class="detail-text" id="sex_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>生日：</label><span class="detail-text" id="birthday_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>状态：</label><span class="detail-text" id="status_show"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>入职时间：</label><span class="detail-text" id="indate_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>离职时间：</label><span class="detail-text" id="outdate_show"></span>
+			    </div>
+			     <div class="span9">
+			      <label>办公电话：</label><span class="detail-text" id="otel_show"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>办公地址：</label><span class="detail-text" id="oaddress_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>邮编：</label><span class="detail-text" id="zipcode_show"></span>
+			    </div>
+			     <div class="span9">
+			      <label>电子邮箱：</label><span class="detail-text" id="email_show"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>传真号：</label><span class="detail-text" id="faxno_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>手机：</label><span class="detail-text" id="mobileno_show"></span>
+			    </div>
+			     <div class="span9">
+			      <label>创建人：</label><span class="detail-text" id="creator_show"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>创建时间：</label><span class="detail-text" id="createtime_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>更新人：</label><span class="detail-text" id="updator_show"></span>
+			    </div>
+			     <div class="span9">
+			      <label>更新时间：</label><span class="detail-text" id="modytime_show"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+ 				<div class="span9">
+			      <label>工号：</label><span class="detail-text" id="cardcode_show"></span>
+			    </div>
+			    <div class="span9">
+			      <label>主职机构：</label><span class="detail-text" id="orgid_show"></span>
+			    </div>
+				<div class="span9">
+					<label>岗位：</label><span class="detail-text" id="post"></span>
+				</div>
+			    <div class="span10">
+			      <label>备注：</label><span class="detail-text" id="remark_show"></span>
+			    </div>
+ 			</div>
+        </div>
+        </form>
+    </div>
+
+    <div id="content" class="hide">
+      	<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/emp/op/saveEmp">
+        	<div class="row">
+        		<div class="control-group span8">
+            		<label class="control-label" id="empSec_span"><s>*</s>人员密级</label>
+            		<div class="controls" id="empSec_div">
+              			<select name="sec" id="secT" data-rules="{required:true}">
+           				</select>
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">顺序号</label>
+            		<div class="controls">
+              			<input id="empindex" name="empindex" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+        	</div>
+        	<div class="row">
+        		<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>用户帐号</label>
+	            	<div class="controls">
+	            		<input id="code" name="code" type="text" class="input-normal control-text" data-rules="{required:true}">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>中文名</label>
+	            	<div class="controls">
+	            		<input type="hidden" id="empid" name="empid">
+	            		<input type='hidden' name="chaid" id="chaid">
+	            		<input type='hidden' name="orgid">
+	            		<input type="hidden" id="oldcode" name="oldcode">
+	              		<input name="name" type="text" data-rules="{required:true}" class="input-normal control-text">
+	            	</div>
+	          	</div>
+        	  </div>
+        	  <div class="row">
+        	  	<div class="control-group span8">
+	            	<label class="control-label">英文名</label>
+	            	<div class="controls">
+	            		<input name="englishname" type="text" class="input-normal control-text">
+	            	</div>
+	          	</div>
+          		<div class="control-group span8">
+            		<label class="control-label">性别</label>
+            		<div class="controls">
+              			<select name="sex">
+			              <option value="0">男</option>
+			              <option value="1">女</option>
+           				</select>
+            		</div>
+          		</div>
+        	</div>
+
+        	<div class="row">
+        		<div class="control-group span8">
+            		<label class="control-label">工号</label>
+            		<div class="controls">
+              			<input id="cardcode" name="cardcode" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+        		<div class="control-group span8">
+            		<label class="control-label">生日</label>
+            		<div class="controls">
+              			 <input name="birthday" type="text" class="calendar">
+            		</div>
+          		</div>
+        	</div>
+
+        	<div class="row">
+        		<div class="control-group span8">
+            		<label class="control-label">入职时间</label>
+            		<div class="controls">
+              			<input name="indate" type="text" class="calendar">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">离职时间</label>
+            		<div class="controls">
+              			<input name="outdate" type="text" class="calendar">
+            		</div>
+          		</div>
+        	</div>
+
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">办公地址</label>
+            		<div class="controls">
+              			<input name="oaddress" type="text" class="input-normal control-text">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">邮编</label>
+            		<div class="controls">
+              			<input name="zipcode" type="text" class="input-normal control-text" data-rules="{number:true,maxlength:6}">
+            		</div>
+          		</div>
+        	</div>
+
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label">电子邮箱</label>
+            		<div class="controls">
+              			<input name="email" type="text" class="input-normal control-text" data-rules="{email:true}">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">传真号</label>
+            		<div class="controls">
+              			<input name="faxno" type="text" class="input-normal control-text" data-messages="{regexp:'传真号格式或位数不正确'}" data-rules="{regexp:/^$|^[+]{0,1}(\d){1,3}[ ]?([-]?((\d)|[ ]){1,12})+$/}">
+            		</div>
+          		</div>
+        	</div>
+
+        	<div class="row">
+        		<div class="control-group span8">
+            		<label class="control-label">办公电话</label>
+            		<div class="controls">
+              			<input name="otel" type="text" class="input-normal control-text" data-messages="{regexp:'电话号格式或位数不正确'}" data-rules="{regexp:/^$|^(0[0-9]{2,3}\-)?([2-9][0-9]{6,7})+(\-[0-9]{1,4})?$/}">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label">手机</label>
+            		<div class="controls">
+              			<input name="mobileno" type="text" class="input-normal control-text" data-messages="{regexp:'手机号格式或位数不正确'}" data-rules="{regexp:/^$|^1[3|4|5|7|8]\d{9}$/}">
+            		</div>
+          		</div>
+        	</div>
+
+        	<div class="row">
+				<div class="control-group span8">
+					<label class="control-label">岗位</label>
+					<div class="controls">
+						<input name="post" type="text" class="input-normal control-text" >
+					</div>
+				</div>
+				<div class="control-group span8">
+            		<label class="control-label">备注</label>
+            		<div class="controls control-row4">
+              			<textarea name="remark" class="input-large" type="text"></textarea>
+            		</div>
+          		</div>
+        	</div>
+      	</form>
+	</div>
+
+	<div id="empcontent" class="hide">
+      	<form id="EMP_Form" class="form-horizontal" method="post" action="${rc.contextPath}/importEmp/emp/import">
+        	<input type="hidden" name="a" value="3">
+        	<div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>日期</label>
+	            	<div class="controls">
+	            		<input name="GD_OUT_DT" type="text"  class="calendar">
+	            	</div>
+	          	</div>
+	          	  <div class="control-group span8">
+	            	<label class="control-label"><s>*</s>全量增量</label>
+	            	<div class="controls">
+		              	<select id="GD_GLS_FLAG" name="GD_GLS_FLAG">
+		              	 <option value="Y">Y</option>
+		              	 <option value="N">N</option>
+  						</select>
+	            	</div>
+	          	</div>
+        	</div>
+      	</form>
+	</div>
+
+	<div id="empcontenttest" class="hide">
+      	<form id="EMP_Formtest" class="form-horizontal" method="post" action="${rc.contextPath}/importEmp/emp/importtest">
+        	<input type="hidden" name="a" value="3">
+        	<div class="row">
+	          	  <div class="control-group span8">
+	            	<label class="control-label"><s>*</s>第5层每个节点数量N(1*10*20*20*N)</label>
+	            	<div class="controls">
+  						<input name="GD_GLS_FLAG" type="text" class="input-normal control-text" value="40">
+	            	</div>
+	          	</div>
+	          	  <div class="control-group span8">
+	            	<label class="control-label"><s>*</s>每个部门的人员数量</label>
+	            	<div class="controls">
+  						<input name="personN" type="text" class="input-normal control-text" value="10">
+	            	</div>
+	          	</div>
+        	</div>
+      	</form>
+	</div>
+
+	<div id="EmpOrgcontent" class="hide">
+    	<iframe src="" id="orgAttribution1" name="orgAttribution" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+
+   <div id="empcontent1" class="hide">
+      <form id="importform" action="${rc.contextPath}/emp/import"  class="form-horizontal" method="post" enctype="multipart/form-data">
+      	<input type='hidden' name="orgid">
+		 <div class="row">
+		   <div class="control-group span15">
+            <label class="control-label">模板:</label>
+            <div class="controls control-row4">
+              <a href="#" onclick="exportFunc()">Excel人员导入模版.xls</a>
+            </div>
+           </div>
+
+			 <div class="control-group span15">
+				 <label class="control-label">处理方式</label>
+				 <div class="controls control-row4">
+					 <select id="dostyle" name="dostyle">
+						 <option value="Y">覆盖</option>
+						 <option value="N">不覆盖</option>
+					 </select>
+				 </div>
+			 </div>
+          <div class="control-group span15">
+            <label class="control-label">导入:</label>
+            <div class="controls control-row4">
+              <input type="file" name="file"/>
+            </div>
+           </div>
+          </div>
+	  </form>
+	</div>
+</body>
+<script type="text/javascript">
+	var empSecHtml = $("#empSec_div").html();
+	var empSecLabelHtml = $("#empSec_span").html();
+	var empSecLabelHtml_ = "人员密级";
+
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+
+	var empform = new BUI.Form.Form({
+		srcNode : '#EMP_Form'
+	}).render();
+
+	var empformtest = new BUI.Form.Form({
+		srcNode : '#EMP_Formtest'
+	}).render();
+
+	var empform1 = new BUI.Form.Form({
+		srcNode : '#importform'
+	}).render();
+
+	$("#cardcode").blur(function(){
+		var cardcode = $("#cardcode").val();
+		var empVal = $("#empid").val();
+		var chaVal = $("#chaid").val();
+
+		var emp={empid:empVal,cardcode:cardcode,chaid:chaVal};
+		$.ajax({
+			url : '${rc.contextPath}/emp/op/selectEmpCardCode',
+          	dataType : 'json',
+          	contentType : 'application/json',
+          	type : 'get',
+          	data :emp,
+            success : function(data){
+            	if(data=="iminone"){}
+            	else if(data == "imaxone"){
+                   BUI.Message.Alert('系统中存在有相同卡号人员，不能使用重复卡号');
+                   $("input[name='cardcode']").val("").focus();
+            	}else if(data == "jmaxone"){
+           		   BUI.Message.Alert('输入的人员在回收站中未删除，如果使用该卡号，请到回收站中将所占用卡号人员彻底删除');
+                   $("input[name='cardcode']").val("").focus();
+            	}
+			}
+		})
+	})
+
+	$("#code").blur(function(){
+		var codeVal = $("#code").val();
+		var empVal = $("#empid").val();
+		var chaVal = $("#chaid").val();
+
+		var reg = new RegExp("[\\u4E00-\\u9FFF]+","g");
+		var regSign = /[~_#^$@%&!?%*]/gi;
+	　　  if(regSign.test(codeVal)){
+		  BUI.Message.Alert('不允许使用特殊符号，请重新输入字母或数字');
+		  $("#code").val("");
+	　　  }else{
+		  var emp={empid:empVal,code:codeVal,chaid:chaVal};
+			$.ajax({
+				url : '${rc.contextPath}/emp/op/selectEmpCode',
+	          	dataType : 'json',
+	          	contentType : 'application/json',
+	          	type : 'get',
+	          	data :emp,
+	            success : function(data){
+	            	if(data=="iminone"){}
+	            	else if(data == "imaxone"){
+	                   BUI.Message.Alert('系统中存在有相同编号人员，不能使用重复编号');
+	                   $("input[name='code']").val("").focus();
+	            	}else if(data == "jmaxone"){
+	           		   BUI.Message.Alert('输入的人员在回收站中未删除，如果使用该编号，请到回收站中将所占用编号人员彻底删除');
+	                   $("input[name='code']").val("").focus();
+	            	}else{}
+				}
+			})
+	　　  }
+	});
+
+	var result = {};
+
+	function getSecShow(sec){
+		if(result[sec]==""||result[sec]==null){
+			return "未知"
+		}else{
+			return result[sec];
+		}
+	}
+
+	$(function(){
+		getInitSelectData();
+	})
+
+	/* 动态获取密级数据 */
+	function getInitSelectData(){
+		$.ajax({
+		    type:"GET",
+		    url:"${rc.contextPath}/secc/secNameUser",
+		    dataType:"json",
+		    success:function(data){
+		    	$("<option value='0'>无</option>").appendTo("#secT");
+		    	result[0] = '无';
+		        if(data != null && data.length > 0){
+		            for(var i = 0; i< data.length; i++){
+		                $("<option value='"+data[i].secId+"'>"+data[i].secNameuser+"</option>").appendTo("#secT");
+		                var demo = data[i].secId;
+		                result[demo]=data[i].secNameuser;
+		            }
+		        }
+		    },
+		});
+	}
+
+	//插件初始化
+	BUI.use('common/search',function (Search) {
+		var empediting1 = new BUI.Overlay.Dialog({
+    		title:'人员导入操作（Excel）',
+    		width:440,
+    		height:300,
+        	contentId : 'empcontent1', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                    		var orgid = '$!{orgid}';
+                    		empform1.setFieldValue('orgid',orgid);
+                        	empform1.submit();
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                          parent.location.reload();
+                        }
+                      }
+              ]
+      	}),
+		 empediting = new BUI.Overlay.Dialog({
+    		title:'人员导入操作',
+    		width:440,
+    		height:300,
+        	contentId : 'empcontent', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	empform.submit();
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+		empeditingtest = new BUI.Overlay.Dialog({
+   		title:'人员导入操作',
+   		width:440,
+   		height:300,
+       	contentId : 'empcontenttest', //设置隐藏的Dialog内容
+       	autoSave : true, //添加数据或者修改数据时，自动保存
+       	buttons:[
+                     {
+                       text:'提交',
+                       elCls : 'button button-primary',
+                       handler : function(){
+                       	empformtest.submit();
+                       }
+                     },{
+                       text:'关闭',
+                       elCls : 'button',
+                       handler : function(){
+                         this.close();
+                       }
+                     }
+             ]
+     	}),
+      	editing = new BUI.Overlay.Dialog({
+    		title:'操作',
+    		width:880,
+    		height:450,
+        	contentId : 'content', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var codeVal = $("#code").val();
+                    		var empVal = $("#empid").val();
+                    		var chaVal = $("#chaid").val();
+                    		var emp={empid:empVal,code:codeVal,chaid:chaVal};
+                    		$.ajax({
+                    			url : '${rc.contextPath}/emp/op/selectEmpCode',
+                              	dataType : 'json',
+                              	contentType : 'application/json',
+                              	type : 'get',
+                              	data :emp,
+                                success : function(data){
+                                	if(data=="iminone"){
+                                		var cardcode = $("#cardcode").val();
+                                		var empVal = $("#code").val();
+                                		var chaVal = $("#chaid").val();
+
+                                		var emp={code:empVal,cardcode:cardcode,chaid:chaVal};
+                                		$.ajax({
+                                			url : '${rc.contextPath}/emp/op/selectEmpCardCode',
+                                          	dataType : 'json',
+                                          	contentType : 'application/json',
+                                          	type : 'get',
+                                          	data :emp,
+                                            success : function(data){
+                                            	if(data=="iminone"){
+                                            		form.submit();
+                                            	}
+                                            	else if(data == "imaxone"){
+                                                   BUI.Message.Alert('系统中存在有相同卡号人员，不能使用重复卡号');
+                                                   $("input[name='cardcode']").val("").focus();
+                                            	}else if(data == "jmaxone"){
+                                           		   BUI.Message.Alert('输入的人员在回收站中未删除，如果使用该卡号，请到回收站中将所占用卡号人员彻底删除');
+                                                   $("input[name='cardcode']").val("").focus();
+                                            	}
+                                			}
+                                		})
+                                    }else if(data == "imaxone"){
+                                       BUI.Message.Alert('系统中存在有相同编号人员，不能使用重复编号');
+                                       $("input[name='code']").val("").focus();
+                                	}else if(data == "jmaxone"){
+                               		   BUI.Message.Alert('输入的人员在回收站中未删除，如果使用该编号，请到回收站中将所占用编号人员彻底删除');
+                                       $("input[name='code']").val("").focus();
+                                	}
+                    			}
+                    		})
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),showing = new BUI.Overlay.Dialog({
+    		title:'人员详细信息',
+    		width:880,
+    		height:450,
+        	contentId : 'show', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+      	orgEditing = new BUI.Overlay.Dialog({
+    		title:'人员组织机构归属操作',
+    		width:838,
+    		height:452,
+        	contentId : 'Orgcontent', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          search.load();
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+      	empOrgEditing = new BUI.Overlay.Dialog({
+    		title:'人员组织机构归属操作',
+    		width:838,
+    		height:452,
+        	contentId : 'EmpOrgcontent', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+					    text:'移动',
+					    elCls : 'button button-primary',
+					    handler : function(){
+					    	document.getElementById("orgAttribution1").contentWindow.test()
+					    }
+					  },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          search.load();
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+      	//表格的行
+      	columns = [
+			{title:'主键ID',dataIndex:'empid',visible:false,width:0},
+			{title:'岗位',dataIndex:'post',visible:false,width:0},
+          	{title:'用户账号',dataIndex:'code',width:80,renderer:function(value,obj){
+
+          		return '<span class="grid-command btn-edit">'+value+'</span>';
+          	}},
+          	{title:'中文名',dataIndex:'name',width:60},
+          	{title:'密级',dataIndex:'sec',width:40,renderer:function(value,obj){
+          		var secv_ = obj.secv_;
+          		if(secv_==value){
+          			return getSecShow(value);
+          		}else{
+          			return "<span class='secClass' title='密级被篡改，篡改前为["+getSecShow(secv_)+"]，篡改后为["+getSecShow(value)+"]'>"+getSecShow(value)+"</span>";
+          		}
+          	}},
+            {title:'类型',dataIndex:'iskeepparttime',width:40,renderer:function(value){
+            	if(value=='y'){
+            		return "兼职";
+            	}else{
+            		return "主职";
+            	}
+            }},
+            {title:'工号',dataIndex:'cardcode',width:150},
+          	{title:'电子邮箱',dataIndex:'email',width:180},
+          	{title:'手机号',dataIndex:'mobileno',width:100},
+          	{title:'创建人',dataIndex:'creator',width:70},
+          	{title:'创建日期',dataIndex:'createtime',width:80,renderer:BUI.Grid.Format.datetimeRenderer},
+          	{title:'更新人',dataIndex:'updator',width:70},
+          	{title:'更新日期',dataIndex:'modytime',width:80,renderer:BUI.Grid.Format.datetimeRenderer},
+          	{title:'状态',dataIndex:'status',width:60,renderer:function(value){
+          		if(value==null||value==""){
+          			return "正常";
+          		}else{
+          			return "锁定";
+          		}
+          	}}
+        ],
+
+        //搜索的项
+        searchURL = '${rc.contextPath}/emp/op/queryEmpsByPage?orgid=$!{orgid}',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'{orgid:$!{orgid}}',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true //保存数据后，自动更新
+      	}),
+
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit : true,
+        	tbar : {
+          		items : [
+				{
+				    btnCls : 'button button-small',
+				    text : '<i class="icon-plus"></i>新建',
+				    listeners : {
+				      'click' : addFunction
+				    }
+				  },
+				{
+				  	btnCls : 'button button-small',
+				    text : '<i class="icon-edit"></i>编辑',
+				    listeners : {
+				      'click' : editFunction
+				    }
+				},
+				{
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-remove"></i>删除',
+				      listeners : {
+				          'click' : delFunction
+				      }
+				  },
+				{
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-home"></i>兼职主职归属',
+				      listeners : {
+				          'click' : keepFunction
+				      }
+				  },
+				  /* {
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-edit"></i>性能测试人员创建',
+				      listeners : {
+				          'click' : importEMPtest
+				      }
+				  }, */
+				  {
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-resize-small"></i>人员部门调整',
+				      listeners : {
+				          'click' : oeresizeFunction
+				      }
+				  },
+				  {
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-edit"></i>Excel人员导入',
+				      listeners : {
+				          'click' : importEMP1
+				      }
+				  },{
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-edit"></i>人员加锁',
+				      listeners : {
+				          'click' : userLock
+				      }
+				  }
+          		]
+        	},
+        	plugins : [editing,BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] // 插件形式引入多选表格
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+
+    	grid.on('cellclick',function(ev){
+	          var record = ev.record, //点击行的记录
+	          field = ev.field, //点击对应列的dataIndex
+	          target = $(ev.domTarget); //点击的元素
+
+	          if(target.hasClass('btn-edit')){
+				  var emp={"empcode":record.code};
+				  $.ajax({
+					  url: '${rc.contextPath}/emp/getEmpObjByCode',
+					  dataType: 'json',
+					  contentType: 'application/json',
+					  type: 'get',
+					  data: emp,
+					  success: function (data) {
+						  if(data.sec==data.secv_){
+							  $("#sec_show").text(getSecShow(data.sec));
+						  }else{
+							  $("#sec_show").html("<span style='color:red;' title='密级被篡改，篡改前为["+getSecShow(data.secv_)+"]，篡改后为["+getSecShow(data.sec)+"]'>"+getSecShow(data.sec)+"</span>");
+						  }
+
+						  if(data.empindex==null){
+							  $("#empindex_show").text("");
+						  }else{
+							  $("#empindex_show").text(data.empindex);
+						  }
+
+						  if(data.code==null){
+							  $("#code_show").text("");
+						  }else{
+							  $("#code_show").text(data.code);
+						  }
+						  if(data.name==null){
+							  $("#name_show").text("");
+						  }else{
+							  $("#name_show").text(data.name);
+						  }
+						  if(data.englishname==null){
+							  $("#englishname_show").text("");
+						  }else{
+							  $("#englishname_show").text(data.englishname);
+						  }
+						  if(data.sex==null){
+							  $("#sex_show").text("");
+						  }else if(data.sex == 0){
+							  $("#sex_show").text("男");
+						  }else {
+							  $("#sex_show").text("女");
+						  }
+						  if(data.birthday==null){
+							  $("#birthday_show").text("");
+						  }else{
+							  $("#birthday_show").text(BUI.Grid.Format.dateRenderer(data.birthday));
+						  }
+						  if(data.status==null || data.status==""){
+							  $("#status_show").text("正常");
+						  }else{
+							  $("#status_show").text(data.status);
+						  }
+						  if(data.indate==null){
+							  $("#indate_show").text("");
+						  }else{
+							  $("#indate_show").text(BUI.Grid.Format.dateRenderer(data.indate));
+						  }
+						  if(data.outdate==null){
+							  $("#outdate_show").text("");
+						  }else{
+							  $("#outdate_show").text(BUI.Grid.Format.dateRenderer(data.outdate));
+						  }
+						  if(data.otel==null){
+							  $("#otel_show").text("");
+						  }else{
+							  $("#otel_show").text(data.otel);
+						  }
+						  if(data.oaddress==null){
+							  $("#oaddress_show").text("");
+						  }else{
+							  $("#oaddress_show").text(data.oaddress);
+						  }
+						  if(data.zipcode==null){
+							  $("#zipcode_show").text("");
+						  }else{
+							  $("#zipcode_show").text(data.zipcode);
+						  }
+						  if(data.email==null){
+							  $("#email_show").text("");
+						  }else{
+							  $("#email_show").text(data.email);
+						  }
+						  if(data.faxno==null){
+							  $("#faxno_show").text("");
+						  }else{
+							  $("#faxno_show").text(data.faxno);
+						  }
+						  if(data.mobileno==null){
+							  $("#mobileno_show").text("");
+						  }else{
+							  $("#mobileno_show").text(data.mobileno);
+						  }
+						  if(data.creator==null){
+							  $("#creator_show").text("");
+						  }else{
+							  $("#creator_show").text(data.creator);
+						  }
+						  if(data.createtime==null){
+							  $("#createtime_show").text("");
+						  }else{
+							  $("#createtime_show").text(BUI.Grid.Format.datetimeRenderer(data.createtime));
+						  }
+						  if(data.updator==null){
+							  $("#updator_show").text("");
+						  }else{
+							  $("#updator_show").text(data.updator);
+						  }
+						  if(data.cardcode==null){
+							  $("#cardcode_show").text("");
+						  }else{
+							  $("#cardcode_show").text(data.cardcode);
+						  }
+						  if(data.modytime==null){
+							  $("#modytime_show").text("");
+						  }else{
+							  $("#modytime_show").text(BUI.Grid.Format.datetimeRenderer(data.modytime));
+						  }
+						  if(data.post==null){
+							  $("#post").text("");
+						  }else{
+							  $("#post").text(data.post);
+						  }
+						  if(data.remark==null){
+							  $("#remark_show").text("");
+						  }else{
+							  $("#remark_show").text(data.remark);
+						  }
+						  showing.show();
+					  }
+				  });
+	          }
+	 	});
+
+    	function keepFunction(){
+    		var selection = grid.getSelected();
+    		if(selection==null){
+    			BUI.Message.Alert("请选择一条人员记录");
+    		}else{
+    			$('#orgAttribution').attr('src','${rc.contextPath}/emp/op/orgAttribution?empid='+selection.empid+'&orgid='+selection.orgid+'&name='+selection.name+'&orgname='+selection.orgname);
+    			orgEditing.show();
+    		}
+    	}
+
+    	function userLock(){
+    		var selections = grid.getSelection();
+      		if(selections==""){
+      			BUI.Message.Alert("请选择要加锁的人员集");
+      		}else{
+      			lockItems(selections);
+      		}
+    	}
+
+    	function lockItems(items){
+    		var ids = [];
+      		BUI.each(items,function(item){
+      			ids.push({empid:item.empid,code:item.code});
+      		});
+      		if(ids.length){
+       			$.ajax({
+     					url : '${rc.contextPath}/safestrategy/lockUser',
+     	              	dataType : 'json',
+     	              	contentType : 'application/json',
+     	              	type : 'post',
+     	              	data : JSON.stringify(ids),
+     	                success : function(data){
+     	                	if(data=="success"){
+    	                  	   		BUI.Message.Alert('加锁成功！');
+    	                         	search.load();
+    	                        }else{
+    	                            BUI.Message.Alert('加锁失败！');
+    	                       	}
+     	                 }
+     	        });
+      		}
+    	}
+
+    	function addFunction(){
+    		$("#empSec_div").html(empSecHtml);
+    		$("#empSec_span").html(empSecLabelHtml);
+    		getInitSelectData();
+    		var orgid = '$!{orgid}';
+    		if(orgid == null || orgid == "-1"){
+    			BUI.Message.Alert("请选择要新建人员的部门");
+    		}else{
+    			form.clearFields();
+    			$('#code').attr('readonly',false);
+        		form.setFieldValue('orgid',orgid);
+        		editing.show();
+    		}
+    	}
+
+    	function oeresizeFunction(){
+    		$('#orgAttribution1').attr('src','${rc.contextPath}/org/op/emporgTranfor');
+    		empOrgEditing.show();
+    	}
+
+    	function editFunction(){
+    		var selection = grid.getSelected();
+    		if(selection==null){
+    			BUI.Message.Alert("请选择要编辑的数据");
+    		}else{
+				var emp={"empcode":selection.code};
+				$.ajax({
+					url : '${rc.contextPath}/emp/getEmpObjByCode',
+					dataType : 'json',
+					contentType : 'application/json',
+					type : 'get',
+					data :emp,
+					success : function(data){
+						var secT = data.sec;
+						$("#empSec_div").html("");
+						$("#empSec_span").html(empSecLabelHtml_);
+
+						if(result[secT]==""||result[secT]==null){
+							$("#empSec_div").html("<input type='hidden' name='sec' value='"+secT+"'/>"+"未知");
+						}else{
+							$("#empSec_div").html("<input type='hidden' name='sec' value='"+secT+"'/>"+result[secT]);
+						}
+						// var orgid = '$!{orgid}';
+						form.setFieldValue('empid',data.empid);
+						$('#code').attr('readonly',true);
+						form.setFieldValue('code',data.code);
+						form.setFieldValue('empindex',data.empindex);
+						form.setFieldValue('oldcode',data.code);
+						form.setFieldValue('name',data.name);
+						form.setFieldValue('englishname',data.englishname);
+						form.setFieldValue('sex',data.sex);
+						form.setFieldValue('birthday',data.birthday);
+						form.setFieldValue('indate',data.indate);
+						form.setFieldValue('outdate',data.outdate);
+						form.setFieldValue('otel',data.otel);
+						form.setFieldValue('oaddress',data.oaddress);
+						form.setFieldValue('zipcode',data.zipcode);
+						form.setFieldValue('email',data.email);
+						form.setFieldValue('faxno',data.faxno);
+						form.setFieldValue('mobileno',data.mobileno);
+						form.setFieldValue('faxno',data.faxno);
+						form.setFieldValue('remark',data.remark);
+						form.setFieldValue('post',data.post);
+						form.setFieldValue('sec',data.sec);
+						form.setFieldValue('cardcode',data.cardcode);
+						form.setFieldValue('orgid',data.orgid);
+						editing.show();
+					}
+				})
+
+			}
+		}
+
+    	//删除操作
+    	function delFunction(){
+      		var selections = grid.getSelection();
+      		if(selections==""){
+      			BUI.Message.Alert("请选择要删除的数据");
+      		}else{
+      			delItems(selections);
+      		}
+    	}
+    	
+    	//导入人员
+    	function importEMP(){
+    		empediting.show();
+    	}
+    	
+    	//导入人员
+    	function importEMPtest(){
+    		empeditingtest.show();
+    	}
+    	
+    	//导入人员
+    	function importEMP1(){
+    		empediting1.show();
+    	}
+
+    	function delItems(items){
+      		var ids = [];
+      		BUI.each(items,function(item){
+      			ids.push({empid:item.empid,code:item.code,iskeepparttime:item.iskeepparttime,orgid:'$!{orgid}'});
+      		});
+      		if(ids.length){
+        		BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+          			$.ajax({
+        					url : '${rc.contextPath}/emp/op/delEmpAddY',
+        	              	dataType : 'json',
+        	              	contentType : 'application/json',
+        	              	type : 'post',
+        	              	data : JSON.stringify(ids),
+        	                success : function(data){
+        	                	if(data=="success"){ 
+       	                  	   		BUI.Message.Alert('删除成功！');
+       	                         	search.load();
+       	                        }else{
+       	                            BUI.Message.Alert('删除失败！');
+       	                       	}
+        	                 }
+        	        });
+          		},'question');
+      		}
+    	}
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#code1,#name1').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+
+	 	resizeMe();
+	});
+	
+    //导出已有权限模版
+    function exportFunc(){
+    	$.ajax({
+			url: '${rc.contextPath}/funcm/exportExcel?ty=excel',
+			dataType : 'json',
+          	type : 'post',
+          	contentType : 'application/json',
+            success : function(data){
+				var dataObj = eval("("+data+")");
+				window.open("${rc.contextPath}/wood/file/not/crypto/downloadnotDel?fileUrl="+dataObj.filepath+"&fileName=Excel人员导入模版.xls");
+            }
+		})
+    }
+
+	$(document).ready(function(){
+	    var re='$!{re}';
+	    if(re!=""){
+	        if(re=="success"){
+                BUI.Message.Alert("导入人员成功");
+                re = "";
+			}else{
+                BUI.Message.Alert(re);
+			}
+
+		}
+	})
+</script>
+</html>

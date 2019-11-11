@@ -1,0 +1,194 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+ 	<link rel="shortcut icon" href="${rc.contextPath}/favicon.ico" type="image/x-icon"/>
+  	<title>BPS&nbsp;业务流程管理系统</title>
+   	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   	<link href="${rc.contextPath}/css/bui/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   	<link href="${rc.contextPath}/css/bui/css/bui-min.css" rel="stylesheet" type="text/css" />
+   	<link href="${rc.contextPath}/css/bui/css/main-min.css" rel="stylesheet" type="text/css" />
+   	<style type="text/css">
+   		.bui-dialog .bui-stdmod-body {
+		    background-color: #fff;
+		    border: 1px solid #c3c3d6;
+		    margin: 0 0px;
+		    padding: 0px;
+		}
+		.control-label{
+			text-align: none;
+		}
+   	</style>
+</head>
+<body>
+  <div class="header">
+    <div class="dl-title">
+      	<span class="lp-title-port">BPS&nbsp;</span><span class="dl-title-text">业务流程管理系统</span>
+    </div>
+    <div class="dl-log">
+    	<span id="systemTime" style="color:red;"></span>&nbsp;&nbsp;
+    	欢迎您，<span class="dl-log-user">$session.getAttribute("userName")-[$session.getAttribute("userCode")]</span>！
+    	<a href="javascript:void(0)" onclick="changeMePWD()" title="修改密码" class="dl-log-quit">[修改密码]</a>
+    	<a href="javascript:void(0)" onclick="logout()" title="退出系统" class="dl-log-quit">[退出]</a>
+    </div>
+  </div>
+   <div class="content">
+    <div class="dl-main-nav">
+      <div class="dl-inform"><div class="dl-inform-title">贴心小秘书<s class="dl-inform-icon dl-up"></s></div></div>
+      <ul id="J_Nav"  class="nav-list ks-clear">
+        <!-- li class="nav-item dl-selected"><div class="nav-item-inner nav-home">首页</div></li-->
+        <li class="nav-item dl-selected"><div class="nav-item-inner nav-home">任务管理</div></li>
+        <li class="nav-item"><div class="nav-item-inner nav-order">流程实例管理</div></li>
+        <li class="nav-item"><div class="nav-item-inner nav-marketing">流程定义管理</div></li>
+        <li class="nav-item"><div class="nav-item-inner nav-order">其他管理</div></li>
+        <li class="nav-item" style="display:none"><div class="nav-item-inner nav-order">示例</div></li>
+      </ul>
+    </div>
+    <ul id="J_NavContent" class="dl-tab-conten">
+
+    </ul>
+   </div>
+   <div id="changePWD" class="hide">
+    <iframe src="" id="userPWDChange" name="userPWDChange" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+   </div>
+</body>
+<script type="text/javascript" src="${rc.contextPath}/js/bui/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/bui/bui.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/bui/config.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/bui/common/main-min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/qms-common.js"></script>
+<script>
+	var timer;
+	$(function(){
+		$("#systemTime").html(getSystemTime());
+		timer = setInterval(function(){
+			$("#systemTime").html(getSystemTime());
+		},100);
+	});
+	
+	function logout(){
+		window.clearInterval(timer);
+		window.location.href = "${rc.contextPath}/user/logout";
+	}
+	
+	var changePWD;
+	BUI.use('common/main',function(){
+		var config = [{
+			id:'runningManage',//运行管理
+			homePage:'running',
+			menu:[
+			 /**{
+				text:'待办任务',
+				items:[
+					{id:'nosign',text:'未签收任务',href:'${rc.contextPath}/redirectPage/process/task-nosignlist'},
+					{id:'sign',text:'已签收任务',href:'${rc.contextPath}/redirectPage/process/task-signlist'}
+				]
+			  },{
+					text:'协办任务',
+					items:[
+						{id:'deputePending',text:'正在协办任务',href:'${rc.contextPath}/redirectPage/process/task-pendinglist'},
+						{id:'deputeResolved',text:'协办结束任务',href:'${rc.contextPath}/redirectPage/process/task-resolvedlist'}
+					]
+				},{
+					text:'运行中',
+					items:[
+						{id:'running',text:'运行中任务',href:'${rc.contextPath}/redirectPage/process/task-running'}
+					]
+				},
+				**/
+				{
+					text:'执行中',
+					items:[
+						   //{id:'nosign',text:'未签收',href:'${rc.contextPath}/redirectPage/process/task-nosignlist'},
+						   //{id:'sign',text:'已签收',href:'${rc.contextPath}/redirectPage/process/task-signlist'},
+						   {id:'running',text:'运行中',href:'${rc.contextPath}/redirectPage/process/task-running'}
+					]
+				},
+				  {
+					text:'已完成',
+					items:[
+						{id:'ended',text:'已完成任务',href:'${rc.contextPath}/redirectPage/process/task-finished'}
+					]
+				}
+			]
+		},{
+			id:'manageInstance',//匹配一级菜单项【管理模块】
+			homePage:'manageInOp',
+			menu:[{
+				text:'流程实例管理',
+				items:[
+					{id:'manageInOp',text:'运行流程实例',href:'${rc.contextPath}/redirectPage/process/runing-manage'},
+					{id:'manageInOp1',text:'已完成流程实例',href:'${rc.contextPath}/redirectPage/process/procfinished-list'},
+					/* {id:'manageWorkMng',text:'作业管理',href:'${rc.contextPath}/redirectPage/process/job-list'}, */
+					{id:'manageDepute',text:'委托设置',href:'${rc.contextPath}/redirectPage/process/depute-list'}
+				]
+			}]
+		},{
+			id:'manageDefine',//匹配一级菜单项【管理模块】
+			homePage:'manageProcDefAndDploy',
+			menu:[{
+				text:'流程定义管理',
+				items:[
+					{id:'manageProcDefAndDploy',text:'流程定义及部署',href:'${rc.contextPath}/process/def-list',closeable:false},
+					{id:'manageModel',text:'流程模型管理',href:'${rc.contextPath}/redirectPage/process/model-listAll'},
+					{id:'managePreview',text:'任务描述设置',href:'${rc.contextPath}/redirectPage/process/preview-list'}
+				]
+			}]
+		},{
+			id:'manageOther',//匹配一级菜单项【管理模块】
+			homePage:'manageEnginAttr',
+			menu:[{
+				text:'引擎管理',
+				items:[
+					{id:'manageEnginAttr',text:'引擎属性',href:'${rc.contextPath}/management/engine'},
+					{id:'manageEnginDB',text:'引擎数据库',href:'${rc.contextPath}/management/database'}
+				]
+			}]
+		},{
+			id:'commonForm',//匹配一级菜单项【普通表单】
+			homePage:'leaveApply',
+			menu:[{
+				text:'任务示例_流程操作',
+				items:[
+					{id:'leaveApply',text:'请假申请',href:'${rc.contextPath}/redirectPage/example/leaveApply',closeable:false},
+					{id:'leaveHandle',text:'请假办理',href:'${rc.contextPath}/redirectPage/example/task-list'},
+					{id:'leaveInOp',text:'运行中流程',href:'${rc.contextPath}/redirectPage/example/leave-running-list'},
+					{id:'leaveHasEnd',text:'已结束流程',href:'${rc.contextPath}/redirectPage/example/leave-finished-list'}
+				]
+			},{
+				text:'任务台',
+				items:[
+					{id:'todo',text:'待办任务',href:'${rc.contextPath}/redirectPage/example/task-toDoList'},
+					{id:'finishedT',text:'已办任务',href:'${rc.contextPath}/redirectPage/example/task-finishedByMe'},
+					{id:'startByMe',text:'我发起的实例',href:'${rc.contextPath}/redirectPage/example/task-startByMe'}
+				]
+			}]
+		
+
+		}];
+		changePWD = new BUI.Overlay.Dialog({
+    		title:'密码变更',
+    		width:880,
+    		height:500,
+        	contentId : 'changePWD', //设置隐藏的Dialog内容
+        	autoSave : true, //添加数据或者修改数据时，自动保存
+        	buttons:[
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	});
+		new PageUtil.MainPage({
+			modulesConfig : config
+		});
+	});
+	
+	function changeMePWD(){
+		$('#userPWDChange').attr('src','${rc.contextPath}/framework/changepwd');
+		changePWD.show();
+	}
+</script>
+</html>

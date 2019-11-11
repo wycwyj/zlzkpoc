@@ -1,0 +1,158 @@
+<!-- ${rc.contextPath}/process/def-list.html -->
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>搜索表单</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .container {
+     padding:0px;
+    }
+   </style>
+ </head>
+ <body>
+  
+  <div class="container">
+
+    <div class="search-grid-container">
+      <div id="grid"></div>
+    </div>
+  </div>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+  
+<script type="text/javascript">
+  BUI.use(['common/search'],function (Search) {
+    var columns = [
+          {title:'作业ID',dataIndex:'id',width:80},
+          {title:'作业类型',dataIndex:'jobHandlerType',width:100},
+          {title:'预定时间',dataIndex:'duedate',width:130,renderer:BUI.Grid.Format.datetimeRenderer},
+          {title:'可重试次数',dataIndex:'retries',width:80},
+          {title:'流程定义ID',dataIndex:'processDefinitionId',width:90},
+          {title:'流程实例ID',dataIndex:'processInstanceId',width:90},
+          {title:'执行ID',dataIndex:'executionId',width:90},
+          {title:'异常消息',dataIndex:'exceptionMessage',width:160},
+          {title:'作业配置信息',dataIndex:'jobHandlerConfiguration',width:160},
+          {title:'操作',dataIndex:'',width:155,renderer:function(v,obj){
+              var doStr = '<span class="grid-command btn-execute" title="执行">执行</span>',//
+                 editStr = '<span class="grid-command btn-executeTime" title="执行次数">执行次数</span>',//
+                 delStr = '<span class="grid-command btn-del" title="删除记录">删除</span>';//
+              return doStr + editStr + delStr;
+          }}
+        ],
+      store = Search.createStore('${rc.contextPath}/management/job/list',{
+        proxy:{
+          autoLoad:true,
+          dataType:'json',
+          contentType:"application/json"
+        },
+        pageSize : 5,	// 配置分页数目
+        autoSync:true //保存数据后，自动更新
+      }),
+      gridCfg = Search.createGridCfg(columns,{
+           plugins : [BUI.Grid.Plugins.RowNumber,BUI.Grid.Plugins.AutoFit]// 插件形式引入多选表格
+      });
+
+    var  search = new Search({
+        store : store,
+        gridCfg : gridCfg,
+       bbar:{
+            // pagingBar:表明包含分页栏
+            pagingBar:true
+        }
+      }),
+      grid = search.get('grid');
+
+    function delItems(items){
+        var ids = [];
+        BUI.each(items,function(item){
+          ids.push(item.def_deployid);
+        });
+        if(ids.length){
+            BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+            $.ajax({
+              url : '${rc.contextPath}/management/job/delete/'+ids,
+              dataType : 'json',
+              success : function(data){//
+               if(data=="success"){ //删除成功
+            	   BUI.Message.Alert('删除成功！');
+                   search.load();
+                  }else{ //删除失败
+                      BUI.Message.Alert('删除失败！');
+                 }
+              }
+          });
+          },'question');
+        }
+      }
+    
+    function execute_(items){
+    	BUI.each(items,function(item){
+            $.ajax({
+              url : '${rc.contextPath}/management/job/execute/'+item.id,
+              dataType : 'json',
+              success : function(data){//
+                  if(data=="success"){ //
+                	  BUI.Message.Alert('执行成功！');
+                      search.load();
+                  }else{ 
+                      BUI.Message.Alert('执行失败！');
+                 }
+              }
+          });
+   
+        });
+      }
+    function executeTime_(items){
+    	var retries = prompt('请输入重试次数：');
+    	BUI.each(items,function(item){
+            $.ajax({
+              url : '${rc.contextPath}/management/job/change/retries/'+item.id,
+              dataType : 'json',
+              data : {retries:''+retries+''},
+              success : function(data){//
+                  if(data=="success"){ //
+                	  BUI.Message.Alert('执行成功！');
+                      search.load();
+                  }else{ 
+                      BUI.Message.Alert('执行失败！');
+                 }
+              }
+          });
+   
+        });
+      } 
+    
+    //监听事件，删除一条记录
+    grid.on('cellclick',function(ev){
+      var sender = $(ev.domTarget); //点击的Dom
+      if(sender.hasClass('btn-del')){
+        var record = ev.record;
+        delItems([record]);
+      }else if(sender.hasClass('btn-execute')){
+          var record = ev.record;
+          execute_([record]);
+        }else if(sender.hasClass('btn-executeTime')){
+            var record = ev.record;
+            executeTime_([record]);
+          }
+    });
+  });
+</script>
+</body>
+</html>  
+

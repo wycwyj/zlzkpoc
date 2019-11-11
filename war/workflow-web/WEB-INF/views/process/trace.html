@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+
+ <style type="text/css">  
+    .activity-attr{border-radius: 10px; border: 3px solid blue; transition:ease-out 0.5s; box-shadow:0px 0px 9px red;}  
+     #flowImageAndRect{position: relative;heibackground-image: url('${rc.contextPath}/resources/images/workflow/grid_10.png')}  //overflow: scroll; 
+     body,html{margin: 0px;padding:0px;} 
+</style>  
+        <script type="text/javascript">  
+            $(function(){  
+                var procDefId = '${procDefId}'; //   
+                var procIstid = '${procIstid}'; // 
+                var $flowImageAndRect = $('#flowImageAndRect');  
+               // $('#processKey').html('流程定义Key --> ' + procDefId);  
+                // 加载流程图片  
+                loadProcessImage(procDefId,procIstid,$flowImageAndRect);  
+                // 加载各节点信息，最终实现，在点击图片上的各节点时，出现高亮  
+                setTimeout(function(){  
+                    loadProcessTrace(procDefId,procIstid,$flowImageAndRect);  
+                },200);  
+                  
+                var $revClickRect = null; // 上次点击的图形  
+                // 绑定click事件，点击实现，只有点击的不是同一个时，才显示红色的边框（如果多次点击同一个，红色的边框只出现一次）  
+                $('#flowImageAndRect').off('click').on('click','.activity-attr',function(e){  
+                    var $this = $(this);  
+                    var prevFlag = false; // 是上一个图形，避免多次点击同一个  
+                    if($revClickRect){ // 说明不是第一次点击  
+                        prevFlag = ($revClickRect.attr('actId')!=$this.attr('actId')||$('#info').is(":hidden")) ? false : true;// 说明2次点击的不是同一个  或者同一个节点，显示内容为隐藏
+                        if(!prevFlag)  
+                            $revClickRect.css('opacity','0');  
+                    }  
+                    if(!prevFlag){ // 此处可以请求后台，加载相关的数据（多次点击同一个，下方可确保只执行一次）  
+                        $this.css('opacity','1'); // 显示当前的  
+                        $revClickRect = $this; // 将当前设置为上次点击的  
+                       var traceUrl = '${rc.contextPath}/workflow/task/getPointInfo?procDefId='+procDefId+'&procIstid='+procIstid+'&actId='+$this.attr('actId');  
+                        $.getJSON(traceUrl,function(infos){  
+                            var html = '<table class="table table-bordered table-hover table-condensed"><tr ><th>节点ID</th><th>节点名称</th><th>任务ID</th><th>任务处理人员</th><th>任务开始时间</th><th>任务结束时间</th></tr>';
+                            /* <th>流程定义ID</th><th>流程实例ID</th></tr> */ 
+                            $.each(infos,function(i,v){  
+                              html +='<tr><td>'+$this.attr('actId') +'</td>'+
+                              '<td>'+$this.attr('name')+'</td>'+
+                              '<td>'+v.taskId+'</td>'+
+                              '<td>'+v.assignee+'</td>'+
+        			          '<td>'+v.starttime+'</td>'+
+        			          '<td>'+v.endtime+'</td>'+
+        			          /* '<td>'+v.defId+'</td>'+
+        			          '<td>'+procIstid+'</td>'+ */
+        			          '</tr>';  
+                            });  
+                            html+='</table>';
+                            $('#info').html(html);
+                            $('#info').show();
+                        });  
+                        
+                        var x=parseInt($this.attr('x'))+parseInt($this.css('width'))/2;
+                        var y=parseInt($this.attr('y'))+parseInt($this.css('height'))/2;
+                        if(isNaN(x)){
+                        	x=parseInt($this.attr('x'));
+                        }
+                        if(isNaN(y)){
+                        	y=parseInt($this.attr('y'));
+                        }
+                      $('#info').css({  
+                    	    position: 'absolute', 
+                            left: x+'px',  
+                            top:  y+'px',
+                            width: '500px',  
+                            height:'180px',  
+                            overflow: 'scroll',
+                            opacity: 1,  
+                            zIndex: '200',
+                            backgroundColor: '#d1c7b7',
+                            cursor : 'pointer'  
+                        });
+                      
+                      
+                      var height1=$(window).height();
+                      $('#flowImageAndRect').css({
+                      	overflow: 'scroll',
+                      	height  : height1+'px'
+                      });
+                    }  
+                });  
+            });  
+               
+            /** 
+             * 加载图片 
+             */  
+            function loadProcessImage(procDefId,procIstid,$flowImageAndRect){ 
+            	 var imageUrl = '${rc.contextPath}/workflow/task/trace/auto/'+procIstid;  
+               // 加载图片 
+                 $('<img />',{  
+                    "src" : imageUrl,  
+                    "alt" : ''  
+                }).appendTo($flowImageAndRect);   
+            }  
+              
+            /** 
+             * 加载流程中各节点的信息  
+             * @param procDefId : 流程定义的key 
+             * @param $flowImageAndRect  
+             */  
+            function loadProcessTrace(procDefId,procIstid,$flowImageAndRect){  
+                var traceUrl = '${rc.contextPath}/workflow/task/getProcessTrace?procDefId='+procDefId+'&procIstid='+procIstid;  
+                $.getJSON(traceUrl,function(infos){  
+                    var html = "";  
+                    $.each(infos,function(i,v){  
+                    	// 矩形的div  
+                        var $div = $('<div/>', {  
+                                'class': 'activity-attr'
+                        }).css({  
+                            position: 'absolute',  
+                            left: v.x,  
+                            top: v.y,  
+                            width: v.width - 3,  
+                            height:v.height - 3,  
+                            opacity: 0,  
+                            zIndex: 100,  
+                            cursor : 'pointer'  
+                        }).attr({'actId':v.actId,'name':v.name,'x':v.x,'y':v.y});  
+                    	html += $div.prop("outerHTML");  
+                    });  
+                    $('<div />',{'id':'processRect'}).html(html).appendTo($flowImageAndRect);  
+                });  
+            } 
+        </script>  
+    </head>  
+    <body>  
+            <div id="flowImageAndRect">  
+            
+             <div id="info" ondblclick="$('#info').hide();" title="双击关闭" ></div>
+                  
+            </div>  
+              
+              
+  
+		    
+    </body>  
+</html>  

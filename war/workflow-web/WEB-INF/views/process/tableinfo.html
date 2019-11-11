@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>数据库引擎表</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 下面的样式，仅是为了显示代码，而不应该在项目中使用-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .container {
+        padding:0px;
+    }
+   </style>
+
+</head>
+<body>
+  <div class="container">
+    <div class="search-grid-container">
+      <div id="grid"></div>
+    </div>
+<script type="text/javascript">
+    BUI.use(['bui/data','bui/grid'],function (Data,Grid) {
+    
+     var Store = Data.Store,
+        columns = [
+
+            #if (!${tableMetaData.columnNames})
+             {
+              title : '单击左边的表名可以查看记录！',
+               dataIndex :'aa',
+               width :150
+             }
+           #else
+        	 #set($indexN=0)
+        	 #foreach($col in ${tableMetaData.columnNames})
+              #if($indexN>0)
+            	  ,
+              #end        	 
+	          {
+	            title : '${col}',
+	            dataIndex :'${col}',
+	            width : '100%'
+	          }
+        	 #set($indexN=$indexN+1)
+        	 #end
+           #end
+          
+           ];
+ 
+      var store = new Store({
+    	  url : '${rc.contextPath}/management/database/tableinfo_data?tableName=${tableName}&total=$total',
+          autoLoad:true, //自动加载数据
+          pageSize:10	// 配置分页数目
+         
+        }),
+      
+      grid = new Grid.Grid({
+          render:'#grid',
+          width:'100%',//如果表格使用百分比，这个属性一定要设置
+          columns : columns,
+          store : store,
+          // 底部工具栏
+          bbar:{
+              // pagingBar:表明包含分页栏
+              pagingBar:true
+          }
+        });
+
+      grid.render();
+     
+      
+    });
+  </script>
+<!-- script end -->
+  </div>
+
+</body>
+</html>

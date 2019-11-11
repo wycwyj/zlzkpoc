@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>sys备岗密码重置</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width:290px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:400px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<!-- <div class="control-group span8">
+	            	<label class="control-label">用户账号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="code1" name="code">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">人员名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="name1" name="name">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div> -->
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+</body>
+<script type="text/javascript">
+	//插件初始化
+	BUI.use('common/search',function (Search) {
+    	var columns = [//表格的行
+          	{title:'用户账号',dataIndex:'code',width:160},
+          	{title:'中文名',dataIndex:'name',width:200},
+          	{title:'性别',dataIndex:'sex',width:120},
+          	{title:'组织机构',dataIndex:'orgname',width:250},
+          	{title:'手机号',dataIndex:'mobileno',width:200},
+          	{title:'状态',dataIndex:'status',width:120,renderer:function(value){
+          		if(value=="n"){
+          			return "锁定";
+          		}else{
+          			return "正常";	
+          		}
+          	}}
+        ],
+        //搜索的项
+        searchURL = '${rc.contextPath}/pwdReset/qury/sysadmin?code=$!{beigangID}',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:"",
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true //保存数据后，自动更新
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit:true,
+        	tbar:{
+          		items:[
+				{
+				    btnCls : 'button button-small',
+				    text : '<i class="icon-retweet"></i>密码重置',
+				    listeners : {
+				      'click' : resetPwd
+				    }
+				},{
+				    btnCls : 'button button-small',
+				    text : '<i class="icon-retweet"></i>账户解锁',
+				    listeners : {
+				      'click' : unlockBGPwd
+				    }
+				}]
+        	},
+        	plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] // 插件形式引入多选表格
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+    	
+    	function unlockBGPwd(){
+    		if(grid.getSelection()==""){
+      			BUI.Message.Alert("请选择至少一条记录");
+      		}else{
+      			var currData = {type:'sanyuan',empids:[{empid:'$!{beigangID}'}]};
+        		$.ajax({
+                    url: "${rc.contextPath}/pwdReset/unlock",
+                    data: JSON.stringify(currData),
+                    type: 'post',
+                    cache: false,
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (data) {
+                        if(data=="ok"){
+                        	BUI.Message.Alert("解锁成功");
+                            search.load();
+                        }else{
+                        	BUI.Message.Alert("解锁失败");
+                        }
+                    },
+                    error:function(XMLHttpRequest,textStatus,errorThrown){
+                        var errorObj = {
+                            status:XMLHttpRequest.status,
+                            readyState:XMLHttpRequest.readyState,
+                            msg:textStatus
+                        };
+                    }
+                });
+      		}
+    	}
+    	
+    	function resetPwd(){
+    		if(grid.getSelection()==""){
+      			BUI.Message.Alert("请选择至少一条记录");
+      		}else{
+      			var selection = grid.getSelected();
+        		var currData = {type:'sanyuan',empids:[{empid:selection.code}]};
+        		$.ajax({
+                    url: "${rc.contextPath}/pwdReset/reset",
+                    data: JSON.stringify(currData),
+                    type: 'post',
+                    cache: false,
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (data) {
+                        if(data=="ok"){
+                        	BUI.Message.Alert("重置成功");
+                            search.load();
+                        }else{
+                        	BUI.Message.Alert("重置失败");
+                        }
+                    },
+                    error:function(XMLHttpRequest,textStatus,errorThrown){
+                        var errorObj = {
+                            status:XMLHttpRequest.status,
+                            readyState:XMLHttpRequest.readyState,
+                            msg:textStatus
+                        };
+                    }
+                });
+      		}
+    	}
+
+    	resizeMe();
+	});
+	
+</script>
+</html>

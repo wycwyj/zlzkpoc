@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>人员信息</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:75px;
+	}
+	.span8 {
+	    width:400px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:400px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">用户账号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="code1" name="code">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">人员名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="name1" name="name">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+	    <form id="J_Form" class="form">
+	    <div class="detail-section">  
+	    	<div class="row detail-row">
+			    <div class="span9">
+			      <label>用户帐号：</label><span class="detail-text" id="code"></span>
+			    </div>
+			    <div class="span9">
+			      <label>中文名：</label><span class="detail-text" id="name"></span>
+			    </div>
+			     <div class="span9">
+			      <label>英文名：</label><span class="detail-text" id="englishname"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>性别：</label><span class="detail-text" id="sex"></span>
+			    </div>
+			    <div class="span9">
+			      <label>生日：</label><span class="detail-text" id="birthday"></span>
+			    </div>
+			     <div class="span9">
+			      <label>状态：</label><span class="detail-text" id="status"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>入职时间：</label><span class="detail-text" id="indate"></span>
+			    </div>
+			    <div class="span9">
+			      <label>离职时间：</label><span class="detail-text" id="outdate"></span>
+			    </div>
+			     <div class="span9">
+			      <label>办公电话：</label><span class="detail-text" id="otel"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>办公地址：</label><span class="detail-text" id="oaddress"></span>
+			    </div>
+			    <div class="span9">
+			      <label>邮编：</label><span class="detail-text" id="zipcode"></span>
+			    </div>
+			     <div class="span9">
+			      <label>电子邮箱：</label><span class="detail-text" id="email"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>传真号：</label><span class="detail-text" id="faxno"></span>
+			    </div>
+			    <div class="span9">
+			      <label>手机：</label><span class="detail-text" id="mobileno"></span>
+			    </div>
+			     <div class="span9">
+			      <label>创建人：</label><span class="detail-text" id="creator"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+			    <div class="span9">
+			      <label>创建时间：</label><span class="detail-text" id="createtime"></span>
+			    </div>
+			    <div class="span9">
+			      <label>更新人：</label><span class="detail-text" id="updator"></span>
+			    </div>
+			     <div class="span9">
+			      <label>更新时间：</label><span class="detail-text" id="modytime"></span>
+			    </div>
+ 			</div>
+ 			
+ 			<div class="row detail-row">
+ 				<div class="span9">
+			      <label>工号：</label><span class="detail-text" id="cardcode"></span>
+			    </div>
+			    <div class="span9">
+			      <label>主职机构：</label><span class="detail-text" id="orgid"></span>
+			    </div>
+				<div class="span9">
+					<label>岗位：</label><span class="detail-text" id="post"></span>
+				</div>
+			</div>
+			<div class="row detail-row">
+			    <div class="span10">
+			      <label>备注：</label><span class="detail-text" id="remark"></span>
+			    </div>
+ 			</div>
+        </div>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript">
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+
+	BUI.use('common/search',function (Search) {
+    	var editing = new BUI.Overlay.Dialog({
+    		title:'人员详细信息',
+    		width:700,
+    		height:450,
+        	contentId : 'content', 
+        	autoSave : true,
+        	buttons:[
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+      	columns = [
+			{title:'主键ID',dataIndex:'empid',visible:false,width:0},
+          	{title:'用户账号',dataIndex:'code',width:100,renderer:function(value,obj){
+          		return '<span class="grid-command btn-edit">'+value+'</span>';
+          	}},
+          	{title:'中文名',dataIndex:'name',width:50},
+          	{title:'\u5bc6\u7ea7',dataIndex:'sec',width:40,renderer:function(value){
+          		if(value=="1"){
+					/**
+					 * 公**开
+					 **/
+          			return "\u516c\u5f00";
+          		}else if(value=="2"){
+					/**
+					 * 内**部
+					 **/
+          			return "\u5185\u90e8";
+          		}else if(value=="3"){
+					/**
+					 * 秘**密
+					 **/
+          			return "\u79d8\u5bc6";
+          		}else if(value=="4"){
+					/**
+					 * 机**密
+					 **/
+          			return "\u673a\u5bc6";
+          		}
+          		return "";
+          	}},
+          	{title:'性别',dataIndex:'sex',width:40,renderer:function(value){
+          		if( value == 0){
+	          		return '男';
+	          	}else {
+	          		return '女';
+	          	}
+            }},
+            {title:'类型',dataIndex:'iskeepparttime',width:40,renderer:function(value){
+            	if(value=='y'){
+            		return "兼职";
+            	}else{
+            		return "主职";
+            	}
+            }},
+            {title:'所属机构',dataIndex:'orgname',width:400},
+          	{title:'电子邮箱',dataIndex:'email',width:180},
+          	{title:'手机号',dataIndex:'mobileno',width:120},
+          	{title:'创建人',dataIndex:'creator',width:50},
+          	{title:'创建日期',dataIndex:'createtime',width:100,renderer:BUI.Grid.Format.datetimeRenderer},
+          	{title:'状态',dataIndex:'status',width:40,renderer:function(value){
+          		if(value==null||value==""){
+          			return "正常";
+          		}
+          		return value;
+          	}}
+        ],
+        searchURL = '${rc.contextPath}/emp/search/queryEmpsByPage',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+        	plugins : [BUI.Grid.Plugins.AutoFit]
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+    	
+    	grid.on('cellclick',function(ev){
+	          var record = ev.record, 
+	          field = ev.field, 
+	          target = $(ev.domTarget);
+	          
+	          if(target.hasClass('btn-edit')){
+		          	if(record.code == null){
+		          		$("#code").text("");
+		          	}else{
+		          		$("#code").text(record.code);
+		          	}
+		          	if(record.name == null){
+		          		$("#name").text("");
+		          	}else{
+		          		$("#name").text(record.name);
+		          	}
+		          	if(record.englishname == null){
+		          		$("#englishname").text("");
+		          	}else{
+		          		$("#englishname").text(record.englishname);
+		          	}
+		          	if(record.sex == null){
+		          		$("#sex").text("");
+		          	}else if(record.sex == 0){
+		          		$("#sex").text("男");
+		          	}else {
+		          		$("#sex").text("女");
+		          	}
+		          	if(record.birthday == null){
+		          		$("#birthday").text("");
+		          	}else{
+		          		$("#birthday").text(BUI.Grid.Format.dateRenderer(record.birthday));
+		          	}
+		          	if(record.status==null||record.status==""){
+		          		$("#status").text("正常");
+		          	}else{
+		          		$("#status").text(record.status);
+		          	}
+		          	if(record.indate == null){
+		          		$("#indate").text("");
+		          	}else{
+		          		$("#indate").text(BUI.Grid.Format.dateRenderer(record.indate));
+		          	}
+		          	if(record.outdate == null){
+		          		$("#outdate").text("");
+		          	}else{
+		          		$("#outdate").text(BUI.Grid.Format.dateRenderer(record.outdate));
+		          	}
+		          	if(record.otel == null){
+		          		$("#otel").text("");
+		          	}else{
+		          		$("#otel").text(record.otel);
+		          	}
+		          	if(record.oaddress == null){
+		          		$("#oaddress").text("");
+		          	}else{
+		          		$("#oaddress").text(record.oaddress);
+		          	}
+		          	if(record.zipcode == null){
+		          		$("#zipcode").text("");
+		          	}else{
+		          		$("#zipcode").text(record.zipcode);
+		          	}
+		          	if(record.email == null){
+		          		$("#email").text("");
+		          	}else{
+		          		$("#email").text(record.email);
+		          	}
+		          	if(record.faxno == null){
+		          		$("#faxno").text("");
+		          	}else{
+		          		$("#faxno").text(record.faxno);
+		          	}
+		          	if(record.mobileno == null){
+		          		$("#mobileno").text("");
+		          	}else{
+		          		$("#mobileno").text(record.mobileno);
+		          	}
+		          	if(record.creator == null){
+		          		$("#creator").text("");
+		          	}else{
+		          		$("#creator").text(record.creator);
+		          	}
+		          	if(record.createtime == null){
+		          		$("#createtime").text("");
+		          	}else{
+		          		$("#createtime").text(BUI.Grid.Format.datetimeRenderer(record.createtime));
+		          	}
+		          	if(record.updator == null){
+		          		$("#updator").text("");
+		          	}else{
+		          		$("#updator").text(record.updator);
+		          	}
+		          	if(record.cardcode == null){
+		          		$("#cardcode").text("");
+		          	}else{
+		          		$("#cardcode").text(record.cardcode);
+		          	}
+		          	if(record.modytime == null){
+		          		$("#modytime").text("");
+		          	}else{
+		          		$("#modytime").text(BUI.Grid.Format.datetimeRenderer(record.modytime));
+		          	}
+				  if(record.post == null){
+					  $("#post").text("");
+				  }else{
+					  $("#post").text(record.post);
+				  }
+		          	if(record.remark == null){
+		          		$("#remark").text("");
+		          	}else{
+		          		$("#remark").text(record.remark);
+		          	}
+		          	editing.show();
+	          }
+	 	});
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#code1,#name1').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+
+	 	resizeMe();
+	});
+</script>
+</html>

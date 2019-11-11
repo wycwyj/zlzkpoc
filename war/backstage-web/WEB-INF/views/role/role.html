@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>角色列表</title>
+<link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	html,body{
+  		overflow:hidden;
+  	}
+  	.form-horizontal .control-label {
+	    width:80px;
+	}
+	.span8 {
+	    width:290px;
+	}
+	#J_Form .span8{
+		width:400px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:30%;
+	}
+  </style>
+</head>
+<body>
+<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	        	<div class="control-group span8">
+	            	<label class="control-label">角色ID：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="roleidsear" name="roleid">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">角色名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="rolenamesear" name="rolename">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container" style="overflow:hidden;">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+      		<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/role/saveRole">
+        		<div class="row">
+        			<div class="control-group span8">
+	            		<label class="control-label" id="control-label"><s>*</s>角色编号：</label>
+			            <div class="controls">
+			              <input type="text" data-rules="{required:true}" id="roleid" name="roleid" data-messages="{required:' '}" class="input-normal control-text" data-tip="{text:'请输入角色编号'}">
+			            </div>
+          			</div>
+        		</div>
+        		<div class="row">
+        			<div class="control-group span8">
+	            		<label class="control-label" id="control-label"><s>*</s>角色名称：</label>
+			            <div class="controls" id="controls">
+			              <input type="text" data-rules="{required:true}" id="rolename" name="rolename" data-messages="{required:' '}" class="input-normal control-text" data-tip="{text:'请输入角色名称'}">
+			            </div>
+          			</div>
+        		</div>
+        		 <div class="row">
+        			<div class="control-group span8">
+	            		<label class="control-label" id="control-label">顺序号：</label>
+			            <div class="controls" id="controls">
+			              <input type="text" id="roleindex" name="roleindex" onkeyup="this.value=this.value.replace(/\D/g,'')" data-tip="{text:'仅能输入数字'}" class="input-normal control-text">
+			            </div>
+          			</div>
+        		</div>
+        	</form>
+    </div>
+    
+    
+    <!-- 此节点内部的内容会在弹出框内显示,默认隐藏此节点-->
+   <div id="importcontent" class="hide">
+      <form id="importform" action=""  class="form-horizontal" method="post" enctype="multipart/form-data">
+		 <div class="row">
+          <div class="control-group span15">
+            <label class="control-label">角色与关系:</label>
+            <div class="controls control-row4">
+              <input type="file" name="file"/>
+            </div>
+           </div>
+          </div>
+	  </form>   
+    </div>
+    
+</body>
+<script type="text/javascript">
+
+var form = new BUI.Form.Form({
+	srcNode : '#J_Form'
+}).render();
+
+$("#roleid").blur(function(){
+	var roleVal = $("#roleid").val();
+	var role={roleid:roleVal};
+	$.ajax({
+	url : '${rc.contextPath}/role/selectRoleid',
+   	dataType : 'json',
+   	contentType : 'application/json',
+   	type : 'get',
+   	data :role,
+     success : function(data){
+     	if(data!="success"){ 
+     		BUI.Message.Alert('角色编号不能重复！');
+            $("input[name='roleid']").val("").focus();
+         }
+		}
+	})
+});
+
+BUI.use('common/search',function (Search) {
+	var editing = new BUI.Overlay.Dialog({
+		title:'添加角色操作',
+		width:300,
+		height:160,
+    	contentId : 'content', //设置隐藏的Dialog内容
+    	autoSave : true, //添加数据或者修改数据时，自动保存
+    	buttons:[
+                  {
+                    text:'提交',
+                    elCls : 'button button-primary',
+                    handler : function(){
+                    	$("#roleid").attr('disabled',false);
+                    	form.submit();
+                    }
+                  },{
+                    text:'关闭',
+                    elCls : 'button',
+                    handler : function(){
+                      this.close();
+                    }
+                  }
+          ]
+  	}),
+  	
+  	dialog1 = new BUI.Overlay.Dialog({
+        title:'导入角色关系',
+        width:300,
+        height:120,
+        contentId:'importcontent',
+        buttons:[
+                 {
+                   text:'确定',
+                   elCls : 'button button-primary',
+                   handler : function(){
+                	 importData();
+                	 parent.location.reload();
+                   }
+                 },
+                 {
+                   text:'关闭',
+                   elCls : 'button',
+                   handler : function(){
+                     this.close();
+                   }
+                 }
+               ]
+      });
+  	
+  	//表格的行
+  	columns = [
+		{title:'角色ID',dataIndex:'roleid',width:35},
+      	{title:'角色名称',dataIndex:'rolename'},
+    ],
+    //搜索的项
+    searchURL = '${rc.contextPath}/role/getAllRolesBy',
+  	store = Search.createStore(searchURL,{
+    	proxy:{
+      		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+        		
+      		},
+      		autoLoad:true,
+      		method:'POST',
+      		dataType:'json',
+      		data:'{parentorgid:$!{pid}}',
+      		contentType:"application/json"
+    	},
+    	pageSize:9,
+    	autoSync:true //保存数据后，自动更新
+  	}),
+  	
+  	gridCfg = Search.createGridCfg(columns,{
+  		forceFit : true,
+    	tbar : {
+      		items : [
+			{
+			    btnCls : 'button button-small',
+			    text : '<i class="icon-plus"></i>新建',
+			    listeners : {
+			      'click' : addFunction
+			    }
+			},
+			{
+			    btnCls : 'button button-small',
+			    text : '<i class="icon-edit"></i>修改',
+			    listeners : {
+			      'click' : updateFunction
+			    }
+			},
+			{
+				  btnCls : 'button button-small',
+			      text : '<i class="icon-remove"></i>删除',
+			      listeners : {
+			          'click' : delFunction
+			      }
+			  },
+		  {
+			  btnCls : 'button button-small',
+		      text : '<i class="icon-arrow-left"></i>导入',
+		      listeners : {
+		          'click' : importExcel
+		      }
+		  },
+		  {
+			  btnCls : 'button button-small',
+		      text : '<i class="icon-arrow-right"></i>模板',
+		      listeners : {
+		          'click' : exportExcel
+		      }
+		  }
+      		]
+    	},
+    	plugins : [editing,BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] // 插件形式引入多选表格
+  	});
+
+	var  search = new Search({
+    	store : store,
+    	gridCfg : gridCfg
+  	}),
+  	grid = search.get('grid');
+	
+	grid.on('itemunselected',function(ev){
+		try{
+    		var node = ev.item;
+          	parent.orgContentTab.removeChildren(true);
+          	parent.orgContentTab.addChild({
+                title : '角色人员',
+                href : '${rc.contextPath}/roleEmp/roleEmp?roleid=0',
+                actived:true,
+                width : '130',
+                height:'240',
+                closeable:false
+            },0);
+		}catch(e){
+    		alert(e.message);
+    	}
+	})
+	
+	//列表选中事件
+	grid.on('itemselected',function(ev){
+		 try{
+    		var node = ev.item;
+          	parent.orgContentTab.removeChildren(true);
+          	parent.orgContentTab.addChild({
+                title : '角色人员',
+                href : '${rc.contextPath}/roleEmp/roleEmp?roleid='+node.roleid,
+                actived:true,
+                width : '130',
+                height:'240',
+                closeable:false
+            },0);
+    	}catch(e){
+    		alert(e.message);
+    	}
+    })
+	
+	function addFunction(){
+		$("#roleid").attr('disabled',false);
+		form.setFieldValue('roleid',"");
+		form.setFieldValue('rolename',"");
+		form.setFieldValue('roleindex',"");
+		editing.show();
+	};
+	
+	function updateFunction(){
+		var selection = grid.getSelected();
+		if(selection==null){
+			BUI.Message.Alert("请选择要编辑的数据");
+		}else{
+			$("#roleid").attr('disabled',true);
+		    form.setFieldValue('roleid',selection.roleid);
+			form.setFieldValue('rolename',selection.rolename);
+			form.setFieldValue('roleindex',selection.roleindex);
+			editing.show();
+		}
+	}
+	
+	function importExcel(){
+		dialog1.show();
+	}
+	
+	//导出预设置的模版
+	function exportExcel(){
+		window.location.href='${rc.contextPath}/tempFiles/roleModel.xlsx';
+	}
+	
+	//删除操作
+	function delFunction(){
+		var selections = grid.getSelection();
+  		if(selections==""){
+  			BUI.Message.Alert("请选择要删除的数据");
+  		}else{
+  			delItems(selections);
+  		}
+	};
+	
+	function delItems(items){
+		var ids = [];
+  		BUI.each(items,function(item){
+  			ids.push({empid:item.empid,roleid:item.roleid});
+  		});
+  		if(ids.length){
+    		BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+      			$.ajax({
+    					url : '${rc.contextPath}/role/delRole',
+    	              	dataType : 'json',
+    	              	contentType : 'application/json',
+    	              	type : 'post',
+    	              	data : JSON.stringify(ids),
+    	                success : function(data){
+    	                	if(data=="success"){ 
+    	                		BUI.Message.Alert('删除成功！',function(){
+   	                  	   			parent.location.reload();
+   	                         	},'info');
+   	                        }else{
+   	                            BUI.Message.Alert('删除失败！');
+   	                       	}
+    	                 }
+    	        });
+      		},'question');
+  		}
+	};
+	
+	function importData(){
+		var form = new FormData(document.getElementById("importform"));  
+        $.ajax({  
+	         url:"${rc.contextPath}/role/import",  
+	         type:"post",  
+	         data:form,  
+	         cache: false,  
+	         processData: false,  
+	         contentType: false,
+	         dataType:"json",
+	         async: false,
+	         success:function(){  
+	        	BUI.Message.Alert('导入成功');
+	        	parent.location.reload();
+	         } 
+        });
+	}
+	
+	/*监听输入框的回车操作*/  
+ 	$('#roleidsear','#rolenamesear').bind('keypress',function(event){  
+ 	    if(event.keyCode == "13") 
+ 	    	$('#btnSearch').click();
+ 	});
+
+ 	resizeMe();
+
+});
+</script>
+</html>

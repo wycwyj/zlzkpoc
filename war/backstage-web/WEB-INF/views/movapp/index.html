@@ -1,0 +1,317 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>移动应用管理</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:60px;
+	}
+	.span8 {
+	    width:380px;
+	}
+	#J_Form .span8{
+		width:400px;
+	}
+	.span9{
+		width:200px;
+		height:35px;
+	}
+	.span10{
+		width:400px;
+		height:35px;
+	}
+	.span11{
+		width:500px;
+		height:35px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 5px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+	.span9 span{
+		color: blue;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">应用名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="mobname" name="mobName">
+					</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">应用标识：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="mobsign" name="mobSign">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">菜单名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="menuname" name="menuName">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+      	<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/mobApp/appr/saveApp">
+        	<div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>应用名称</label>
+	            	<div class="controls">
+	            		<input type="hidden" name="id" id="id1">
+	              		<input name="mobName" id=mobname1 type="text" data-rules="{required:true}" class="input-normal control-text">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>应用标识</label>
+	            	<div class="controls">
+	            		<input name="mobSign" id="mobsign1" type="text" data-rules="{required:true}" class="input-normal control-text">
+	            	</div>
+	          	</div>
+        	</div>
+        	  <div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label"><s>*</s>菜单名称</label>
+            		<div class="controls">
+              			<input name="menuName" id="menuname1" type="text" data-rules="{required:true}" class="input-normal control-text">
+            		</div>
+          		</div>
+          		<div class="control-group span8">
+            		<label class="control-label"><s>*</s>显示路径</label>
+            		<div class="controls">
+              			<input name="mainPath" id="mainpath" type="text" data-rules="{required:true}" class="input-normal control-text">
+            		</div>
+          		</div>
+        	</div>
+        	
+        	<div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label"><s>*</s>录入路径</label>
+            		<div class="controls">
+					<input name="inputPath" id="inputpath" type="text" data-rules="{required:true}" class="input-normal control-text">
+					</div>
+				</div>
+			</div>
+      	</form>
+	</div>
+</body>
+<script type="text/javascript">
+	
+	$("#appkey2").blur(function(){
+		var idVal = $("#id1").val();
+		var appkeyVal = $("#appkey2").val();
+		var key={id:idVal,appkey:appkeyVal};
+			$.ajax({
+				url : '${rc.contextPath}/appm/appr/selectAppKey',
+		      	dataType : 'json',
+		      	contentType : 'application/json',
+		      	type : 'get',
+		      	data :key,
+		        success : function(data){
+		        	if(data=="one"){ 
+		        		
+		            }else if(data == "many"){
+		               BUI.Message.Alert('系统中存在有相同应用Key值，不能使用重复Key值');
+		               $("#appkey2").val("").focus();
+		        	}else{}
+				}
+			})
+	});
+	
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+	
+	BUI.use('common/search',function (Search) {
+		
+		$(document).ready(function(){
+			//window.setInterval(function(){timing()},15000);
+		});
+		
+		var selecting = new BUI.Overlay.Dialog({
+    		title:'移动应用操作',
+    		width:880,
+    		height:250,
+        	contentId : 'content', 
+        	autoSave : true, 
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var idVal = $("#id1").val();
+                    		var appkeyVal = $("#appkey2").val();
+                    		var key={id:idVal,appkey:appkeyVal};
+                    		
+                    		form.submit();
+                        }
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                        	this.close();
+                        }
+                      }
+              ]
+      	}),
+      	
+      	columns = [
+			{title:'主键ID',dataIndex:'id',visible:false,width:0},
+          	{title:'应用名称',dataIndex:'mobName',width:100},
+          	{title:'应用标识',dataIndex:'mobSign',width:150},
+            {title:'菜单名称',dataIndex:'menuName',width:100},
+          	{title:'显示页面路径',dataIndex:'mainPath',width:150},
+          	{title:'录入页面路径',dataIndex:'inputPath',width:150}
+        ],
+        
+        searchURL = '${rc.contextPath}/mobApp/appr/queryAppsByPage',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit : true,
+        	tbar : {
+          		items : [
+         				{
+        				    btnCls : 'button button-small',
+        				    text : '<i class="icon-plus"></i>新建',
+        				    listeners : {
+        				      'click' : addFunction
+        				    }
+        				  },
+        				{
+        				  	btnCls : 'button button-small',
+        				    text : '<i class="icon-edit"></i>编辑',
+        				    listeners : {
+        				      'click' : editFunction
+        				    }
+        				},
+        				{
+       					  btnCls : 'button button-small',
+       				      text : '<i class="icon-remove"></i>删除',
+       				      listeners : {
+       				          'click' : delFunction
+       				      }
+        				}
+                  	]
+        	},
+        	plugins : [BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit]
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+    	
+    	function addFunction(){
+    		form.clearFields();
+    		selecting.show();
+    	}
+    	
+    	function editFunction(){
+    		var selection = grid.getSelected();
+    		if(selection==null){
+    			BUI.Message.Alert("请选择要编辑的数据");
+    		}else{
+    			console.log(selection);
+	    		form.setFieldValue('id',selection.id);
+	    		form.setFieldValue('mobName',selection.mobName);
+	    		form.setFieldValue('mobSign',selection.mobSign);
+	    		form.setFieldValue('menuName',selection.menuName);
+	    		form.setFieldValue('mainPath',selection.mainPath);
+	    		form.setFieldValue('inputPath', selection.inputPath);
+	    		
+	    		selecting.show();
+    		}
+    	}
+    	
+    	function delFunction(){
+    		var selections = grid.getSelection();
+      		if(selections==""){
+      			BUI.Message.Alert("请选择要删除的数据");
+      		}else{
+      			delItems(selections);
+      		}
+    	}
+    	
+    	function delItems(items){
+      		var ids = [];
+      		BUI.each(items,function(item){
+      			ids.push({id:item.id});
+      		});
+      		if(ids.length){
+        		BUI.Message.Confirm('确认要彻底删除选中的记录么？(操作不可恢复)',function(){
+          			$.ajax({
+        					url : '${rc.contextPath}/mobApp/appr/delete',
+        	              	dataType : 'json',
+        	              	contentType : 'application/json',
+        	              	type : 'post',
+        	              	data : JSON.stringify(ids),
+        	                success : function(data){
+        	                	if(data=="success"){ 
+       	                  	   		BUI.Message.Alert('删除成功！');
+       	                         	search.load();
+       	                        }else{
+       	                            BUI.Message.Alert('删除失败！');
+       	                       	}
+        	                 }
+        	        });
+          		},'question');
+      		}
+    	}
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#mobname,#mobsign,#menuname').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+		resizeMe();
+	});
+</script>
+</html>

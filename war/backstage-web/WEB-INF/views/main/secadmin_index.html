@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  	<link rel="shortcut icon" href="${rc.contextPath}/favicon.ico" type="image/x-icon"/>
+  	<title>后台管理系统</title>
+   	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   	<link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   	<link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   	<link href="${rc.contextPath}/bui/common/css/main-min.css" rel="stylesheet" type="text/css" />
+   	<style type="text/css">
+   		.bui-dialog .bui-stdmod-body {
+		    background-color: #fff;
+		    border: 1px solid #c3c3d6;
+		    margin: 0 0px;
+		    padding: 0px;
+		}
+   	</style>
+</head>
+<body>
+  <div class="header">
+    <div class="dl-title">
+        <span class="lp-title-port"></span><span class="dl-title-text">后台管理系统--之系统安全保密管理</span>
+    </div>
+    <div class="dl-log">
+    	<span id="systemTime" style="color:red;"></span>&nbsp;&nbsp;
+    	欢迎您，<span class="dl-log-user">$session.getAttribute("userName")</span>！
+    	<a href="javascript:void(0)" onclick="changeMePWD()" title="修改密码" class="dl-log-quit">[修改密码]</a>
+    	<a href="javascript:void(0)" onclick="logout()" title="退出系统" class="dl-log-quit">[退出]</a>
+    </div>
+  </div>
+   <div class="content">
+    <div class="dl-main-nav">
+      <ul id="J_Nav"  class="nav-list ks-clear">
+      	<li class="nav-item"><div class="nav-item-inner nav-order">安全管理</div></li>
+        <li class="nav-item dl-selected"><div class="nav-item-inner nav-home">权限管理</div></li>
+        <li class="nav-item"><div class="nav-item-inner nav-inventory">审计管理</div></li>
+      </ul>
+    </div>
+    <ul id="J_NavContent" class="dl-tab-conten">
+
+    </ul>
+   </div>
+   <div id="changePWD" class="hide">
+    <iframe src="" id="userPWDChange" name="userPWDChange" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+   </div>
+</body>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/bui.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/config.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/main-min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/qms-common.js"></script>
+<script>
+	var timer;
+	$(function(){
+		$("#systemTime").html(getSystemTime());
+		timer = setInterval(function(){
+			$("#systemTime").html(getSystemTime());
+		},100);
+	});
+	
+	function logout(){
+		window.clearInterval(timer);
+		window.location.href = "${rc.contextPath}/user/logout";
+	}
+	
+	var changePWD;
+	BUI.use('common/main',function(){
+		var config = [{
+			id:'secMng',
+			homePage:'userSecChange',
+			menu:[{
+				text:'用户安全管理',
+				items:[
+					{id:'userSecChange',text:'用户密级变更',href:'${rc.contextPath}/secModif/user'},
+					{id:'pwdUnlock',text:'用户账户解锁',href:'${rc.contextPath}/pwdReset/unlockIndex'},
+					{id:'pwdReset_user',text:'用户密码重置',href:'${rc.contextPath}/pwdReset/user'},
+					{id:'beigang',text:'备岗密码重置/解锁',href:'${rc.contextPath}/pwdReset/secadmin'}
+
+				]
+           	},{
+                text:'安全策略管理',
+                items:[
+                    {id:'sec_rule_pwd',text:'密码规则配置',href:'${rc.contextPath}/pwdrule/wood/page/pwd/main'},
+                    {id:'sec_auth_policy',text:'认证策略配置',href:'${rc.contextPath}/safestrategy/wood/page/safestrategy/main'}
+                ]
+            },{
+            	text:'密级策略管理',
+            	items:[
+					{id:'userSecDic',text:'用户密级管理',href:'${rc.contextPath}/userSec/userSec'},
+					{id:'dataSecDic',text:'数据密级管理',href:'${rc.contextPath}/dataSec/dataSec'},      
+					{id:'SecRelaDic',text:'密级关系管理',href:'${rc.contextPath}/secc/secRela'}
+            	]          	
+            }]
+		},{
+			id:'rightMng',
+			homePage:'roleMng',
+			menu:[{
+				text:'系统角色管理',
+				items:[
+					{id:'roleMng',text:'系统角色维护',href:'${rc.contextPath}/role/index2'},
+                    {id:'roleEmpSearch',text:'角色人员查询',href:''}
+				]
+            },{
+				text:'功能权限管理',
+				items:[
+					{id:'funcOp',text:'功能权限维护',href:'${rc.contextPath}/funcm/funcr/index'},
+					{id:'func',text:'按钮权限维护',href:'${rc.contextPath}/funcm/funcm/index'}
+				]
+			},{
+			    text:'功能授权管理',
+                items:[
+                    {id:'funcResPermission',text:'系统功能授权',href:'${rc.contextPath}/funcresp/index'},
+                    {id:'funcPermission',text:'功能按钮授权',href:'${rc.contextPath}/funcpermission/index'}
+                ]
+            },{
+				text:'数据权限管理',
+				items:[
+					{id:'DataZDConf',text:'数据授权配置',href:'${rc.contextPath}/dataFuncZD/df/indexConf'},
+					{id:'DataZD',text:'授权字段配置',href:'${rc.contextPath}/dataFuncZD/df/index'}
+				]
+			},{
+			    text:'系统权限查询',
+                items:[
+                    {id:'funcSel',text:'功能权限查询',href:'${rc.contextPath}/funcg/sel/gnSelect'},
+                    {id:'DataZDSelect',text:'数据权限查询',href:'${rc.contextPath}/dataFuncZD/df/dataSelect'}
+                ]
+            }]
+		},{
+			id:'auditMng',
+			homePage:'userLogAudit',
+			menu:[{
+				text:'日志审计管理',
+				items:[
+					{id:'userLogAudit',text:'用户日志审计',href:'${rc.contextPath}/log/user/index'},
+					{id:'auditadminLogAudit',text:'审计员日志审计',href:'${rc.contextPath}/log/auditadmin/index'}
+					// , {id:'logSpaceMonitor',text:'日志空间监控',href:'${rc.contextPath}/log/auditadmin/monitor'}
+				]
+			}]
+		}];
+		changePWD = new BUI.Overlay.Dialog({
+    		title:'密码变更',
+    		width:880,
+    		height:500,
+        	contentId : 'changePWD', 
+        	autoSave : true, 
+        	buttons:[
+                      {
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	});
+		new PageUtil.MainPage({
+			modulesConfig : config
+		});
+	});
+	
+	function changeMePWD(){
+		$('#userPWDChange').attr('src','${rc.contextPath}/framework/changepwd');
+		changePWD.show();
+	}
+</script>
+</html>

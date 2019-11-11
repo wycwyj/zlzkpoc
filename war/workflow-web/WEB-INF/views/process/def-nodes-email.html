@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" /> 
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   <title>节点设置</title>
+</head>
+
+<body>
+<form id="setEmailForm" action="${rc.contextPath}/process/definition/setEmail"  class="form-horizontal" method="post" target="a">
+<table class="table table-bordered table-hover table-condensed">
+    <tr>
+		<th class='text-info' style="display:none">流程定义ID</th>
+		<th class='text-info'>节点名称</th>
+		<th class='text-info'>节点Key</th>
+		<th class='text-info'>考核时间设置</th>
+		<th class='text-info' style="display: none">再次超时提醒时间点</th>
+		<th class='text-info'  style="display: none">多次超时提醒时间间隔</th>
+		<th class='text-info'>时间单位</th>
+    </tr>
+    <input type="hidden" name="ids" >
+    <input type="hidden" name="emailtime1s" >
+    <input type="hidden" name="emailtime2s" >
+    <input type="hidden" name="timespaces" >    
+    <input type="hidden" name="emailtimetypes" > 
+    
+    #foreach($node in $nodes)
+                    #if(${node.emailtimetype} =='小时')
+						#set($hour=" selected='selected'")
+						#set($day="")
+						#set($week="")
+                    #elseif(${node.emailtimetype}=='天')
+						#set($day=" selected='selected'")
+						#set($hour="")
+						#set($week="")
+                    #elseif(${node.emailtimetype}=='周')
+						#set($week=" selected='selected'")
+						#set($day="")
+						#set($hour="")
+                    #end
+                   <tr>
+                   <th style="display:none"><input type="hidden" name="ids" value="${node.id}">${node.procDefId}</th>
+                   <th>${node.name}</th>
+                   <th>${node.taskDefKey}</th>
+                   <th><input type="text" name="emailtime1s" style="width:20px;" value="${node.emailtime1}"></th>
+                   <th style="display:none"><input type="text" name="emailtime2s" style="width:20px;" value="${node.emailtime2}"></th>
+                   <th style="display: none"><input type="text" name="timespaces" style="width:20px;" value="${node.timespace}"></th>
+                   <th>
+	                   <select name="emailtimetypes" id="nodetypeId${node.id}" style="width:100px;">
+		                   <option value="小时" ${hour}>小时</option>
+		                   <option value="天" ${day}>天</option>
+		                   <option value="周" ${week}>周</option>
+	                   </select>
+                   </th>
+        </tr>
+    #end
+
+</table>
+        <!-- <div align="center"><input type="button" value="确定" onclick="ok();"><input type="button" value="关闭" onclick="window.close();"></div> -->
+        <iframe name="a" id="a" width="0" height="0"></iframe>
+ </form>  
+<script type="text/javascript">
+
+ 
+ function ok(){
+	 document.getElementById("setEmailForm").submit();
+	 return "ok";
+ }
+ 
+	
+</script>
+</body>
+</html>

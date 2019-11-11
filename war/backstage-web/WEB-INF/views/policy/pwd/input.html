@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新建模块</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.web.frame.css">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/extends/layui/css/layui.css">
+    <link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.common.css">
+    <style>
+        .layui-select-title{
+            width:98.9%;
+        }
+        .layui-form-select .layui-edge {
+            right: 20px;
+        }
+        .layui-form-select dl {
+            left: 0px;
+            top: 39px;
+            width:98.9%;
+            min-width:98.9%;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-container">
+    <form class="layui-form layui-form-pane" lay-filter="formDemo" id="formDemo">
+        <div class="layui-field-box">
+            <input type="hidden" name="id" id="id">
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;"><span style="color:red;">*</span>密码规则：</label>
+                <div class="layui-input-block" style="margin-left:100px;left:11px;top:1px;">
+                    <textarea name="reg" id="reg" readonly="readonly" placeholder="请在下方选择密码规则" class="layui-textarea" lay-verify="required" style="width:98.9%;"></textarea>
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;">快速规则：</label>
+                <div class="layui-input-block" style="margin-left:100px;height:40px;left:11px;top:1px;">
+                    <select lay-filter="kuaisuRule">
+                        <option value="">请选择快速规则，可快速填充规则</option>
+                        <option value="=">=================================================================================</option>
+                        <option value="ok11">(1-1). 只能由特殊字符组成：^[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]</option>
+                        <option value="ok12">(1-2). 只能由字母组成：^[A-Za-z]+$</option>
+                        <option value="ok13">(1-3). 只能由数字组成：^[0-9]*$</option>
+                        <option value="=">=================================================================================</option>
+                        <option value="ok21">(2-1). 必须由特殊字符、字母、数字中的至少2者组成：^(?![0-9]+$)(?![a-zA-Z]+$)(?![`~!@#$%^&*()_+<>?:"{},.\/;'[\]\-\=/\|\\]+$)[`~!@#$%^&*()_+<>?:"{},.\/;'[\]\-\=/\|\\0-9A-Za-z]</option>
+                        <option value="=">=================================================================================</option>
+                        <option value="ok31">(3-1). 必须由特殊字符、字母、数字3者组成：^(?:(?=.*[0-9].*)(?=.*[A-Za-z].*)(?=.*[`~!@#$%^&*()_+<>?:"{},.\/;'[\]\-\=/\|\\].*))[`~!@#$%^&*()_+<>?:"{},.\/;'[\]\-\=/\|\\0-9A-Za-z]</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;">规则验证：</label>
+                <div class="layui-input-block" style="margin-left:100px;left:11px;top:1px;">
+                    <textarea name="regValid" id="regValid" placeholder="输入预期中的密码字符串，验证【密码规则】是否满足要求。" class="layui-textarea" style="width:98.9%;"></textarea>
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;">是否有效：</label>
+                <div class="layui-input-block" style="margin-left:100px;height:40px;left:11px;top:1px;">
+                    <input type="text" id="isOk" name="isOk" value="无效" readonly class="layui-input" style="width:98.9%;color:red;">
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;"><span style="color:red;">*</span>提示信息：</label>
+                <div class="layui-input-block" style="margin-left:100px;left:11px;top:1px;">
+                    <textarea name="tips" id="tips" readonly="readonly" class="layui-textarea" lay-verify="required" style="width:98.9%;"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item" pane="" style="margin-bottom: -1px;">
+                <label class="layui-form-label" style="padding: 5px 5px;">是否启用：</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="isUsed" id="isUsed" lay-skin="switch" lay-filter="isUsedFilter" lay-text="是|否"/>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="${rc.contextPath}/wood/resource/webframe/extends/jquery/jquery.min.js"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/extends/layui/layui.js" charset="utf-8"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/js/wood.form.js"></script>
+<script>
+    $(function(){
+        $("#formDemo").initFormNew({getDataUrl:"${rc.contextPath}/pwdrule/wood/be/operate/getObj?id=${pwdRuleID}",
+            saveDataUrl:"${rc.contextPath}/pwdrule/wood/be/operate/save",method:"POST",loadingCallback:function(form,formData){
+            var isUsed = formData.isUsed;
+            var isUsedM = $("#isUsed");
+            var isOk = $("#isOk").val();
+            if(isUsed=="on"){
+                isUsedM.attr("checked","").val("on");
+            }else{
+                isUsedM.removeAttr("checked").val("off");
+            };
+
+            changeIsOk((isOk=="有效"));
+
+            form.render("checkbox");
+
+            form.on("switch(isUsedFilter)",function(obj){
+                if(obj.value=="on") {
+                    isUsedM.val("off");
+                }else{
+                    isUsedM.val("on");
+                }
+            });
+
+            form.on("select(kuaisuRule)",function(obj){
+                if(obj.value!=""&&obj.value!="="){
+                    var text = $(obj.elem).find("option[value='"+obj.value+"']").text().split("：");
+                    form.val("formDemo",{"reg":text[1]});
+                    form.val("formDemo",{"tips":text[0].split(". ")[1]});
+                }else{
+                	form.val("formDemo",{"reg":""});
+                	form.val("formDemo",{"tips":""});
+                }
+            });
+
+            $("#regValid").blur(function(){
+                var reg = $("#reg").val();
+                var regValid = $("#regValid").val();
+                var regExp = new RegExp(reg);
+                changeIsOk(regExp.test(regValid));
+            });
+
+            function changeIsOk(flag){
+                if(flag){
+                    $("#isOk").css("color","green").val("有效");
+                }else{
+                    $("#isOk").css("color","red").val("无效");
+                }
+            }
+        }});
+    });
+
+    function save(layerIndex){
+        saveOrSubmit(true,layerIndex);
+    }
+
+    function submit(layerIndex){
+        saveOrSubmit(false,layerIndex);
+    }
+
+    function saveOrSubmit(isSave,layerIndex){
+        formObject.submitForm(isSave,function(msg){
+            if(!isSave){
+                parent.layer.close(layerIndex);
+            }else{
+                var currID = $("#id").val();
+                if(currID==""||currID==null){
+                    $("#id").val(msg.entity.id);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>邮件服务管理</title>
+<link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+<link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+<link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+<style type="text/css">
+.form-horizontal .control-label {
+	width: 75px;
+}
+.span8 {
+	width: 350px;
+}
+
+
+.span8 {
+	width: 435px;
+}
+
+.span9 {
+	width: 200px;
+	height: 35px;
+}
+
+.span10 {
+	width: 400px;
+	height: 35px;
+}
+
+.span11 {
+	width: 500px;
+	height: 35px;
+}
+
+[class*="span"] {
+	float: left;
+	margin-left: 16px;
+}
+
+.row {
+	margin-left: 0px;
+}
+
+.span13 {
+	width: auto;
+	padding-left: 42%;
+}
+
+.span9 span {
+	color: blue;
+}
+</style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+			<div class="row">
+				<div class="control-group span7">
+					<label class="control-label">发件服务器：</label>
+					<div class="controls">
+						<input type="text" class="control-text" id="fjfwq" name="fjfwq">
+					</div>
+				</div>
+				<div class="control-group span7">
+					<label class="control-label">发信名称：</label>
+					<div class="controls">
+						<input type="text" class="control-text" id="mc" name="mc">
+					</div>
+				</div>
+				<div class="control-group span7">
+					<label class="control-label">邮箱类型：</label>
+					<div class="controls">
+						<input type="text" class="control-text" id="yxlx" name="yxlx">
+					</div>
+				</div>
+				<div class="span13 offset2">
+					<button type="button" id="btnSearch" class="button button-primary">搜索</button>
+					<button type="reset" class="button">重置</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	
+	<div id="sendTest" class="hide">
+		<form id="S_Form" method="post" class="form-horizontal" action="${rc.contextPath}/email/email/sendTest">
+			<div class="row">
+				<div class="control-group span8">
+					<label class="control-label"><s>*</s>接收邮箱</label>
+					<div class="controls">
+						<input name="emailAddr" type="text" id="mail" data-rules="{required:true}" class="input-normal control-text" 
+						placeholder="xxxx@xx.com">
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<div class="search-grid-container">
+		<div id="grid"></div>
+	</div>
+	
+	<div id="show" class="hide">
+    	<form id="show_form" class="form">
+			    <div class="span9" id="showDiv" style="height:300px;width:100%;overflow-y:auto;">
+			      	<span id="spanId"></span>
+			    </div>
+        </form>
+    </div>
+
+	<div id="content" class="hide">
+		<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/email/email/saveEmail">
+			<div class="row">
+				<div class="control-group span8">
+					<label class="control-label"><s>*</s>邮箱类型</label>
+					<div class="controls">
+						<select name="yxlx">
+							<option value="SMTP">SMTP</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="control-group span8">
+					<label class="control-label"><s>*</s>发件服务器</label>
+					<div class="controls">
+						<input name="fjfwq" type="text" data-rules="{required:true}"
+							class="input-normal control-text">
+					</div>
+				</div>
+				<div class="control-group span8">
+					<label class="control-label"><s>*</s>端口号</label>
+					<div class="controls">
+						<input name="dkh" type="text" data-rules="{required:true}"
+							class="input-normal control-text">
+						<input type="radio" name="fxmc" value="NoSSL"> 非SSL
+                		<input type="radio" name="fxmc" value="SSL"> SSL
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="control-group span8">
+					<label class="control-label"><s>*</s>帐号</label>
+					<div class="controls">
+						<input type="hidden" name="id"> <input name="zh"
+							type="text" data-rules="{required:true}"
+							class="input-normal control-text">
+					</div>
+				</div>
+				<div class="control-group span8">
+					<label class="control-label">密码</label>
+					<div class="controls">
+						<input name="mm" type="password" placeholder="如需用授权码请在这里输入"
+							data-rules="{required:true}" class="input-normal control-text">
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="control-group span8">
+					<label class="control-label">发信名称</label>
+					<div class="controls">
+						<input name="mc" type="text" class="input-normal control-text">
+					</div>
+				</div>
+				<div class="control-group span8">
+					<label class="control-label">是否默认账户</label>
+					<div class="controls">
+						启用<input id="radioy" type="radio" name="attr1" value="y" /> 不启用<input
+							id="radion" type="radio" name="attr1" value="n" />
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="control-group span8">
+					<label class="control-label">唯一标识</label>
+					<div class="controls">
+						<input name="attr2" id="attr2" type="text"
+							class="input-normal control-text" placeholder="唯一标识符，不要重复">
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="control-group span15">
+					<label class="control-label">备注</label>
+					<div class="controls control-row4">
+						<textarea name="rmark" class="input-large" type="text"></textarea>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+<script type="text/javascript">
+
+	$(function(){
+		$("input[name='fxmc'][value=SSL]").prop("checked",true);
+		$("input[name='attr1'][value=n]").prop("checked",true);
+	});
+	
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+	
+	var sendTestForm = new BUI.Form.Form({
+		srcNode:'#S_Form'
+	}).render();
+
+	$("#attr2").blur(function() {
+		var attr2Val = $("#attr2").val();
+		var email = {
+			attr2 : attr2Val
+		};
+		
+		$.ajax({
+			url : '${rc.contextPath}/email/op/selectEmail',
+			dataType : 'json',
+			contentType : 'application/json',
+			type : 'get',
+			data : email,
+			success : function(data) {
+				if (data == "iminone") {
+				} else {
+					BUI.Message.Alert('系统中存在有相同标识，不能使用重复标识');
+					$("input[name='attr2']").val("").focus();
+				}
+			}
+		})
+	});
+
+	BUI.use('common/search',function(Search) {
+			var selecting = new BUI.Overlay.Dialog({
+				title : '服务操作',
+				width : 1000,
+				height : 350,
+				contentId : 'content', //设置隐藏的Dialog内容
+				autoSave : true, //添加数据或者修改数据时，自动保存
+				buttons : [ {
+					text : '提交',
+					elCls : 'button button-primary',
+					handler : function() {
+						form.submit();
+					}
+				}, {
+					text : '关闭',
+					elCls : 'button',
+					handler : function() {
+						this.close();
+					}
+				} ]
+			}),
+			watchTexting = new BUI.Overlay.Dialog({
+				title : '邮件使用说明查看',
+				width : 800,
+				height : 300,
+				contentId : 'show', //设置隐藏的Dialog内容
+				autoSave : true, //添加数据或者修改数据时，自动保存
+				buttons : [{
+					text : '关闭',
+					elCls : 'button',
+					handler : function() {
+						this.close();
+					}
+				} ]
+			}),
+			sendTest = new BUI.Overlay.Dialog({
+				title : '邮件配置发送测试',
+				width : 300,
+				height : 100,
+				contentId : 'sendTest', //设置隐藏的Dialog内容
+				autoSave : true, //添加数据或者修改数据时，自动保存
+				buttons : [{
+					text : '提交',
+					elCls : 'button button-primary',
+					handler : function() {
+						var str = document.getElementById('mail').value;
+						var re = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/; 
+					    if (re.test(str)) {
+					    	sendTestForm.submit();
+					    } else {
+					    	BUI.Message.Alert('邮箱格式不符合规范，请重新填写');
+					    	}
+						}
+					},{
+					text : '关闭',
+					elCls : 'button',
+					handler : function() {
+						this.close();
+					}
+				} ]
+			}),
+			columns = [ {title : '主键ID',dataIndex : 'id',visible : false,width : 0}, 
+			            {title : '邮箱类型',dataIndex : 'yxlx',width : 100}, 
+			            {title : '帐号',dataIndex : 'zh',width : 100}, 
+			            {title : '发件服务器',dataIndex : 'fjfwq',width : 100}, 
+			            {title : '端口',dataIndex : 'dkh',width : 100}, 
+			            {title : '发信名称',dataIndex : 'mc',width : 150}, 
+			            {title : '是否默认账户',dataIndex : 'attr1',width : 100,renderer : function(value) {
+								if (value == 'y') {
+									return '是';
+								} else {
+									return '否';
+								}
+						}}, 
+						{title : '唯一标识符',dataIndex : 'attr2',width : 50}],
+						searchURL = '${rc.contextPath}/email/email/queryEmailsByPage', 
+						store = Search.createStore(searchURL, {
+									proxy : {
+										save : {
+										},
+										autoLoad : true,
+										method : 'POST',
+										dataType : 'json',
+										data : '',
+										contentType : "application/json"
+									},
+									pageSize : 10,
+									autoSync : true
+								}),
+
+						gridCfg = Search.createGridCfg(columns, {
+							forceFit : true,
+							tbar : {
+								items : [ {
+									btnCls : 'button button-small',
+									text : '<i class="icon-plus"></i>新建',
+									listeners : {
+										'click' : addFunction
+									}
+								}, {
+									btnCls : 'button button-small',
+									text : '<i class="icon-edit"></i>编辑',
+									listeners : {
+										'click' : editFunction
+									}
+								}, {
+									btnCls : 'button button-small',
+									text : '<i class="icon-remove"></i>删除',
+									listeners : {
+										'click' : delFunction
+									}
+								}, {
+									btnCls : 'button button-small',
+									text : '<i class="icon-user"></i>是否默认账户',
+									listeners : {
+										'click' : isUseFunction
+									}
+								},{
+									btnCls : 'button button-small',
+									text : '<i></i>邮件配置发送测试',
+									listeners : {
+										'click' : sendTestDia
+									}
+								},{
+									btnCls : 'button button-small',
+									text : '<i></i>邮件配置使用说明',
+									listeners : {
+										'click' : watchText
+									}
+								}/* ,{
+									btnCls : 'button button-small',
+									text : '<i></i>默认账户发信测试',
+									listeners : {
+										'click' : sendTestFunction
+									}
+								} */ ]
+							},
+							plugins : [ BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit]
+						});
+
+						var search = new Search({
+							store : store,
+							gridCfg : gridCfg
+						}), grid = search.get('grid');
+
+						function addFunction() {
+							form.clearFields();
+							selecting.show();
+						}
+						
+						function editFunction() {
+							var selection = grid.getSelected();
+							if (selection == null) {
+								BUI.Message.Alert("请选择要编辑的数据");
+							} else {
+								form.setFieldValue('id', selection.id);
+								form.setFieldValue('zh', selection.zh);
+								form.setFieldValue('fjfwq', selection.fjfwq);
+								form.setFieldValue('dkh', selection.dkh);
+								form.setFieldValue('yxlx', selection.yxlx);
+								form.setFieldValue('mc', selection.mc);
+								form.setFieldValue('mm', selection.mm);
+								form.setFieldValue('attr1', selection.attr1);
+								form.setFieldValue('fxmc',selection.fxmc);
+								form.setFieldValue('attr2', selection.attr2);
+								form.setFieldValue('rmark', selection.rmark);
+								selecting.show();
+							}
+						}
+						
+						function watchText(){
+
+				 	            	document.getElementById('spanId').innerHTML = "如果您正在使用邮件配置功能，发现很多不能理解的地方，为了简便您的操作，请参考以下内容：<br><br>\n" +
+                                        "1、在您填写好发件服务器后，要注意端口号的设置，请您确认您使用的发件服务器是否是使用SSL安全协议进行信息传输的，\n" +
+                                        "该系统中默认使用SSL安全协议进行传输，一般端口为465；如果不是SSL安全协议，需手动选择非SSL端口，一般常用端口为25<br><br>\n" +
+                                        "2、在您填写好账号后，要注意密码的设置，有很多发件服务器为了安全，需要使用授权码进行登录，必须QQ邮箱、163邮箱等，请确认\n" +
+                                        "您的发件服务器是否是使用授权码进行登录<br><br>\n" +
+                                        "3、最后一个需要注意的点是唯一标识码，在系统中如果已存在指定发送邮件账户的标识码，需要您向有关人员获取到后设置在这里，系统\n" +
+                                        "在运行到相关业务模块时，会直接找寻到标识码匹配的记录信息使用";
+
+			             	 watchTexting.show(); 
+						}
+						
+						function sendTestDia(){
+							sendTestForm.clearFields();
+							sendTest.show();
+						}
+
+						function delFunction() {
+							var selections = grid.getSelection();
+							if (selections == "") {
+								BUI.Message.Alert("请选择要删除的数据");
+							} else {
+								delItems(selections);
+							}
+						}
+
+						function delItems(items) {
+							var ids = [];
+							BUI.each(items, function(item) {
+								ids.push({
+									id : item.id
+								});
+							});
+							if (ids.length) {
+								BUI.Message.Confirm('确认要彻底删除选中的记录么？(操作不可恢复)',function() {
+									$.ajax({
+											url : '${rc.contextPath}/email/email/delete',
+											dataType : 'json',
+											contentType : 'application/json',
+											type : 'post',
+											data : JSON.stringify(ids),
+											success : function(data) {
+												if (data == "success") {
+													BUI.Message.Alert('删除成功！');
+													search.load();
+												} else {
+													BUI.Message.Alert('删除失败！');
+												}
+											}
+										});
+								}, 'question');
+							}
+						}
+						
+						
+						function sendTestFunction(){
+							$.ajax({
+								url : '${rc.contextPath}/email/email/sendTest',
+								dataType : 'json',
+								contentType : 'application/json',
+								type : 'post',
+								success : function(data) {
+									
+								}
+							});
+						}
+
+						function isUseFunction() {
+							var selection = grid.getSelected();
+							var email = [];
+							email.push({
+								id : selection.id,
+								attr1 : selection.attr1
+							});
+							if (selection == "") {
+								BUI.Message.Alert("请选择要切换的数据");
+							} else {
+								BUI.Message.Confirm('是否进行切换操作？(同一时间仅能开启一项)',function() {
+									$.ajax({
+											url : '${rc.contextPath}/email/email/isUse',
+											dataType : 'json',
+											contentType : 'application/json',
+											type : 'post',
+											data : JSON.stringify(email),
+											success : function(data) {
+												if (data == "success") {
+													BUI.Message.Alert('切换成功！');
+													search.load();
+												} else {
+													BUI.Message.Alert('切换失败！');
+												}
+											}
+										});
+								}, 'question');
+							}
+						}
+
+						/*监听输入框的回车操作*/
+						$('#fjfwq,#mc,#yxlx').bind('keypress', function(event) {
+							if (event.keyCode == "13")
+								$('#btnSearch').click();
+						});
+
+						resizeMe();
+					});
+</script>
+</html>

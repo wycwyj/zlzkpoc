@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />  <!-- 涓嬮潰鐨勬牱寮忥紝浠呮槸涓轰簡鏄剧ず浠ｇ爜锛岃�屼笉搴旇鍦ㄩ」鐩腑浣跨敤-->  
+   <link href="${rc.contextPath}/bui/common/css/prettify.css" rel="stylesheet" type="text/css" />
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/page.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class='page-title ui-corner-all'><b>流程处理</b></div>
+    <div class="row">
+	 <button  type="button" id="subbut" class="button button-primary" onclick="subOk()">提交</button>
+	 <button  type="button" id="savebut" class="button button-primary" onclick="saveOk()">保存</button>
+	 <button  type="button" id="taskOrderbut" class="button button-primary">任务指派</button>
+	 <button  type="button" id="jumpbut" class="button button-primary">跳转</button>
+	 <button  type="button" id="backbut" class="button button-primary" onclick="backTo()">回退</button>
+	 <button  type="button" id="suspendbut" class="button button-primary" onclick="suspend()">挂起</button>
+	 <button  type="button" id="activatebut" class="button button-primary" onclick="activate()">激活</button>
+ </div>
+
+   #if( $showType=='list')
+    #foreach($node in $nodes)
+       <div class='page-title ui-corner-all'>${node.name}/${node.taskDefKey}</div> 
+       <div class='page-title ui-corner-all'>
+         <iframe  id="${node.taskDefKey}Iframe"  frameborder=0   border=0   width=100%   height=200  src="${node.bussnessUrl}&doTaskType=${node.doTaskType}&instId=${currTask.processInstanceId}&procdefId=${currTask.processDefinitionId}&taskId=${currTask.id}&actId=${node.taskDefKey}"></iframe>
+       </div>
+    #end
+    #elseif($showType=='tab')
+        #foreach($node in $nodes)
+       <div class='page-title ui-corner-all'>
+         <iframe  id="${node.taskDefKey}Iframe"  frameborder=0   border=0   width=100%   height=200  src="${node.bussnessUrl}&doTaskType=${node.doTaskType}&instId=${currTask.processInstanceId}&procdefId=${currTask.processDefinitionId}&taskId=${currTask.id}&actId=${node.taskDefKey}"></iframe>
+       </div>
+    #end
+    #end
+  </div>
+  
+  <script type="text/javascript">
+  function saveOk(){
+	 $("#${currTask.taskDefinitionKey}Iframe")[0].contentWindow.saveOk('${currTask.id}');
+  }
+  
+  function subOk(){
+	  $("#${currTask.taskDefinitionKey}Iframe")[0].contentWindow.subOk('${currTask.id}');
+  }
+  
+  function backTo(){
+      $.ajax({
+        url : '${rc.contextPath}/workflow/business/activity/callback/${currTask.id}',
+        dataType : 'json',
+        //data : {},
+        success : function(data){//
+            if(data=="success"){ //
+          	  BUI.Message.Alert('成功！');
+                search.load();
+            }else{ 
+                BUI.Message.Alert(data);
+           }
+        }
+    });
+}
+  
+  function suspend(){
+      $.ajax({
+        url : '${rc.contextPath}/workflow/business/suspend',
+        dataType : 'json',
+        data : {processInstanceid:${currTask.processInstanceId}},
+        success : function(data){//
+            if(data==true){ //
+          	  BUI.Message.Alert('成功！');
+                search.load();
+            }else{ 
+                BUI.Message.Alert('失败！');
+           }
+        }
+    });
+}
+  
+  function activate(){
+      $.ajax({
+        url : '${rc.contextPath}/workflow/business/activate',
+        dataType : 'json',
+        data : {processInstanceid:${currTask.processInstanceId}},
+        success : function(data){//
+            if(data==true){ //
+          	  BUI.Message.Alert('激活成功！');
+                search.load();
+            }else{ 
+                BUI.Message.Alert('失败！');
+           }
+        }
+    });
+}
+  
+  
+  var dialogi = new BUI.Overlay.Dialog({
+      title:'选择流程跳转节点',
+		width:300,
+		height:200,
+      //配置DOM容器的编号
+      contentId:'jumpNext',
+      buttons:[
+               {
+                 text:'确定',
+                 elCls : 'button button-primary',
+                 handler : function(){
+                   //do some thing
+                   var taskID=$("#jtaskID").val();
+                   var jnext=$("#jnext").val();
+					  $.ajax({  
+					      type:"post",  
+					      url:"${rc.contextPath}/workflow/business/activity/jump",  
+					      dataType:"json",  
+					      data:{taskId:taskID,toTaskKey:jnext},
+					      success:function(data){
+				              if(data==true){ //
+				            	  BUI.Message.Alert('任务跳转成功！');
+				                  search.load();
+				              }else{ 
+				                  BUI.Message.Alert('任务跳转失败！');
+				             }  
+					      },  
+					  });  
+                   this.close();
+                 }
+               },
+               {
+                 text:'关闭',
+                 elCls : 'button',
+                 handler : function(){
+                   this.close();
+                 }
+               }
+             ]
+    });
+  
+  function jumpNext(item){
+  	
+  	$("#jtaskID").val(item.id);
+	$("#jnext").empty();
+      $.ajax({
+        url : '${rc.contextPath}/workflow/business/activity/chooseJumpNext/'+item.id,
+        dataType : 'json',
+        success : function(rl){//
+            $.each(rl,function(i,v){  
+          	  $("<option value='"+v.id+"'>"+v.name+"</option>").appendTo("#jnext");   
+            }); 
+            dialogi.show();
+        }
+    });
+}
+  
+  var dialog1 = new BUI.Overlay.Dialog({
+      title:'任务指派',
+		width:300,
+		height:200,
+      //配置DOM容器的编号
+      contentId:'content',
+      buttons:[
+               {
+                 text:'确定',
+                 elCls : 'button button-primary',
+                 handler : function(){
+                   //do some thing
+                   submitZhipai();
+                   this.close();
+                 }
+               },
+               {
+                 text:'关闭',
+                 elCls : 'button',
+                 handler : function(){
+                   this.close();
+                 }
+               }
+             ]
+    });
+
+  //查看 task-signlist.html
+  function showZhipai(item){
+     $("#taskID").val(item.id);
+  	 dialog1.show();
+ }
+ 
+  function submitZhipai(){
+      var assignee=$("#assignee").val();
+      var taskID=$("#taskID").val();
+      $.ajax({
+          url : '${rc.contextPath}/workflow/business/transferTask/'+taskID+'/'+assignee+'/1',
+          dataType : 'json',
+          success : function(data){//
+              if(data=="success"){ //
+            	  BUI.Message.Alert('指派成功！');
+                  search.load();
+              }else{ 
+                  BUI.Message.Alert('失败！');
+             }
+          }
+      });
+  }
+  
+  </script>
+</body>
+</html>

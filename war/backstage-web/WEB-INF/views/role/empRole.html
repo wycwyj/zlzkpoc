@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>人员与角色关系</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/easyui/css/easyui.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/easyui/easyui.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/easyui/easyui.tree.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/easyui/easyui.combotree.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/easyui/easyui.combotree.extend.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+	  html,body{
+		  overflow:hidden;
+	  }
+  	.form-horizontal .control-label {
+	    width:80px;
+	}
+	.span8 {
+	    width:280px;
+	    
+	}
+	#J_Form .span8{
+		width:400px;
+	}
+	[class*="span"] {
+	 	float:left; 
+	    margin-left:10px;
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+  </style>
+</head>
+<body>
+<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">人员名称：</label>
+	            	<div class="controls">
+	            		<input type="hidden" name="roleid" value="$!roleid" >
+	              		<input type="text" class="control-text" id="name" name="name">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">人员编号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="code" name="code">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">所属角色：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="rolename" name="rolename">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+      		<form id="J_Form" class="form-horizontal" method="post">
+        		<div class="row">
+        			<div class="control-group span8">
+			            <div class="controls">
+			            <input type="hidden" name="roleid" value="$roleid">
+			            <label >选择角色人员：</label>
+			            <input id="cbt" class="easyui-combotree" name="empid" style="z-index:99;" />
+			            </div>
+          			</div>
+        		</div>
+        	</form>
+    </div>
+    
+    <!-- 新对话框样式 -->
+    <div id="content2" class="hide">
+    	<iframe src="" id="orgAttribution1" name="orgAttribution" frameBorder="0" width="100%" scrolling="no" height="100%"></iframe>
+    </div>
+</body>
+<script type="text/javascript">
+
+var form = new BUI.Form.Form({
+	srcNode : '#J_Form'
+}).render();
+
+BUI.use('common/search',function (Search) {
+	var editing2 = new BUI.Overlay.Dialog({
+		title:'人员角色关系操作',
+		width:828,
+		height:442,
+    	contentId : 'content2', //设置隐藏的Dialog内容
+    	autoSave : true, //添加数据或者修改数据时，自动保存
+    	buttons:[
+                  {
+                    text:'提交',
+                    elCls : 'button button-primary',
+                    handler : function(){
+                    	//20170830
+                    	var arrayItems = window.orgAttribution.getArrayItems();
+                    	var ids = [];
+                    	BUI.each(arrayItems,function(item){
+							ids.push({empid:item.value,roleid:"$roleid"});
+				  		});
+                    	
+                    	if(ids.length){
+			            	$.ajax({
+			     				url: '${rc.contextPath}/roleEmp/saveRoleEmp',
+			     				dataType : 'json',
+			     				contentType : 'application/json',
+			     	          	type : 'post',
+			     	          	traditional: true,
+			     	          	data :JSON.stringify(ids),
+			     	            success : function(data){
+			     	            	if(data=="success"){
+			     	            		search.load();
+			     	            		editing2.close();
+			     	            	}else{
+			     	            		BUI.Message.Alert('成员已存在！');
+			     	            	}
+			     	            }
+			     			})
+		     			}
+                    } 
+                  },{
+                    text:'关闭',
+                    elCls : 'button',
+                    handler : function(){
+                      this.close();
+                    }
+                  }
+          ]
+  	}),
+  	//表格的行
+  	columns = [
+		{title:'人员ID',dataIndex:'empid',visible:false,width:0},
+		{title:'角色ID',dataIndex:'roleid',visible:false,width:0},
+      	{title:'人员名称',dataIndex:'name',width:40},
+      	{title:'人员编号',dataIndex:'code',width:30},
+      	{title:'所属角色',dataIndex:'rolename',width:30}
+    ],
+    //搜索的项
+    searchURL = '${rc.contextPath}/roleEmp/getAllRoleEmpsBy',
+  	store = Search.createStore(searchURL,{
+    	proxy:{
+      		save:{//也可以是一个字符串，那么增删改，都会往那么路径提交数据，同时附加参数saveType
+        		
+      		},
+      		autoLoad:true,
+      		method:'POST',
+      		dataType:'json',
+      		data:'{roleid:$!{roleid}}',
+      		contentType:"application/json"
+    	},
+    	pageSize:10,
+    	autoSync:true //保存数据后，自动更新
+  	}),
+  	
+  	gridCfg = Search.createGridCfg(columns,{
+  		forceFit : true,
+    	tbar : {
+      		items : [
+			{
+			    btnCls : 'button button-small',
+			    text : '<i class="icon-plus"></i>添加',
+			    listeners : {
+			      'click' : resizeFunction
+			    }
+			  },
+			{
+				  btnCls : 'button button-small',
+			      text : '<i class="icon-remove"></i>删除',
+			      listeners : {
+			          'click' : delFunction
+			      }
+			  },
+			{
+				  btnCls : 'button button-small',
+			      text : '<i class="icon-arrow-right"></i>导出部门人员角色关系',
+			      listeners : {
+			          'click' : exportFunction
+			      }
+			  }
+      		]
+    	},
+    	plugins : [editing2,BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] // 插件形式引入多选表格
+  	});
+
+	var  search = new Search({
+    	store : store,
+    	gridCfg : gridCfg
+  	}),
+  	grid = search.get('grid');
+	
+	function resizeFunction(){
+		$('#orgAttribution1').attr('src','${rc.contextPath}/roleEmp/empRoleDial');
+		if("${roleid}"==undefined || "${roleid}"=="" || "${roleid}"==null||"${roleid}"=="0"){
+			BUI.Message.Alert("请先在左侧选择对应的角色");
+		}else{
+			editing2.show();
+		}
+	}
+	
+	function addFunction(){
+		editing.show();
+	};
+	
+	//删除操作
+	function delFunction(){
+		var selections = grid.getSelection();
+  		if(selections==""){
+  			BUI.Message.Alert("请选择要删除的数据");
+  		}else{
+  			delItems(selections);
+  		}
+	};
+	
+	function exportFunction(){
+		$.ajax({
+			url: '${rc.contextPath}/roleEmp/exportExcel',
+			dataType : 'json',
+          	type : 'post',
+          	contentType : 'application/json',
+            success : function(data){
+				var dataObj = eval("("+data+")");
+				window.open("${rc.contextPath}/wood/file/not/crypto/download?fileUrl="+dataObj.filepath+"&fileName=部门人员角色关系.xls");
+            }
+		})
+	}
+	
+	function delItems(items){
+		var ids = [];
+  		BUI.each(items,function(item){
+  			ids.push({empid:item.empid,roleid:item.roleid});
+  		});
+  		if(ids.length){
+    		BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+      			$.ajax({
+    					url : '${rc.contextPath}/roleEmp/delRoleEmp',
+    	              	dataType : 'json',
+    	              	contentType : 'application/json',
+    	              	type : 'post',
+    	              	data : JSON.stringify(ids),
+    	                success : function(data){
+    	                	if(data=="success"){ 
+   	                  	   		BUI.Message.Alert('删除成功！');
+   	                         	search.load();
+   	                        }else{
+   	                            BUI.Message.Alert('删除失败！');
+   	                       	}
+    	                 }
+    	        });
+      		},'question');
+  		}
+	};
+	
+	/*监听输入框的回车操作*/  
+ 	$('#name').bind('keypress',function(event){  
+ 	    if(event.keyCode == "13") 
+ 	    	$('#btnSearch').click();
+ 	});
+
+ 	resizeMe();
+});
+</script>
+</html>

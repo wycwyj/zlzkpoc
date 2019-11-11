@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>子权限信息</title>
+  <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+  <link href="${rc.contextPath}/bui/common/css/page-min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+  <script type="text/javascript" src="${rc.contextPath}/bui/common/search-min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/wood-bui-common.js"></script>
+  <style type="text/css">
+  	.form-horizontal .control-label {
+	    width:80px;
+	}
+	.span8 {
+	    width:290px;
+	}
+	#J_Form .span8{
+		width:400px;
+	}
+	[class*="span"] {
+	    float:left;
+	    margin-left:10px;
+	}
+	.row {
+	    margin-left: 0px;
+	    
+	}
+	.span13 {
+	    width:auto;
+	    padding-left:42%;
+	}
+  </style>
+</head>
+<body>
+	<div class="row">
+		<form id="searchForm" class="form-horizontal">
+			<br>
+	        <div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label">权限编号：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="funcId1" name="funcId">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">权限名称：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="funcName1" name="funcName">
+	            	</div>
+	          	</div>
+	          	<div class="control-group span8">
+	            	<label class="control-label">功能字段码：</label>
+	            	<div class="controls">
+	              		<input type="text" class="control-text" id="gnzdm1" name="gnzdm">
+	            	</div>
+	          	</div>
+	          	<div class="span13 offset2">
+	            	<button  type="button" id="btnSearch" class="button button-primary">搜索</button>
+	            	<button type="reset" class="button">重置</button>
+	          	</div>
+	        </div>
+      	</form>
+    </div>
+    
+    <div class="search-grid-container">
+      	<div id="grid"></div>
+    </div>
+    
+    <div id="content" class="hide">
+      	<form id="J_Form" class="form-horizontal" method="post" action="${rc.contextPath}/func/func/saveFunc">
+        	<input type="hidden" name="a" value="3">
+        	<div class="row">
+	          	<div class="control-group span8">
+	            	<label class="control-label"><s>*</s>权限编号</label>
+	            	<div class="controls">
+	            		<input type="hidden" id="fkid" name="fkId" value="$!pid" >
+	            		<input type="hidden" name="id" id="id">
+	              		<input name="funcId" id="funcId" type="text" data-rules="{required:true}" class="input-normal control-text">
+	            	</div>
+	          	</div>
+        	</div>
+        	  <div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label"><s>*</s>权限名称</label>
+            		<div class="controls">
+              			<input name="funcName" type="text" data-rules="{required:true}" class="input-normal control-text" >
+            		</div>
+          		</div>
+        	</div>
+        	 <div class="row">
+          		<div class="control-group span8">
+            		<label class="control-label"><s>*</s>功能字段码</label>
+            		<div class="controls">
+              			<input name="gnzdm" id="gnzdm" type="text" data-rules="{required:true}" class="input-normal control-text" >
+            		</div>
+          		</div>
+        	</div>
+      	</form>
+	</div>
+    
+</body>
+<script type="text/javascript">
+
+	var form = new BUI.Form.Form({
+		srcNode : '#J_Form'
+	}).render();
+
+	$("#gnzdm").blur(function(){
+		var gnzdmVal = $("#gnzdm").val();
+		var idVal = $("#id").val();
+		var func={gnzdm:gnzdmVal,id:idVal};
+		
+		$.ajax({
+			url: '${rc.contextPath}/func/funcm/selectgnzdm',
+			dataType : 'json',
+			contentType : 'application/json',
+          	type : 'get',
+          	data :func,
+            success : function(data){
+			if(data == "jmaxone"){
+                	BUI.Message.Alert('系统中存在有相同功能资源字段，不能使用重复字段');
+                    $("#gnzdm").val("").focus();
+              }
+            }
+		})
+		
+	});
+	
+	$("#funcId").blur(function(){
+		var idVal = $("#id").val();
+		var funcVal = $("#funcId").val();
+		var func={id:idVal,funcId:funcVal};
+		
+		$.ajax({
+			url: '${rc.contextPath}/func/funcm/selectqxbh',
+			dataType : 'json',
+			contentType : 'application/json',
+          	type : 'get',
+          	data :func,
+            success : function(data){
+			if(data == "jmaxone"){
+               	BUI.Message.Alert('系统中存在有相同权限编码，不能使用重复编码');
+                $("#funcId").val("").focus();
+             	}
+            }
+		})
+	});
+	
+	BUI.use('common/search',function (Search) {
+    	var editing = new BUI.Overlay.Dialog({
+    		title:'操作',
+    		width:400,
+    		height:150,
+        	contentId : 'content', 
+        	autoSave : true, 
+        	buttons:[
+                      {
+                        text:'提交',
+                        elCls : 'button button-primary',
+                        handler : function(){
+                        	var gnzdmVal = $("#gnzdm").val();
+                    		var idVal = $("#id").val();
+                    		var func={gnzdm:gnzdmVal,id:idVal};
+                    		
+                    		$.ajax({
+                    			url: '${rc.contextPath}/func/funcm/selectgnzdm',
+                    			dataType : 'json',
+                    			contentType : 'application/json',
+                              	type : 'get',
+                              	data :func,
+                                success : function(data){
+                    				if(data=="iminone"){ 
+                    					var idVal = $("#id").val();
+                    					var funcVal = $("#funcId").val();
+                    					var func={id:idVal,funcId:funcVal};
+                    					
+                    					$.ajax({
+                    						url: '${rc.contextPath}/func/funcm/selectqxbh',
+                    						dataType : 'json',
+                    						contentType : 'application/json',
+                    			          	type : 'get',
+                    			          	data :func,
+                   				            success : function(data){
+                   							if(data=="iminone"){ 
+                   								form.submit();
+	             				                }else if(data == "jmaxone"){
+	             				                	BUI.Message.Alert('系统中存在有相同权限编码，不能使用重复编码');
+	             				                    $("#funcId").val("").focus();
+	             				             	}
+                   				            }
+                   						})
+                                    }else if(data == "jmaxone"){
+                                    	BUI.Message.Alert('系统中存在有相同权限编码，不能使用重复编码');
+                                        $("#gnzdm").val("").focus();
+                                 	}
+                                }
+                    		})
+                    		
+                    	}
+                      },{
+                        text:'关闭',
+                        elCls : 'button',
+                        handler : function(){
+                          this.close();
+                        }
+                      }
+              ]
+      	}),
+      	columns = [
+			{title:'权限ID',dataIndex:'id',visible:false,width:0},
+          	{title:'权限编号',dataIndex:'funcId',width:90},
+          	{title:'权限名称',dataIndex:'funcName',width:120},
+          	{title:'功能字段码',dataIndex:'gnzdm',width:120}
+        ],
+        searchURL = '${rc.contextPath}/func/func/queryModelsByPage?fkId=$!{pid}',
+      	store = Search.createStore(searchURL,{
+        	proxy:{
+          		save:{
+            		
+          		},
+          		autoLoad:true,
+          		method:'POST',
+          		dataType:'json',
+          		data:'{fkId:$!{pid}}',
+          		contentType:"application/json"
+        	},
+        	pageSize:10,
+        	autoSync:true
+      	}),
+      	
+      	gridCfg = Search.createGridCfg(columns,{
+      		forceFit : true,
+        	tbar : {
+          		items : [
+				{
+				    btnCls : 'button button-small',
+				    text : '<i class="icon-plus"></i>新建',
+				    listeners : {
+				      'click' : addFunction
+				    }
+				  },
+				{
+				  	btnCls : 'button button-small',
+				    text : '<i class="icon-edit"></i>编辑',
+				    listeners : {
+				      'click' : editFunction
+				    }
+				},
+				{
+					  btnCls : 'button button-small',
+				      text : '<i class="icon-remove"></i>删除',
+				      listeners : {
+				          'click' : delFunction
+				      }
+				  }
+          		]
+        	},
+        	plugins : [editing,BUI.Grid.Plugins.CheckSelection,BUI.Grid.Plugins.AutoFit] 
+      	});
+
+    	var  search = new Search({
+        	store : store,
+        	gridCfg : gridCfg
+      	}),
+      	grid = search.get('grid');
+
+    	function addFunction(){
+    		var nPid = '$!{pid}';
+    		form.clearFields();
+    		form.setFieldValue('fkId',nPid);
+    		editing.show();
+    	}
+    	
+    	function editFunction(){
+    		var selection = grid.getSelected();
+    		if(selection==null){
+    			BUI.Message.Alert("请选择要编辑的数据");
+    		}else{
+    			form.setFieldValue('id',selection.id);
+    			form.setFieldValue('fkId',selection.fkId);
+    			form.setFieldValue('funcId',selection.funcId);
+	    		form.setFieldValue('funcName',selection.funcName);
+	    		form.setFieldValue('gnzdm',selection.gnzdm);
+	    		editing.show();
+    		}
+    	}
+
+    	function delFunction(){
+      		var selections = grid.getSelection();
+      		if(selections==""){
+      			BUI.Message.Alert("请选择要删除的数据");
+      		}else{
+      			delItems(selections);
+      		}
+    	}
+
+    	function delItems(items){
+      		var ids = [];
+      		BUI.each(items,function(item){
+      			ids.push({id:item.id,funcid:item.funcId});
+      		});
+      		if(ids.length){
+        		BUI.Message.Confirm('确认要删除选中的记录么？',function(){
+          			$.ajax({
+        					url : '${rc.contextPath}/func/func/delete',
+        	              	dataType : 'json',
+        	              	contentType : 'application/json',
+        	              	type : 'post',
+        	              	data : JSON.stringify(ids),
+        	                success : function(data){
+        	                	if(data=="success"){ 
+       	                  	   		BUI.Message.Alert('删除成功！');
+       	                  	   		search.load();
+       	                        }else{
+       	                            BUI.Message.Alert('删除失败！');
+       	                       	}
+        	                 }
+        	        });
+          		},'question');
+      		}
+    	}
+    	
+    	/*监听输入框的回车操作*/  
+	 	$('#funcId1,#funcName1,#gnzdm1').bind('keypress',function(event){  
+	 	    if(event.keyCode == "13") 
+	 	    	$('#btnSearch').click();
+	 	});
+
+	 	resizeMe(-5);
+	});
+</script>
+</html>

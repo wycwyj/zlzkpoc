@@ -1,0 +1,188 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>人员维护</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link href="${rc.contextPath}/bui/common/css/dpl-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/bui-min.css" rel="stylesheet" type="text/css" />
+   <link href="${rc.contextPath}/bui/common/css/layout-min.css" rel="stylesheet"/>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/jquery-1.8.1.min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/bui-min.js"></script>
+   <script type="text/javascript" src="${rc.contextPath}/bui/common/config-min.js"></script>
+   <style type="text/css">
+    code {
+      padding: 0px 4px;
+      color: #d14;
+      background-color: #f7f7f9;
+      border: 1px solid #e1e1e8;
+    }
+    .x-accordion-title{
+      background: #dfeaf2;
+      border-top: 2px solid white;
+      padding: 8px 10px;
+    }
+    .x-collapsed .x-accordion-body{
+      height: 0;
+      overflow: hidden;
+    }
+    
+    .ext-border-layout {
+	    padding-left:0px;
+	    padding-top:0px;
+	    padding-bottom:0px;
+	    padding-right:2px;
+	    margin-top:1px;
+	    margin-left:1px;
+	    margin-right:1px;
+	    margin-bottom:1px;
+	    background:white;
+	}
+	
+	.ext-border-layout .x-border-west{
+		border-right:0px;
+	}
+	
+	.x-border-west .x-layout-item-border{
+		overflow:auto;
+	}
+	
+	.ext-border-layout .x-border-center {
+	    border-top：0px;
+	}
+	
+	.bui-nav-tab{
+		height:97%;
+	}
+	
+	.tab-content-container{
+		height:97%;
+	}
+	.x-layout-item-border{
+		overflow-y:initial;
+	}
+	.bui-tree-list ul{
+		overflow:initial;
+	}
+	.bui-tree-item{
+		overflow: initial;
+	}
+    .x-border-title{
+     display: none;
+    }
+    .x-border-north, .ext-border-layout .x-border-east, .ext-border-layout .x-border-west, .ext-border-layout .x-border-south, .ext-border-layout .x-border-center {
+     border: 1px solid #c3c3d6;
+    }
+    .x-viewport-container,.bui-view-port{
+     height : 99.9%;
+    }
+   </style>
+ </head>
+ <body>
+ <body>
+ <script type="text/javascript">
+    BUI.use(['layout','grid','data','tree','tab'],function (Layout,Grid,Data,Tree,Tab){
+        var Store = Data.Store,
+            orgTreeStore = new Data.TreeStore({
+                root : {
+                    id : '-1',
+                    text : '组织机构'
+                },
+                pidField : 'pid',
+                url : '${rc.contextPath}/org/op/getSons',
+                autoLoad : true,
+                dataType:'json',
+                contentType:"application/json"
+            }),
+            orgTree = {
+	        	xclass : 'tree-list',//生成tree
+	        	id : 'mytree',
+	        	store : orgTreeStore,
+	            height   : "100%",
+	        	showLine : true,
+	        	showRoot : true
+	    	},
+            orgContentTab = new Tab.NavTab({
+                forceFit : true,
+                children : [
+                  {
+                	width : '110',
+                    title : '机构人员信息',
+                    href : '${rc.contextPath}/emp/op/sonsInfo?orgid=-1',
+                    actived:true,
+                    closeable:false
+                  }
+                ]
+            });
+          
+        var control = new Layout.Viewport({
+			width:600,
+			height:"100%",
+			elCls : 'ext-border-layout',
+			children : [{
+                xclass : 'controller',
+                layout : {
+                  	region : 'south',
+                  	height : 0
+                },
+                width : 0,
+            },{
+				xclass : 'controller',
+				layout : {
+					region : 'west',
+					fit : 'both',//height,width,both,none
+                  	title : '机构树',
+                  	collapsable : false,
+                  	width : 200
+                },
+                defaultChildClass : 'controller',
+                children : [orgTree],
+                plugins : [Layout.Accordion]
+            },{
+            	xclass : 'controller',
+            	layout : {
+            		region : 'center',
+            		title : '人员维护',
+            		fit : 'both'
+                },
+                id : 'content',
+                children : [orgContentTab]
+            }],
+            plugins : [Layout.Border]
+        });
+        
+        control.render();
+        var tree = control.getChild('mytree',true);//级联查找树节点
+        
+        tree.setSelectedByField('id','-1');
+        
+        tree.on('selectedchange',function(ev){
+          	var node = ev.item;
+          	orgContentTab.removeChildren(true);
+          	orgContentTab.addChild({
+                title : '机构人员信息',
+                href : '${rc.contextPath}/emp/op/sonsInfo?orgid='+node.id,
+                actived:true,
+                width : '110',
+                closeable:false
+            },0);
+        });
+        
+        tree.on('itemclick',function(ev){
+        	var node = ev.item;
+        })
+        
+        //移除空白菜单
+        $(".x-accordion-title").remove();
+        //自适应树高度
+        $(".bui-tree-list").parent().parent().height("99.8%");
+        $(".bui-tree-list").parent().height("100%");
+        $(".bui-tree-list").height("95%").css("border-bottom","1px solid #3892d3");
+        $(".bui-grid").parent().css("border-bottom","1px solid #3892d3");
+        $(".bui-tree-list").css("border","none");
+        $(".x-border-center").css("margin-left","204px");
+        $(".bui-view-port,.x-layout-border,.x-border-middle,.x-border-west,div[aria-disabled='false']").height("99.9%");
+        $(".x-border-body").height("100%");
+        $(".bui-tree-item").removeClass("bui-tree-item-expanded");
+    });
+  </script>
+</html>  

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>功能权限查询</title>
+<link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.web.frame.css">
+<link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/extends/layui/2.4.5/css/layui.css">
+<link rel="stylesheet" href="${rc.contextPath}/wood/resource/webframe/css/wood.common.css">
+<script src="${rc.contextPath}/wood/resource/webframe/extends/jquery/jquery.min.js"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/extends/layui/2.4.5/layui.js" charset="utf-8"></script>
+<script src="${rc.contextPath}/wood/resource/webframe/js/wood.form.js"></script>
+</head>
+<body>
+	<div class="layui-tab" lay-filter="test1">
+	  <ul class="layui-tab-title">
+	    <li class="layui-this" lay-id="1">按人员搜索</li>
+	    <li lay-id="2">按角色查询</li>
+	    <li lay-id="3">按部门查询</li>
+	  </ul>
+	  <div class="layui-tab-content">
+	    <div class="layui-tab-item layui-show">
+	    	<iframe scrolling="no" id="main1" name="main" frameborder="0" src="${rc.contextPath}/funcg/sel/gnryn" style="width:100%;"></iframe>
+	    </div>
+	    <div class="layui-tab-item">
+	    	<iframe scrolling="no" id="main2" name="main" frameborder="0" src="${rc.contextPath}/funcg/sel/gnjsn" style="width:100%;"></iframe>
+	    </div>
+	    <div class="layui-tab-item">
+	    	<iframe scrolling="no" id="main3" name="main" frameborder="0" src="${rc.contextPath}/funcg/sel/gnbmn" style="width:100%;"></iframe>
+	    </div>
+	  </div>
+	</div>
+
+	<script>
+		layui.use('element', function(){
+			var $ = layui.jquery
+            , element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+
+		});
+		
+		function calcPageHeight(doc) {
+	        var cHeight = Math.max(doc.body.clientHeight, doc.documentElement.clientHeight);
+	        var sHeight = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+	        var height = Math.max(cHeight, sHeight);
+	        return height;
+	    }
+	 
+	    function iframeInit(id) {
+	        //根据ID获取iframe对象
+	        var ifr = document.getElementById(id);
+	        ifr.onload = function () {
+	            //解决打开高度太高的页面后再打开高度较小页面滚动条不收缩
+	            ifr.style.height = '0px';
+	            var iDoc = ifr.contentDocument || ifr.document;
+	            var height = calcPageHeight(iDoc);
+	            if (height < 600) {
+	                height = 600;
+	            }
+	            ifr.style.height = height + 'px';
+	        };
+	    }
+	 
+	 
+	    $(function () {
+	    	iframeInit('main3');
+	        iframeInit('main2');
+	        iframeInit('main1');
+	    });
+		
+	</script>
+</body>
+</html>

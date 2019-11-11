@@ -1,0 +1,35 @@
+<html>  
+<body>  
+<h3> $!{userName},您好</h3>  
+<div>  
+    <font color="red">质量业务系统中，有需要您处理的超时任务，请及时处理，谢谢！！！</font>
+</div> 
+<br>
+<br>
+<div>  
+    下面列出没有处理的任务信息	：
+</div> 
+<table align='left' border='1' cellspacing='0' cellpadding='0'>
+	<tr style=backgroud:'#ccc'>
+		<td align='left' valign='top'><b>任务名称</b></td>
+		<td align='right' valign='top'><b>任务创建时间</b></td>
+		<td align='right' valign='top'><b>任务节点</b></td>
+		<td align='right' valign='top'><b>流程定义名称</td>
+		<td align='right' valign='top'><b>任务处理人员</td>
+		<td align='right' valign='top'><b>优先级</td>
+		<td align='right' valign='top'><b>邮件通知次数</td>
+	</tr>
+   #foreach($taskinfo in $taskinfos)
+	 <tr>
+	     <td  align='left' valign='top' ><a href='${taskinfo.TASKURL}'>${taskinfo.NAME_}</a></td>
+	     <td  align='left' valign='top' >${taskinfo.CTIME}</td>
+	     <td  align='left' valign='top' >${taskinfo.TASK_DEF_KEY_}</td>
+	     <td  align='left' valign='top' >${taskinfo.DEFNAME}</td>	   
+	     <td  align='left' valign='top' >${taskinfo.TASKUSER}</td>
+	     <td  align='left' valign='top' >${taskinfo.PRIORITYN}</td>
+	     <td  align='left' valign='top' >${taskinfo.NEXTHAVEEMAILEDTIMES}</td>
+	 </tr>
+   #end
+ </table>             
+</body>  
+</html> 
